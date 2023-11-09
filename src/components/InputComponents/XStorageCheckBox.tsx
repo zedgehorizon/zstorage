@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { CheckCircle } from "lucide-react";
+
 type XStorageCheckBoxProps = {
   title: string;
   description: string;
   options: any[];
   descriptions: any[];
   setterFunction: (selectedOption: any) => void; // function to set in big component
+  disabled?: boolean[];
 };
 
 export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
@@ -33,15 +35,20 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               value={title}
               onChange={handleRadioChange}
               checked={selectedOption === title}
-              className="hidden peer"
+              className={"hidden peer "}
+              disabled={props.disabled ? props.disabled[index] : false}
             />{" "}
             <label
               htmlFor={`react-option-${title + "->" + index}`}
-              className="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700
-               peer-checked:border-sky-500 hover:text-gray-600 dark:peer-checked:text-gray-300
-                 peer-checked:text-gray-600
-               peer-checked:bg-green-200
-               hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
+              className={`
+              inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer 
+              dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-sky-500 
+              hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 
+              peer-checked:bg-green-200 disabled:bg-sky-300 hover:bg-gray-50 
+              dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 
+              transform hover:scale-105 shadow-md hover:shadow-lg
+              ${props.disabled && props.disabled[index] ? "cursor-not-allowed" : ""}
+            `}>
               <div className="block">
                 {/* add logo maybe */}
                 <div className="w-full text-lg font-semibold">{title}</div>
@@ -49,7 +56,7 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               </div>
             </label>{" "}
             <label htmlFor={`react-option-${title + "->" + index}`} className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
-              <CheckCircle className="  ml-auto" color="green"></CheckCircle>
+              <CheckCircle className="ml-auto" color="green"></CheckCircle>
             </label>
           </li>
         ))}

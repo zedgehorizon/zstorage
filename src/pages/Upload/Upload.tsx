@@ -2,16 +2,6 @@ import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "../../components/InputComponents/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
-import { number } from "zod";
-
-type UploadDataProps = {};
-const options = {
-  action: 0, // update, create
-  type: 0, //static, dynamic
-  template: 0, // music, trailbrazer , create
-  storage: 0, // centralized , descentralized
-  descentralized: 0,
-};
 
 type SongData = {
   date: string;
@@ -21,15 +11,11 @@ type SongData = {
   title: string;
   trackFile: any;
   coverArt: any;
-  // Add other properties as needed
 };
-export const UploadData: React.FC<UploadDataProps> = (props) => {
-  const [selectedOption, setSelectedOption] = useState(null);
+export const UploadData: React.FC = () => {
   const location = useLocation();
   const { action, type, template, storage, descentralized } = location.state;
-  console.log("PROPS ", action);
-  const [songsData, setSongsData] = useState<Record<string, SongData>>({});
-  console.log("SONG DATAAAA", songsData);
+  const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -40,19 +26,9 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
     stream: "no",
   });
 
-  // "data_stream": {
-  //   "name": "multiversx_mus:mp3",
-  //   "creator": "Leviathon",
-  //   "created_on": "2023-05-22T05:37:17Z",
-  //   "last_modified_on": "2023-06-10T14:00:19Z",
-  //   "marshalManifest": {
-  //     "totalItems": 3,
-  //     "nestedStream": false
-  //   }
-  // },
   function transformSongsData() {
-    const transformedData = Object.keys(songsData).map((idx) => {
-      const songData = songsData[idx];
+    const transformedData = Object.keys(songsData).map((idx: any) => {
+      const songData = songsData[parseInt(idx)];
       return {
         idx: parseInt(idx),
         date: new Date(songData.date).toISOString(),
@@ -71,32 +47,7 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
     ///TODO HERE UPLOAD THE FILES
     // const coverLink = async upload_image()
     // const songURL = upload_song();
-
-    // const data = Object.entries(songsData).map(([idx, data]) => {
-    //   const song = { idx: parseInt(idx) };
-    //   Object.keys(data).forEach((key) => {
-    //     song[key] = data[key];
-    //   });
-    //   return song;
-    // });
-
-    // var songsArr = [];
-    // var index = 0;
-    // for (const [key, value  ] of Object.entries(songsData)) {
-    //   console.log(key, value);
-    //   songsArr[index] = Object.assign(value, { idx: key });
-    // }
-
-    // const songsArray = Object.entries(songsData).forEach((idx: any, values: any) => {
-    //   return {
-    //     idx: parseInt(idx),
-    //     ...values,
-    //   };
-    // });
-    // const updatedSongsArray = songsArray.map((song) => ({
-    //   ...song,
-    //   ...songsData[song.idx],
-    // }));
+    /// maybe add a remove button ??
     const data = transformSongsData();
 
     const manifest = {
@@ -106,7 +57,7 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
         "created_on": formData.createdOn, // ASK IF HERE I SHOULD PUT THE CURRENT DATE
         "last_modified_on": formData.modifiedOn, /// here the same
         "marshalManifest": {
-          "totalItems": formData.totalItems, // same here
+          "totalItems": numberOfSongs - 1, //formData.totalItems, // same here
           "nestedStream": formData.stream === "yes" ? true : false,
         },
       },
@@ -120,10 +71,6 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
   };
 
-  // useEffect(() => {
-  //   setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
-  // }, [numberOfSongs]);
-
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData({
@@ -131,23 +78,50 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
       [name]: value,
     });
   };
-  console.log("FORM DATA", formData);
-  //get data nfts somebody owns, if exist
-  // if creating some new data nft then
+
+  function swapSongs(first: number, second: number) {
+    // console.log("swap SONG ", first, second);
+    // console.log("FISRT", songsData[first]);
+    // console.log("Second", songsData[second]);
+
+    if (first < 1) return;
+    if (second > numberOfSongs) return;
+    const storeSong = songsData[second];
+    // console.log("Store var", storeSong);
+    var songsDataVar = songsData;
+    // console.log("ALL songs var ", songsDataVar);
+
+    songsDataVar[second] = songsDataVar[first];
+    songsDataVar[first] = storeSong;
+    // console.log("SWAPED SONG DATA", songsDataVar);
+    setSongsData(songsDataVar);
+  }
+
   return (
     <div className="p-4 flex flex-col">
       <b className=" py-2 text-xl  font-medium dark:text-purple-700"> Let’s update your data! Here is what you wanted to do... </b>
       {/* <b className="p-2 text-lg  font-medium  dark:text-blue-400">{props.description} </b> */}
       <div className="flex flex-row gap-4 mb-4">
-        <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-          {action}
-        </span>
-        <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center  text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-          {template}
-        </span>
-        <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-          {descentralized ? descentralized : storage}
-        </span>
+        {action && (
+          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+            {action}
+          </span>
+        )}
+        {type && (
+          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+            {type}
+          </span>
+        )}
+        {action && (
+          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center  text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+            {template}
+          </span>
+        )}
+        {storage && (
+          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+            {descentralized ? descentralized : storage}
+          </span>
+        )}
       </div>
       <div className="min-h-screen flex flex-col items-center justify-center bg-black/20">
         <div className="bg-purple-800/20 p-8 rounded-lg shadow-md">
@@ -213,7 +187,7 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
 
             <div className="mb-4">
               <label htmlFor="totalItems" className="block text-gray-600 mb-2">
-                Total Items:{numberOfSongs}
+                Total Items:{numberOfSongs - 1}
               </label>
               {/* <input
                 type="number"
@@ -241,15 +215,11 @@ export const UploadData: React.FC<UploadDataProps> = (props) => {
                 </label>
               </div>
             </div>
-
-            {/* <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">
-              Submit
-            </button> */}
           </form>
         </div>
         <div className="space-y-8 p-8 rounded-lg shadow-md ">
           {Object.keys(songsData).map((index: any) => (
-            <MusicDataNftForm key={index} index={index} setterFunction={setSongsData}></MusicDataNftForm>
+            <MusicDataNftForm key={index} index={index} song={songsData[index]} setterFunction={setSongsData} swapFunction={swapSongs}></MusicDataNftForm>
           ))}
         </div>
         <Button onClick={handleAddMoreSongs}> Add more songs</Button>
