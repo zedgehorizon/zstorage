@@ -9,6 +9,7 @@ import { Home } from "./pages/Home/Home";
 import { Content } from "./components/Layout/Content";
 import { Footer } from "./components/Layout/Footer";
 import { Unlock } from "./pages/Unlock/Unlock";
+import { UploadData } from "./pages/Upload/Upload";
 
 const routes = [
   {
@@ -41,6 +42,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
+                <Route path="/upload" element={<UploadData />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
