@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "../../components/InputComponents/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
+import axios from "axios";
+import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 
 type SongData = {
   date: string;
@@ -17,6 +19,7 @@ export const UploadData: React.FC = () => {
   const { action, type, template, storage, descentralized } = location.state;
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [numberOfSongs, setNumberOfSongs] = useState(1);
+  const { tokenLogin } = useGetLoginInfo();
   const [formData, setFormData] = useState({
     name: "",
     creator: "",
@@ -25,30 +28,112 @@ export const UploadData: React.FC = () => {
     totalItems: 0,
     stream: "no",
   });
+  const theToken =
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuZGFhNTQxYjQ1MWFhZDVkNzgzNzNiNWNhYTI2NTM1NWE3NzViYWNkNjdmMjAyZTkxNGMwYTA3NmM1NGE5NzE1MS43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBMU5UUTFOamg5.cbd7a6fe58d859826615cb4111bfffb3ae533fc849bc14c80210c57f3acaa45abad4f51f581aeff69ede21c0634e6e7ae7085c36c5a489889ff6be3904f4c602";
+  const apiUrlGet = "https://staging-itheum-api.up.railway.app/files";
+  const apiUrl = "https://staging-itheum-api.up.railway.app/upload"; ///refactor this as env file or const
 
-  function transformSongsData() {
-    const transformedData = Object.keys(songsData).map((idx: any) => {
+  async function transformSongsData() {
+    // maybe add the Cid when the user press save , bcs in this way he can upload, or remove or anyhing one song at a time
+
+    console.log("TRANSFORM SONGS DATA");
+    const transformedData = Object.keys(songsData).map(async (idx: any) => {
       const songData = songsData[parseInt(idx)];
+
+      const formData = new FormData();
+
+      formData.append("files", songData.coverArt[0], songData.coverArt[0].name);
+
+      console.log("FILE OF SONGS", songData.trackFile);
+      console.log("FILE OF img", songData.coverArt); /// refactor, make a new function to upload
+      try {
+        const response = await axios.post(apiUrl, formData, {
+          headers: {
+            "authorization": `Bearer ${theToken}`,
+            "Content-Type": "image/jpeg",
+          },
+        });
+
+        console.log("Response img:", response.data);
+        response.data.forEach((file: { fileName: any; cidv1: any }) => {
+          if (file.fileName === songData.coverArt[0]?.name) {
+            songData.coverArt[0].coverArt = file.cidv1;
+            console.log("FOUND", file.cidv1);
+            return;
+          }
+        });
+      } catch (error) {
+        console.error("Error:", error);
+      }
       return {
         idx: parseInt(idx),
         date: new Date(songData.date).toISOString(),
         category: songData.category,
         artist: songData.artist,
         album: songData.album,
-        file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3", // Replace with the actual URL
-        cover_art_url: "https://dataassets.valhallala.com/file_storage/prev.jpg", // Replace with the actual URL
+        file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3",
+        cover_art_url: songData.coverArt,
         title: songData.title,
       };
     });
 
     return transformedData;
   }
+
+  // const uploadFileToIPFS = async (file?: File) => {
+  //   const apiUrl = "https://staging-itheum-api.up.railway.app/upload";
+
+  //   const formData = new FormData();
+  //   if (file) formData.append("files", file, "Automobiles Chain-logos_black.png");
+
+  //   // Append JSON data as a blob
+  //   const jsonData = {
+  //     data_stream: {
+  //       name: "",
+  //       creator: "",
+  //       created_on: "",
+  //       last_modified_on: "",
+  //       marshalManifest: {
+  //         totalItems: 1,
+  //         nestedStream: false,
+  //       },
+  //     },
+  //     data: [
+  //       {
+  //         idx: 1,
+  //         date: "2023-10-31T00:00:00.000Z",
+  //         category: "sda",
+  //         artist: "sad",
+  //         album: "sad",
+  //         file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3",
+  //         cover_art_url: "https://dataassets.valhallala.com/file_storage/prev.jpg",
+  //         title: "sad",
+  //       },
+  //     ],
+  //   };
+
+  //   formData.append("json", new Blob([JSON.stringify(jsonData)], { type: "application/json" }));
+
+  //   try {
+  //     const response = await axios.post(apiUrl, formData, {
+  //       headers: {
+  //         "accept": "*/*",
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+
+  //     console.log("Response:", response.data);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // };
+
   const handleUpload = async () => {
     ///TODO HERE UPLOAD THE FILES
     // const coverLink = async upload_image()
     // const songURL = upload_song();
     /// maybe add a remove button ??
-    const data = transformSongsData();
+    const data = await transformSongsData();
 
     const manifest = {
       "data_stream": {
@@ -64,6 +149,36 @@ export const UploadData: React.FC = () => {
       "data": data,
     };
     console.log("Manifest :", manifest);
+    console.log("TOJEN", tokenLogin?.nativeAuthToken);
+
+    const formDataFormat = new FormData();
+    formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), "manifest");
+    console.log("getting");
+    console.log(formDataFormat);
+    try {
+      const response = await axios.get(apiUrlGet, {
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+        },
+      });
+
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    console.log("uploading");
+    // try {
+    //   const response = await axios.post(apiUrl, formDataFormat, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //       "authorization": `Bearer ${theToken}`,
+    //     },
+    //   });
+
+    //   console.log("Response:", response.data);
+    // } catch (error) {
+    //   console.error("Error:", error);
+    // }
   };
 
   const handleAddMoreSongs = () => {

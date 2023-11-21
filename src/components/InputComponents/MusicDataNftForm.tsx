@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
 import { ArrowUp, ArrowDown } from "lucide-react";
+
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
@@ -17,7 +18,7 @@ const formSchema = z.object({
     .any()
     .refine(
       (file) => {
-        console.log("SIZE", file);
+        //console.log("SIZE", file);
         return file[0]?.size <= MAX_FILE_SIZE;
       },
       { message: `Max song size is 5MB.` }
@@ -51,6 +52,7 @@ type MusicDataNftFormProps = {
 };
 
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
+  const [isSaved, setIsSaved] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,7 +84,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     // const coverLink = async upload_image()
     // const songURL = upload_song();
 
-    console.log("VALL", values);
+    //console.log("VALL", values);
     props.setterFunction((prev: any) => Object.assign(prev, { [props.index]: values }));
   }
 
@@ -94,6 +96,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     //console.log("THE TYPE", typeof props.index);
     /// no idea why prosp.index is string
 
+    /// TODO MODIFICA ABSOLUTE styles
     props.swapFunction(Number(props.index), Number(props.index) + 1); // -1 solves the problem for now
   }
   return (
@@ -159,9 +162,9 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               className="w-full p-2 border border-gray-300 rounded"
               {...form.register("coverArt")}
               onChange={(e) => {
-                console.log("COVER ART ", e.target.files);
+                // console.log("COVER ART ", e.target.files);
                 const imageURL = URL.createObjectURL(e.target.files![0]);
-                console.log("IMG", imageURL);
+                // console.log("IMG", imageURL);
                 if (e.target.files![0]) setFile(imageURL);
                 //form.setValue("coverArt", imageURL);
 
@@ -178,16 +181,16 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               className="w-full p-2 border border-gray-300 rounded"
               {...form.register("trackFile")}
               onChange={(e) => {
-                console.log(e.target.files);
-
+                //console.log(e.target.files);
                 // form.setValue("coverArt","something.mp3")
               }}
             />
             {form.formState.errors.trackFile && <p className="text-red-500">{form.formState.errors.trackFile.message?.toString()}</p>}
           </div>
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          <button type="submit" onSubmit={() => setIsSaved(true)} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             Save
           </button>
+          {isSaved && <p className="text-green-400"> saved</p>}
         </div>
       </form>
     </div>
