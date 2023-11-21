@@ -4,9 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
 import { ArrowUp, ArrowDown } from "lucide-react";
-
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -19,13 +17,13 @@ const formSchema = z.object({
     .refine(
       (file) => {
         //console.log("SIZE", file);
-        return file[0]?.size <= MAX_FILE_SIZE;
+        return file[0] && file[0].size <= MAX_FILE_SIZE;
       },
       { message: `Max song size is 5MB.` }
     )
     .refine(
       (file) => {
-        return file[0]?.type === "audio/mpeg";
+        return file[0] && file[0].type === "audio/mpeg";
       },
       { message: "Only audio/mpeg formats are supported." } /// maybe add more
     ),
@@ -33,7 +31,7 @@ const formSchema = z.object({
     .any()
     .refine(
       (file) => {
-        return file[0]?.size <= MAX_FILE_SIZE;
+        return file[0] && file[0].size <= MAX_FILE_SIZE;
       },
       { message: `Max image size is 5MB.` }
     )
@@ -74,7 +72,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
     form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
-
+    form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
     console.log("ARTTT", props.index, props.song["coverArt"]);
     form.setValue("coverArt", props.song["coverArt"] ? props.song["coverArt"] : {});
     if (props.song["coverArt"] && props.song["coverArt"][0]) setFile(URL.createObjectURL(props.song["coverArt"][0])); // /
@@ -83,7 +81,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     // const coverLink = async upload_image()
     // const songURL = upload_song();
-
+    console.log("THE VALUES AFTER SUBMIT", values);
+    setIsSaved(true);
     //console.log("VALL", values);
     props.setterFunction((prev: any) => Object.assign(prev, { [props.index]: values }));
   }
@@ -98,6 +97,9 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
     /// TODO MODIFICA ABSOLUTE styles
     props.swapFunction(Number(props.index), Number(props.index) + 1); // -1 solves the problem for now
+  }
+  function deleteSong() {
+    console.log("DELETE");
   }
   return (
     <div className="w-[80%] z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
@@ -163,9 +165,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {...form.register("coverArt")}
               onChange={(e) => {
                 // console.log("COVER ART ", e.target.files);
-                const imageURL = URL.createObjectURL(e.target.files![0]);
+
+                if (e.target.files) {
+                  console.log(e.target.files);
+                  const imageURL = URL.createObjectURL(e.target.files[0]);
+                  //form.setValue("coverArt", e.target.files[0]);
+                  setFile(imageURL);
+                }
+
                 // console.log("IMG", imageURL);
-                if (e.target.files![0]) setFile(imageURL);
                 //form.setValue("coverArt", imageURL);
 
                 //form.setValue("coverArt", "something.png");
@@ -181,14 +189,18 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               className="w-full p-2 border border-gray-300 rounded"
               {...form.register("trackFile")}
               onChange={(e) => {
-                //console.log(e.target.files);
-                // form.setValue("coverArt","something.mp3")
+                console.log("FILETRACK_UL inserat", e.target.files);
+                console.log("the values of the form : ");
+                //form.setValue("trackFile", e.target.files ? e.target.files[0] : "asd");
               }}
             />
             {form.formState.errors.trackFile && <p className="text-red-500">{form.formState.errors.trackFile.message?.toString()}</p>}
           </div>
-          <button type="submit" onSubmit={() => setIsSaved(true)} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             Save
+          </button>
+          <button className="bg-red-200" onClick={deleteSong}>
+            delete
           </button>
           {isSaved && <p className="text-green-400"> saved</p>}
         </div>

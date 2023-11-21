@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
+import { API_URL } from "../../utils/constants";
 
 type SongData = {
   date: string;
@@ -14,12 +15,14 @@ type SongData = {
   trackFile: any;
   coverArt: any;
 };
+
 export const UploadData: React.FC = () => {
   const location = useLocation();
   const { action, type, template, storage, descentralized } = location.state;
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
+  const [isUploadingSongs, setIsUploadingSongs] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     creator: "",
@@ -29,112 +32,105 @@ export const UploadData: React.FC = () => {
     stream: "no",
   });
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuZGFhNTQxYjQ1MWFhZDVkNzgzNzNiNWNhYTI2NTM1NWE3NzViYWNkNjdmMjAyZTkxNGMwYTA3NmM1NGE5NzE1MS43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBMU5UUTFOamg5.cbd7a6fe58d859826615cb4111bfffb3ae533fc849bc14c80210c57f3acaa45abad4f51f581aeff69ede21c0634e6e7ae7085c36c5a489889ff6be3904f4c602";
-  const apiUrlGet = "https://staging-itheum-api.up.railway.app/files";
-  const apiUrl = "https://staging-itheum-api.up.railway.app/upload"; ///refactor this as env file or const
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuMDY3NDJhZTZmZDdjM2FiNTA4NzcwNzhkZDU4ZmUxNjYxZDhjNzE0ZmMzMTRmNzYzOWZlYjEzMGFkMjI5MjhiNS43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBMU9EZ3hNalI5.854fa2ad9390994ed55f68a7e35fd2540262dfefcf9fb1a23ec7ebe0e36b4c4f87b00b61fb6bb65199dfcc569c75da492d6183b20d7a93cdd6d26d09efced102";
+  const apiUrlGet = `${API_URL}/files`;
+  const apiUrl = `${API_URL}/upload`; ///refactor this as env file or const
 
+  // upload the songs and images of all the songs
+  async function uploadSongsAndImagesFiles() {
+    const formData = new FormData();
+
+    //iterating over the songsData and for each object add its image and song to the formData
+    Object.values(songsData).forEach((songData, idx) => {
+      const appendFileToFormData = (fileArray: any, fileNamePrefix: any) => {
+        if (fileArray && fileArray[0] instanceof File) {
+          const file = fileArray[0];
+          formData.append("files", file, file.name || `${fileNamePrefix}_${idx}`);
+        }
+      };
+      appendFileToFormData(songData.coverArt, "coverArt");
+      appendFileToFormData(songData.trackFile, "trackFile");
+    });
+    try {
+      const response = await axios.post(apiUrl, formData, {
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  // get all songs data into the right format for manifest file
   async function transformSongsData() {
-    // maybe add the Cid when the user press save , bcs in this way he can upload, or remove or anyhing one song at a time
-
+    setIsUploadingSongs(true);
     console.log("TRANSFORM SONGS DATA");
-    const transformedData = Object.keys(songsData).map(async (idx: any) => {
-      const songData = songsData[parseInt(idx)];
 
-      const formData = new FormData();
+    //const formData = new FormData();
 
-      formData.append("files", songData.coverArt[0], songData.coverArt[0].name);
+    // const transformedData = Object.keys(songsData).map((idx: any) => {
+    //   const songData = songsData[parseInt(idx)];
+    //   //const imageBlob = new Blob([songData.coverArt[0]], { type: songData.coverArt[0].type });
 
-      console.log("FILE OF SONGS", songData.trackFile);
-      console.log("FILE OF img", songData.coverArt); /// refactor, make a new function to upload
-      try {
-        const response = await axios.post(apiUrl, formData, {
-          headers: {
-            "authorization": `Bearer ${theToken}`,
-            "Content-Type": "image/jpeg",
-          },
-        });
+    //   // add for each song object the image file and song
+    //   formData.append("files", songData.coverArt[0], songData.coverArt[0]?.name || "custom_filename");
+    //   formData.append("files", songData.trackFile[0], songData.trackFile[0]?.name || "custom_filename");
 
-        console.log("Response img:", response.data);
-        response.data.forEach((file: { fileName: any; cidv1: any }) => {
-          if (file.fileName === songData.coverArt[0]?.name) {
-            songData.coverArt[0].coverArt = file.cidv1;
-            console.log("FOUND", file.cidv1);
-            return;
-          }
-        });
-      } catch (error) {
-        console.error("Error:", error);
+    //   return {
+    //     idx: parseInt(idx),
+    //     date: new Date(songData.date).toISOString(),
+    //     category: songData.category,
+    //     artist: songData.artist,
+    //     album: songData.album,
+    //     // file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3",
+    //     cover_art_url: songData.coverArt,
+    //     title: songData.title,
+    //   };
+    // });
+    const responseDataCIDs = await uploadSongsAndImagesFiles();
+    console.log("THE RESPONSE IS : ", responseDataCIDs);
+
+    if (!responseDataCIDs) throw new Error("Upload songs did not work correctly");
+
+    // Iterate through the second list and find the matching cidv1
+    const transformedData = Object.values(songsData).map((songObj, index) => {
+      // Find the object in the first list with the same fileName
+      const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === songObj.coverArt[0]?.name);
+      const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === songObj.trackFile[0]?.name);
+      console.log("matchimg", matchingObjImage);
+      // if the file were not found throw error
+      if (!matchingObjImage || !matchingObjSong) {
+        throw new Error("The data has not been uploaded correctly. CID could not be found");
       }
       return {
-        idx: parseInt(idx),
-        date: new Date(songData.date).toISOString(),
-        category: songData.category,
-        artist: songData.artist,
-        album: songData.album,
-        file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3",
-        cover_art_url: songData.coverArt,
-        title: songData.title,
+        idx: index + 1,
+        date: new Date(songObj.date).toISOString(),
+        category: songObj.category,
+        artist: songObj.artist,
+        album: songObj.album,
+        file: `ipfs://${matchingObjSong.cidv1}`,
+        cover_art_url: `ipfs://${matchingObjImage.cidv1}`,
+        title: songObj.title,
       };
     });
+    console.log("DATA LIST ", transformedData);
 
+    setIsUploadingSongs(false);
     return transformedData;
   }
 
-  // const uploadFileToIPFS = async (file?: File) => {
-  //   const apiUrl = "https://staging-itheum-api.up.railway.app/upload";
-
-  //   const formData = new FormData();
-  //   if (file) formData.append("files", file, "Automobiles Chain-logos_black.png");
-
-  //   // Append JSON data as a blob
-  //   const jsonData = {
-  //     data_stream: {
-  //       name: "",
-  //       creator: "",
-  //       created_on: "",
-  //       last_modified_on: "",
-  //       marshalManifest: {
-  //         totalItems: 1,
-  //         nestedStream: false,
-  //       },
-  //     },
-  //     data: [
-  //       {
-  //         idx: 1,
-  //         date: "2023-10-31T00:00:00.000Z",
-  //         category: "sda",
-  //         artist: "sad",
-  //         album: "sad",
-  //         file: "https://dataassets.valhallala.com/file_storage/hack1mus.mp3",
-  //         cover_art_url: "https://dataassets.valhallala.com/file_storage/prev.jpg",
-  //         title: "sad",
-  //       },
-  //     ],
-  //   };
-
-  //   formData.append("json", new Blob([JSON.stringify(jsonData)], { type: "application/json" }));
-
-  //   try {
-  //     const response = await axios.post(apiUrl, formData, {
-  //       headers: {
-  //         "accept": "*/*",
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     console.log("Response:", response.data);
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  const handleUpload = async () => {
+  const generateManifestFile = async () => {
     ///TODO HERE UPLOAD THE FILES
     // const coverLink = async upload_image()
     // const songURL = upload_song();
     /// maybe add a remove button ??
+    console.log("should start transformData");
     const data = await transformSongsData();
 
+    console.log("Transofemed for manifest DATA", data);
     const manifest = {
       "data_stream": {
         "name": formData.name,
@@ -148,29 +144,18 @@ export const UploadData: React.FC = () => {
       },
       "data": data,
     };
-    console.log("Manifest :", manifest);
+    console.log("Manifest : ", manifest);
     console.log("TOJEN", tokenLogin?.nativeAuthToken);
 
-    const formDataFormat = new FormData();
-    formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), "manifest");
-    console.log("getting");
-    console.log(formDataFormat);
-    try {
-      const response = await axios.get(apiUrlGet, {
-        headers: {
-          "authorization": `Bearer ${theToken}`,
-        },
-      });
+    ///GETTER
 
-      console.log("Response:", response.data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    console.log("uploading");
+    // const formDataFormat = new FormData();
+    // formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), "manifest");
+    // console.log("getting");
+    // console.log(formDataFormat);
     // try {
-    //   const response = await axios.post(apiUrl, formDataFormat, {
+    //   const response = await axios.get(apiUrlGet, {
     //     headers: {
-    //       "Content-Type": "multipart/form-data",
     //       "authorization": `Bearer ${theToken}`,
     //     },
     //   });
@@ -195,14 +180,15 @@ export const UploadData: React.FC = () => {
   };
 
   function swapSongs(first: number, second: number) {
-    // console.log("swap SONG ", first, second);
-    // console.log("FISRT", songsData[first]);
-    // console.log("Second", songsData[second]);
+    console.log("swap SONG ", first, second);
+    console.log("FISRT", songsData[first]);
+    console.log("Second", songsData[second]);
 
     if (first < 1) return;
     if (second > numberOfSongs) return;
     const storeSong = songsData[second];
-    // console.log("Store var", storeSong);
+
+    console.log("Store song var", storeSong);
     var songsDataVar = songsData;
     // console.log("ALL songs var ", songsDataVar);
 
@@ -339,9 +325,10 @@ export const UploadData: React.FC = () => {
         </div>
         <Button onClick={handleAddMoreSongs}> Add more songs</Button>
       </div>
-      <button onClick={handleUpload} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+      <button onClick={generateManifestFile} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
         Upload
       </button>
+      {isUploadingSongs && <p className="text-green-300">uploading</p>}
     </div>
   );
 };
