@@ -6,6 +6,7 @@ import { Button } from "../../libComponents/Button";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 
+// validation schema
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
   category: z.string().min(1, "Required field"),
@@ -42,6 +43,7 @@ const formSchema = z.object({
       { message: "Only .jpg, .jpeg, .png and .webp formats are supported." }
     ),
 });
+
 type MusicDataNftFormProps = {
   index: number;
   song: any;
@@ -49,6 +51,7 @@ type MusicDataNftFormProps = {
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
 };
 
+/// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [isSaved, setIsSaved] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -64,8 +67,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     },
   });
   const [file, setFile] = useState("");
+  const [mp3File, setMp3File] = useState();
 
+  // if we want to update, prepopulate the form
   useEffect(() => {
+    setIsSaved(false);
     form.setValue("date", props.song["date"] ? props.song["date"] : "");
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
     form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
@@ -79,28 +85,27 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }, [props.song]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // const coverLink = async upload_image()
-    // const songURL = upload_song();
-    console.log("THE VALUES AFTER SUBMIT", values);
-    setIsSaved(true);
-    //console.log("VALL", values);
+    console.log("VAL on submit", values);
+    const imgFile = values.coverArt[0];
+    const mp3File = values.trackFile[0];
+
     props.setterFunction((prev: any) => Object.assign(prev, { [props.index]: values }));
+    setIsSaved(true);
   }
 
   function handleMoveUp() {
+    ///prosp.index is string
     if (props.index == 1) return;
     props.swapFunction(props.index - 1 + 1, props.index - 1);
   }
   function handleMoveDown() {
-    //console.log("THE TYPE", typeof props.index);
-    /// no idea why prosp.index is string
-
-    /// TODO MODIFICA ABSOLUTE styles
     props.swapFunction(Number(props.index), Number(props.index) + 1); // -1 solves the problem for now
   }
+
   function deleteSong() {
-    console.log("DELETE");
+    props.swapFunction(Number(props.index), -1);
   }
+
   return (
     <div className="w-[80%] z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
       <div className="relative">
@@ -161,6 +166,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             <input
               type="file"
               accept="image/*"
+              // disabled={!!file}
               className="w-full p-2 border border-gray-300 rounded"
               {...form.register("coverArt")}
               onChange={(e) => {
@@ -172,11 +178,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                   //form.setValue("coverArt", e.target.files[0]);
                   setFile(imageURL);
                 }
-
-                // console.log("IMG", imageURL);
-                //form.setValue("coverArt", imageURL);
-
-                //form.setValue("coverArt", "something.png");
               }}
             />
             {form.formState.errors.coverArt && <p className="text-red-500">{form.formState.errors.coverArt.message?.toString()}</p>}
@@ -186,9 +187,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             <input
               type="file"
               accept=".mp3"
+              disabled={mp3File}
               className="w-full p-2 border border-gray-300 rounded"
               {...form.register("trackFile")}
               onChange={(e) => {
+                //setMp3File(true);
                 console.log("FILETRACK_UL inserat", e.target.files);
                 console.log("the values of the form : ");
                 //form.setValue("trackFile", e.target.files ? e.target.files[0] : "asd");

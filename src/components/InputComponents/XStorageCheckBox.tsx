@@ -47,7 +47,7 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               peer-checked:bg-green-200 disabled:bg-sky-300 hover:bg-gray-50 
               dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 
               transform hover:scale-105 shadow-md hover:shadow-lg
-              ${props.disabled && props.disabled[index] ? "cursor-not-allowed" : ""}
+              ${props.disabled && props.disabled[index] ? "hover:cursor-not-allowed" : ""}
             `}>
               <div className="block">
                 {/* add logo maybe */}
