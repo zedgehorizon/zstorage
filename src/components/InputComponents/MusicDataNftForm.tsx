@@ -59,7 +59,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [wantToEditImage, setwantToEditImage] = useState(false);
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -110,14 +109,24 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     //form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
     //console.log("ARTTT", props.index, props.song["coverArt"]);
     //setImageFile(props.song["coverArt"] ? props.song["coverArt"] : null);
-    if (props.song["coverArt"]) setImageURL(props.song["coverArt"]);
-    if (props.song["trackFile"]) setAudioURL(props.song["trackFile"]);
+    if (props.song["coverArt"]) {
+      setImageURL(props.song["coverArt"]);
+    } else {
+      setwantToEditImage(false);
+      setImageURL("");
+    }
+    if (props.song["trackFile"]) {
+      setAudioURL(props.song["trackFile"]);
+    } else {
+      setwantToEditAudio(false);
+      setAudioURL("");
+    }
     setImageFile(undefined);
     setAudioFile(undefined);
   }, [props.song]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("VAL on submit", values);
+    //console.log("VAL on submit", values);
     props.setterFunction(props.index, values, imageFile, audioFile);
     setIsSaved(true);
   }
@@ -192,11 +201,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div className="gap-4 flex-col flex items-center justify-center ">
           <img
             className="mx-auto flex justify-center allign-center w-32 h-32 border border-white"
-            src={imageURL ? imageURL : songFallbackImage}
+            src={imageURL !== "" ? imageURL : songFallbackImage}
             alt={"Cover Image"}></img>
           <div className="">
             <label className=" block text-gray-700">Cover Art Image</label>
-            {(imageFile || imageURL) && !wantToEditImage ? (
+            {(imageFile || imageURL !== "") && !wantToEditImage ? (
               <div className="flex w-full ">
                 <p className="flex justify-center allign-center"> {imageFile ? imageFile.name : "Image.img or nothing ?"}</p>
                 <Button className="scale-75 ml-auto hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditImage(true)}>

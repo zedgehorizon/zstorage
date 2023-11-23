@@ -5,6 +5,7 @@ import { Button } from "../../libComponents/Button";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL } from "../../utils/constants";
+import { ToolTip } from "../../libComponents/Tooltip";
 
 type SongData = {
   date: string;
@@ -27,7 +28,7 @@ export const UploadData: React.FC = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
 
-  console.log("SONGS DATA", songsData);
+  //console.log("SONGS DATA", songsData);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
   const [isUploadingSongs, setIsUploadingSongs] = useState(false);
@@ -43,12 +44,12 @@ export const UploadData: React.FC = () => {
     stream: "no",
   });
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNDIxMmFmOTg1NDI5ZjllMmE3YWZiNzk0YzFmYTU4ZGFkMDIyNWFkNDczODc4MzI0MGM2ZTg2MDIyNDgzMzJkOC43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBM05URXdORGg5.67488297b3064378019343f20a41a593072b6acbd8c35a0c19916c7bf8de51eb1d2172bc76ffffd694dd7269dab215930404c0a4fe83b0d72a75aa66fd3a360f";
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuMTllMWY2ZTE5OGEwNDgwNTZlOWM3M2VhZDQxYTg5OTQyZjIwMDAwMjg4ZTZmMzY0MmM4Zjk1OWYyMTJmNTViOS43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBM05qazJOak45.d9a7724ad39373d3aedb5f92374b7ff861f0b7b3101292dcc070102bff64dce3e55c00cb9d367e1fdecd3c60600add0eefdbd475d64dd2c6502d2ee01fcd1503";
   //const apiUrlGet = `${API_URL}/files`;
-  const apiUrlPost = `${API_URL}/upload`; //refactor this as env file or const
+  const apiUrlPost = `${API_URL}/upload`; //refactor this as env file
 
   useEffect(() => {
-    console.log("EFFECT", songsData);
+    //console.log("EFFECT", songsData);
   }, [songsData]);
 
   // upload the songs and images of all the songs
@@ -58,8 +59,10 @@ export const UploadData: React.FC = () => {
     //iterating over the songsData and for each object add its image and song to the formData
     Object.values(songsData).forEach((songData, idx) => {
       // todo must change the way of storing, its not ok only by title
-      formData.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
-      formData.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+      if (songData && songData?.title) {
+        formData.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+        formData.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+      }
     });
     try {
       const response = await axios.post(apiUrlPost, formData, {
@@ -70,7 +73,7 @@ export const UploadData: React.FC = () => {
       });
       return response.data;
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error uploading files:", error);
     }
   }
 
@@ -79,30 +82,35 @@ export const UploadData: React.FC = () => {
     setIsUploadingSongs(true);
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
-      console.log("THE RESPONSE IS : ", responseDataCIDs);
+      console.log("THE RESPONSE data IS : ", responseDataCIDs);
 
       if (!responseDataCIDs) throw new Error("Upload songs did not work correctly");
       // Iterate through the second list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
-        const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
-        const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.trackFile[0]?.name);
-        console.log("matchimg", matchingObjImage);
-        // if the file were not found throw error
-        if (!matchingObjImage || !matchingObjSong) {
-          throw new Error("The data has not been uploaded correctly. CID could not be found");
+        if (songObj && songObj?.title) {
+          const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
+          const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.trackFile[0]?.name);
+          //console.log("matchimg", matchingObjImage);
+
+          // if the file were not found throw error
+          if (!matchingObjImage || !matchingObjSong) {
+            throw new Error("The data has not been uploaded correctly. CID could not be found");
+          }
+
+          return {
+            idx: index + 1,
+            date: new Date(songObj?.date).toISOString(),
+            category: songObj?.category,
+            artist: songObj?.artist,
+            album: songObj?.album,
+            file: `ipfs://${matchingObjSong.cidv1}`,
+            cover_art_url: `ipfs://${matchingObjImage.cidv1}`,
+            title: songObj?.title,
+          };
         }
-        return {
-          idx: index + 1,
-          date: new Date(songObj?.date).toISOString(),
-          category: songObj?.category,
-          artist: songObj?.artist,
-          album: songObj?.album,
-          file: `ipfs://${matchingObjSong.cidv1}`,
-          cover_art_url: `ipfs://${matchingObjImage.cidv1}`,
-          title: songObj?.title,
-        };
       });
-      console.log("Transformed DATA LIST ", transformedData);
+
+      //console.log("Transformed DATA LIST ", transformedData);
 
       setIsUploadingSongs(false);
       return transformedData;
@@ -114,6 +122,9 @@ export const UploadData: React.FC = () => {
 
   const generateManifestFile = async () => {
     const data = await transformSongsData();
+    if (data === undefined) {
+      throw new Error("Error transforming the data");
+    }
     setIsUploadingManifest(true);
 
     const manifest = {
@@ -172,18 +183,21 @@ export const UploadData: React.FC = () => {
   };
 
   function swapSongs(first: number, second: number) {
-    if (first < 1 || second > numberOfSongs) {
+    //console.log(first, second, numberOfSongs);
+    if (first < 1 || second >= numberOfSongs) {
       return;
     }
 
     if (second === -1) {
+      const variableSongsData = { ...songsData };
       // means we want to delete song with index first
       for (var i = first; i < numberOfSongs - 1; ++i) {
-        songsData[i] = songsData[i + 1];
-        filePairs[i] = filePairs[i + 1];
+        variableSongsData[i] = variableSongsData[i + 1];
+        variableSongsData[i] = variableSongsData[i + 1];
       }
-      delete songsData[numberOfSongs - 1];
+      delete variableSongsData[numberOfSongs - 1];
       delete filePairs[numberOfSongs - 1];
+      setSongsData(variableSongsData);
       setNumberOfSongs((prev) => prev - 1);
       return;
     }
@@ -199,17 +213,17 @@ export const UploadData: React.FC = () => {
     storeFilesVar[second] = storeFilesVar[first];
     storeFilesVar[first] = storeFile;
 
-    console.log("after swap", songsDataVar);
+    //console.log("after swap", songsDataVar);
     setSongsData(songsDataVar);
     setFilePairs(storeFilesVar);
   }
 
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
-    console.log("IN PARENT :", index, formInputs, image, audio);
+    //console.log("IN PARENT :", index, formInputs, image, audio);
     if (image && audio) setFilePairs(Object.assign({}, filePairs, { [index]: { image: image, audio: audio } }));
 
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
-    console.log("SIR de files", filePairs);
+    //console.log("SIR de files", filePairs);
   };
 
   return (
@@ -356,9 +370,16 @@ export const UploadData: React.FC = () => {
           Upload
         </button>
       ) : (
-        <a className="text-green-400" href={manifestCid} target="_blank">
-          Success : {manifestCid}
-        </a>
+        <div className="flex flex-col">
+          <a className="text-green-400" href={manifestCid} target="_blank">
+            Success : {manifestCid}
+          </a>
+          <div className="flex mx-auto">
+            <ToolTip tooltip="I am tooltip sadsafasdfdsfdsafdsafdsfds afdsf dsafdsafdsfsdaf asdfdsafdsafewarewqrqweasdcxzweafdscewafsdc">
+              <div className="flex mx-auto"> What's next ? </div>
+            </ToolTip>
+          </div>
+        </div>
       )}
       {isUploadingSongs && <p className="text-green-300">Uploading files</p>}
       {isUploadingManifest && <p className="text-green-300">Uploading manifest file</p>}
