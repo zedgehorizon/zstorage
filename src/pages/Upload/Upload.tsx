@@ -5,6 +5,7 @@ import { Button } from "../../libComponents/Button";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL } from "../../utils/constants";
+import { setDappConfig } from "@multiversx/sdk-dapp/reduxStore/slices";
 
 type SongData = {
   date: string;
@@ -15,15 +16,23 @@ type SongData = {
   trackFile: any;
   coverArt: any;
 };
-
+type FilePair = {
+  image: File;
+  audio: File;
+};
 export const UploadData: React.FC = () => {
   const location = useLocation();
   const { action, type, template, storage, descentralized } = location.state;
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
+  // const [filePairs, setFilePairs] = useState([{image : File,audio : File}]);
+  const [filePairs, setFilePairs] = useState<FilePair[]>([]);
+
   console.log("SONGS DATA", songsData);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
   const [isUploadingSongs, setIsUploadingSongs] = useState(false);
+  const [isUploadingManifest, setIsUploadingManifest] = useState(false);
+
   const [manifestCid, setManifestCid] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -34,9 +43,9 @@ export const UploadData: React.FC = () => {
     stream: "no",
   });
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuZjU5ODI0MGYxZmQ2ODc4MzQyMmUwNGI1MWVlN2ExNGQ3Yzc0ZjcyZjg5ODM0ZjEzNzM2YmM5YjY0YWJhYmViMi43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBMk5qRTVPVE45.eb5f2c5572e97a32381bd31ead70a6a61370bb5c60ef9a983766bb69ec79d2d6484f987442b95c007bfd97324b84a06d1731b925aab54d331cb707948ceb3908";
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuYjQzYzYxMTY4NDZjODU4MDIwMmY4Y2UxMTY2NWUxMmQ4YWE1ZWZmYmRiN2JjOTkzNTBmOGU4NTU3ZjFjOGIxMC43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURBMk9UQXdPRGw5.63cedef0f407493e85e7fb20214c65a7424b98ee87df0a9e8fab435586ea11741ba82dbfff5cf95654957c697612fa8f436c81e283fde9704c208b1c8bc3330e";
   const apiUrlGet = `${API_URL}/files`;
-  const apiUrl = `${API_URL}/upload`; ///refactor this as env file or const
+  const apiUrl = `${API_URL}/upload`; //refactor this as env file or const
 
   useEffect(() => {
     console.log("EFFECT", songsData);
@@ -54,8 +63,15 @@ export const UploadData: React.FC = () => {
           formData.append("files", file, file.name || `${fileNamePrefix}_${idx}`);
         }
       };
-      appendFileToFormData(songData.coverArt, "coverArt");
-      appendFileToFormData(songData.trackFile, "trackFile");
+      // let blob = await fetch(songData.coverArt).then((r) => r.blob());
+      // console.log(blob);
+      console.log("THE THING ", filePairs[idx].image);
+      console.log("THE TITLTE", songData.title, songData.coverArt);
+      formData.append("files", filePairs[idx].image, "image." + songData.title);
+      formData.append("files", filePairs[idx].audio, "audio." + songData.title);
+
+      // appendFileToFormData(songData.coverArt, "coverArt");
+      //appendFileToFormData(songData.trackFile, "trackFile");
     });
     try {
       const response = await axios.post(apiUrl, formData, {
@@ -105,11 +121,11 @@ export const UploadData: React.FC = () => {
       // Iterate through the second list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         // Find the object in the first list with the same fileName
-        console.log("songObj.coverArt[0]?.name", songObj.coverArt[0]?.name);
-        console.log("songObj.trach[0]?.name", songObj.trackFile[0]?.name);
+        // console.log("songObj.coverArt[0]?.name", songObj.coverArt[0]?.name);
+        // console.log("songObj.trach[0]?.name", songObj.trackFile[0]?.name);
 
-        const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === songObj.coverArt[0]?.name);
-        const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === songObj.trackFile[0]?.name);
+        const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
+        const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.trackFile[0]?.name);
         console.log("matchimg", matchingObjImage);
         // if the file were not found throw error
         if (!matchingObjImage || !matchingObjSong) {
@@ -143,7 +159,7 @@ export const UploadData: React.FC = () => {
     /// maybe add a remove button ??
     console.log("should start transformData");
     const data = await transformSongsData();
-
+    setIsUploadingManifest(true);
     console.log("Transofemed for manifest DATA", data);
     const manifest = {
       "data_stream": {
@@ -164,7 +180,7 @@ export const UploadData: React.FC = () => {
     ///GETTER
 
     const formDataFormat = new FormData();
-    formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), "manifest");
+    formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), formData.name + "-" + formData.creator);
     console.log(formDataFormat);
     try {
       const response = await axios.post(apiUrl, formDataFormat, {
@@ -175,13 +191,16 @@ export const UploadData: React.FC = () => {
       });
 
       console.log("Response:", response.data);
-      if (response.data[0]) setManifestCid(response.data[0].cidv1);
+      const ipfs: any = "ipfs://" + response.data[0].cidv1;
+      if (response.data[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly");
       }
     } catch (error) {
+      setIsUploadingManifest(false);
       console.error("Error:", error);
     }
+    setIsUploadingManifest(false);
   };
 
   const handleAddMoreSongs = () => {
@@ -227,6 +246,13 @@ export const UploadData: React.FC = () => {
     console.log("after swap", songsDataVar);
     setSongsData(songsDataVar);
   }
+
+  const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    console.log("IN PARENT :", index, formInputs, image, audio);
+    setFilePairs((prevFilePairs) => [...prevFilePairs, { image: image, "audio": audio }]);
+    setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    console.log("SIR de files", filePairs);
+  };
 
   return (
     <div className="p-4 flex flex-col">
@@ -358,7 +384,12 @@ export const UploadData: React.FC = () => {
         </div>
         <div className="space-y-8 p-8 rounded-lg shadow-md ">
           {Object.keys(songsData).map((index: any) => (
-            <MusicDataNftForm key={index} index={index} song={songsData[index]} setterFunction={setSongsData} swapFunction={swapSongs}></MusicDataNftForm>
+            <MusicDataNftForm
+              key={index}
+              index={index}
+              song={songsData[index]}
+              setterFunction={handleFilesSelected}
+              swapFunction={swapSongs}></MusicDataNftForm>
           ))}
         </div>
         <Button onClick={handleAddMoreSongs}> Add more songs</Button>
@@ -368,9 +399,12 @@ export const UploadData: React.FC = () => {
           Upload
         </button>
       ) : (
-        <p>success : {manifestCid}</p>
+        <a className="text-green-400" href={manifestCid} target="_blank">
+          Success : {manifestCid}
+        </a>
       )}
-      {isUploadingSongs && <p className="text-green-300">uploading</p>}
+      {isUploadingSongs && <p className="text-green-300">Uploading files</p>}
+      {isUploadingManifest && <p className="text-green-300">Uploading manifest file</p>}
     </div>
   );
 };

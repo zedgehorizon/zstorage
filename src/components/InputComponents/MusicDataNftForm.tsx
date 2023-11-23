@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, DeleteIcon, Trash2 } from "lucide-react";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 
 // validation schema
@@ -13,6 +13,8 @@ const formSchema = z.object({
   artist: z.string().min(1, "Required field"),
   album: z.string().min(1, "Required field"),
   title: z.string().min(1, "Required field"),
+  coverArt: z.string().min(1, "Required field"),
+
   trackFile: z
     .any()
     .refine(
@@ -28,26 +30,26 @@ const formSchema = z.object({
       },
       { message: "Only audio/mpeg formats are supported." } /// maybe add more
     ),
-  coverArt: z
-    .any()
-    .refine(
-      (file) => {
-        return file[0] && file[0].size <= MAX_FILE_SIZE;
-      },
-      { message: `Max image size is 5MB.` }
-    )
-    .refine(
-      (file) => {
-        return ACCEPTED_IMAGE_TYPES.includes(file[0]?.type);
-      },
-      { message: "Only .jpg, .jpeg, .png and .webp formats are supported." }
-    ),
+  // coverArt: z
+  //   .any()
+  //   .refine(
+  //     (file) => {
+  //       return file[0] && file[0].size <= MAX_FILE_SIZE;
+  //     },
+  //     { message: `Max image size is 5MB.` }
+  //   )
+  //   .refine(
+  //     (file) => {
+  //       return ACCEPTED_IMAGE_TYPES.includes(file[0]?.type);
+  //     },
+  //     { message: "Only .jpg, .jpeg, .png and .webp formats are supported." }
+  //   ),
 });
 
 type MusicDataNftFormProps = {
   index: number;
   song: any;
-  setterFunction: (selectedOption: any) => void;
+  setterFunction: (index: number, formInputs: any, image: any, audio: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
 };
 
@@ -68,7 +70,18 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   });
   const [file, setFile] = useState("");
   const [mp3File, setMp3File] = useState();
+  const [imageFile, setImageFile] = useState<File>();
+  const [audioFile, setAudioFile] = useState();
 
+  const handleImageFileChange = (event: any) => {
+    const file = event.target.files[0];
+    setImageFile(file);
+  };
+
+  const handleAudioFileChange = (event: any) => {
+    const file = event.target.files[0];
+    setAudioFile(file);
+  };
   // if we want to update, prepopulate the form
   useEffect(() => {
     setIsSaved(false);
@@ -78,18 +91,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
     form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
-    form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
-    console.log("ARTTT", props.index, props.song["coverArt"]);
-    form.setValue("coverArt", props.song["coverArt"] ? props.song["coverArt"] : {});
-    if (props.song["coverArt"] && props.song["coverArt"][0]) setFile(URL.createObjectURL(props.song["coverArt"][0])); // /
+    //form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
+    //console.log("ARTTT", props.index, props.song["coverArt"]);
+    //setImageFile(props.song["coverArt"] ? props.song["coverArt"] : null);
+    if (props.song["coverArt"]) setFile(props.song["coverArt"]);
   }, [props.song]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("VAL on submit", values);
-    const imgFile = values.coverArt[0];
-    const mp3File = values.trackFile[0];
-
-    props.setterFunction((prev: any) => Object.assign(prev, { [props.index]: values }));
+    props.setterFunction(props.index, values, imageFile, audioFile);
     setIsSaved(true);
   }
 
@@ -163,24 +173,27 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <div className="justify-center">
             <img className="justify-center allign-center w-32 h-32 border border-white" src={file} alt={"Cover Image"}></img>
             <label className=" block text-gray-700">Cover Art Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              // disabled={!!file}
-              className="w-full p-2 border border-gray-300 rounded"
-              {...form.register("coverArt")}
-              onChange={(e) => {
-                // console.log("COVER ART ", e.target.files);
+            {imageFile || file ? (
+              <p> we got the image</p>
+            ) : (
+              <input
+                type="file"
+                accept="image/*"
+                // disabled={!!file}
+                className="w-full p-2 border border-gray-300 rounded"
+                onChange={(e) => {
+                  // console.log("COVER ART ", e.target.files);
 
-                if (e.target.files) {
-                  console.log(e.target.files);
-                  const imageURL = URL.createObjectURL(e.target.files[0]);
-                  //form.setValue("coverArt", e.target.files[0]);
-                  setFile(imageURL);
-                }
-              }}
-            />
-            {form.formState.errors.coverArt && <p className="text-red-500">{form.formState.errors.coverArt.message?.toString()}</p>}
+                  if (e.target.files) {
+                    handleImageFileChange(e);
+                    const imageURL = URL.createObjectURL(e.target.files[0]);
+                    form.setValue("coverArt", imageURL);
+                    setFile(imageURL);
+                  }
+                }}
+              />
+            )}
+            {/*   {form.formState.errors.coverArt && <p className="text-red-500">{form.formState.errors.coverArt.message?.toString()}</p>} */}
           </div>
           <div>
             <label className="block text-gray-700">Track File (MP3)</label>
@@ -192,19 +205,20 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {...form.register("trackFile")}
               onChange={(e) => {
                 //setMp3File(true);
-                console.log("FILETRACK_UL inserat", e.target.files);
-                console.log("the values of the form : ");
+                handleAudioFileChange(e);
+
                 //form.setValue("trackFile", e.target.files ? e.target.files[0] : "asd");
               }}
             />
             {form.formState.errors.trackFile && <p className="text-red-500">{form.formState.errors.trackFile.message?.toString()}</p>}
           </div>
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          <button type="submit" className="hover:shadow-inner hover:shadow-sky-400   text-white p-2 rounded  ">
             Save
           </button>
-          <button className="bg-red-200" onClick={deleteSong}>
-            delete
-          </button>
+
+          <Button onClick={deleteSong} className="ml-auto hover:shadow-inner hover:shadow-red-400">
+            <Trash2 />
+          </Button>
           {isSaved && <p className="text-green-400"> saved</p>}
         </div>
       </form>
