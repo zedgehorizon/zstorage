@@ -14,9 +14,9 @@ const formSchema = z.object({
   artist: z.string().min(1, "Required field"),
   album: z.string().min(1, "Required field"),
   title: z.string().min(1, "Required field"),
-  coverArt: z.string().min(1, "Required field"),
-  trackFile: z.string().min(1, "Required field"),
-  // trackFile: z   ///TODO FIND A WAY TO ADD THE VALIDATION
+  cover_art_url: z.string().min(1, "Required field"),
+  file: z.string().min(1, "Required field"),
+  // file: z   ///TODO FIND A WAY TO ADD THE VALIDATION
   //   .any()
   //   .refine(
   //     (file) => {
@@ -31,7 +31,7 @@ const formSchema = z.object({
   //     },
   //     { message: "Only audio/mpeg formats are supported." } /// maybe add more
   //   ),
-  // coverArt: z
+  // cover_art_url: z
   //   .any()
   //   .refine(
   //     (file) => {
@@ -67,8 +67,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       artist: "",
       album: "",
       title: "",
-      trackFile: "",
-      coverArt: "",
+      file: "",
+      cover_art_url: "",
     },
   });
 
@@ -81,7 +81,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     const file = event.target.files[0];
     setImageFile(file);
     const imageURL = URL.createObjectURL(event.target.files[0]);
-    form.setValue("coverArt", imageURL);
+    form.setValue("cover_art_url", imageURL);
     setImageURL(imageURL);
     setwantToEditImage(false);
   };
@@ -90,33 +90,32 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     const file = event.target.files[0];
     setAudioFile(file);
     const audioURL = URL.createObjectURL(event.target.files[0]);
-    form.setValue("trackFile", audioURL);
+    form.setValue("file", audioURL);
     setAudioURL(audioURL);
     setwantToEditAudio(false);
   };
 
-  // if we want to update, prepopulate the form
+  // populate the form
   useEffect(() => {
-    //setIsSaved(false);
-    form.setValue("date", props.song["date"] ? props.song["date"] : "");
+    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
     form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
-    form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : "");
-    form.setValue("coverArt", props.song["coverArt"] ? props.song["coverArt"] : "");
+    //form.setValue("file", props.song["file"] ? props.song["file"] : "");
+    //form.setValue("cover_art_url", props.song["cover_art_url"] ? props.song["cover_art_url"] : "");
+    if (props.song["cover_art_url"]) {
+      setImageURL(props.song["cover_art_url"]);
+      //setImageURL("https://ipfs.io/ipfs/" + props.song["cover_art_url"].replace("ipfs://", ""));
 
-    //form.setValue("trackFile", props.song["trackFile"] ? props.song["trackFile"] : {});
-    //console.log("ARTTT", props.index, props.song["coverArt"]);
-    //setImageFile(props.song["coverArt"] ? props.song["coverArt"] : null);
-    if (props.song["coverArt"]) {
-      setImageURL(props.song["coverArt"]);
+      form.setValue("cover_art_url", props.song["cover_art_url"]);
     } else {
       setwantToEditImage(false);
       setImageURL("");
     }
-    if (props.song["trackFile"]) {
-      setAudioURL(props.song["trackFile"]);
+    if (props.song["file"]) {
+      form.setValue("file", props.song["file"]);
+      setAudioURL(props.song["file"]);
     } else {
       setwantToEditAudio(false);
       setAudioURL("");
@@ -208,13 +207,13 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <img
             className="mx-auto flex justify-center allign-center w-32 h-32 border border-white"
             src={imageURL !== "" ? imageURL : songFallbackImage}
-            alt={"Cover Image"}></img>
-          <div className="">
-            <label className=" block text-foreground">Cover Art Image</label>
+            alt={"Cover Image"}></img>{" "}
+          <label className=" block text-foreground">Cover Art Image</label>
+          <div className="flex w-full justify-end">
             {(imageFile || imageURL !== "") && !wantToEditImage ? (
-              <div className="flex w-full ">
-                <p className="flex justify-center allign-center"> {imageFile ? imageFile.name : "Image.img or nothing ?"}</p>
-                <Button className="scale-75 ml-auto hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditImage(true)}>
+              <div>
+                {/* <p className="flex justify-center allign-center"> {imageFile ? imageFile.name : "Image.img or nothing ?"}</p> */}
+                <Button className="scale-75  justify-end hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditImage(true)}>
                   <Edit2 scale={0.5}></Edit2>
                 </Button>
               </div>
@@ -228,18 +227,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                 }}
               />
             )}
-            {form.formState.errors.coverArt && <p className="text-red-500">{form.formState.errors.coverArt.message?.toString()}</p>}
+            {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
           </div>
           <div>
             <label className="block text-foreground">Track File (MP3)</label>
 
-            {(audioFile || audioURL) && !wantToEditAudio ? (
+            {audioURL && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
-                  <audio className="scale-75" controls>
-                    <source src={audioURL} type="audio/mp3" />
-                    Your browser does not support the audio tag.
-                  </audio>
+                  <audio src={audioURL} className="scale-75" controls></audio>
                   {/* <p className="flex justify-center allign-center"> {audioFile?.name}</p> */}
                   <Button className="scale-75  ml-auto  hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditAudio(true)}>
                     <Edit2 scale={0.5}></Edit2>
@@ -249,7 +245,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             ) : (
               <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} />
             )}
-            {form.formState.errors.trackFile && <p className="text-red-500">{form.formState.errors.trackFile.message?.toString()}</p>}
+            {form.formState.errors.file && <p className="text-red-500">{form.formState.errors.file.message?.toString()}</p>}
           </div>
           {/* onClick={() => onSubmit(form.getValues())}  */}
           <div className="w-full flex flex-row ">

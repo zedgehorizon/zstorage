@@ -15,8 +15,8 @@ type SongData = {
   artist: string;
   album: string;
   title: string;
-  trackFile: string;
-  coverArt: string;
+  file: string;
+  cover_art_url: string;
 };
 type FilePair = {
   idx: number;
@@ -50,7 +50,7 @@ export const DataAssetList: React.FC = () => {
   const [dataAssetFiles, setDataAssetFiles] = useState<DataAsset[]>([]);
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNzM5ZmVmZDQ5OWMzN2QyNDUwZmY5ZWI0YjBiYTBjOWRhNWY2ZWM5ZjhlNDk4NzU1MTIzNDIwMmU3NjE1ZWY5Ni43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFeE5qUTROVFI5.90df575780c87be7ee84c122c6f5c62a759fab2dcb1743ac7318b193463dbf4a1bd5049b6f56a29f4be3ebdd58f689435a3786656468048d893108f1a72dc30b";
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNWQyZWJiMDE0ZmFiZTg4YjI4MTE3MjY4NTZmOThiMDVkMTEyNDkzZjBiNjZjMmIwY2UzYzgxNGViMjVkZWI1Ni43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFeE9UQXdNREI5.e4bc5176f9fd7547bcd69d23c8e846ff97194ecb10a9d588924013a12310dd46ba54023a9155f85e23dd96262bce2cf13a72fa5992ba256ae5c2d7ac3a167406";
   const apiUrlPost = `${API_URL}/upload`; //refactor this as env file
 
   // upload the songs and images of all the songs
@@ -90,7 +90,6 @@ export const DataAssetList: React.FC = () => {
         },
       });
 
-      console.log("DOWNLOAD MANIFEST : ", response.data);
       setManifestFiles((prev) => [...prev, response.data]);
 
       return response.data;
@@ -98,7 +97,6 @@ export const DataAssetList: React.FC = () => {
       console.error("Error uploading files:", error);
     }
   }
-  console.log("manifestFiles", manifestFiles[1]);
   useEffect(() => {
     fetchAllDataAssetsOfAnAddress();
   }, []);

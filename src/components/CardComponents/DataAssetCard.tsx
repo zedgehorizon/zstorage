@@ -25,7 +25,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = ({ dataAsset }) => {
   } = dataAsset;
 
   return (
-    <div className="  hover:bg-sky-400/30  gap-4 bg-black bg-opacity-20 border border-sky-400 p-4 rounded-md shadow-md">
+    <div className="truncate  hover:bg-sky-400/30  gap-4 bg-black bg-opacity-20 border border-sky-400 p-4 rounded-md shadow-md">
       <h2 className="text-2xl font-bold mb-2">{name}</h2>
       <div className="text-foreground">
         <p>Creator: {creator}</p>

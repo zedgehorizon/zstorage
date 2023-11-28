@@ -14,11 +14,10 @@ type SongData = {
   artist: string;
   album: string;
   title: string;
-  trackFile: string;
-  coverArt: string;
+  file: string;
+  cover_art_url: string;
 };
 type FilePair = {
-  idx: number;
   image: File;
   audio: File;
 };
@@ -49,7 +48,7 @@ export const UploadData: React.FC = (props) => {
     stream: "no",
   });
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNzM5ZmVmZDQ5OWMzN2QyNDUwZmY5ZWI0YjBiYTBjOWRhNWY2ZWM5ZjhlNDk4NzU1MTIzNDIwMmU3NjE1ZWY5Ni43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFeE5qUTROVFI5.90df575780c87be7ee84c122c6f5c62a759fab2dcb1743ac7318b193463dbf4a1bd5049b6f56a29f4be3ebdd58f689435a3786656468048d893108f1a72dc30b";
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNWQyZWJiMDE0ZmFiZTg4YjI4MTE3MjY4NTZmOThiMDVkMTEyNDkzZjBiNjZjMmIwY2UzYzgxNGViMjVkZWI1Ni43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFeE9UQXdNREI5.e4bc5176f9fd7547bcd69d23c8e846ff97194ecb10a9d588924013a12310dd46ba54023a9155f85e23dd96262bce2cf13a72fa5992ba256ae5c2d7ac3a167406";
   const apiUrlPost = `${API_URL}/upload`; //refactor this as env file
 
   useEffect(() => {
@@ -86,11 +85,15 @@ export const UploadData: React.FC = (props) => {
     //iterating over the songsData and for each object add its image and song to the formData
     Object.values(songsData).forEach((songData, idx) => {
       // todo must change the way of storing, its not ok only by title
-      if (songData && songData?.title) {
-        formData.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
-        formData.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+      console.log("Before");
+      if (songData && songData?.title && filePairs[idx + 1]) {
+        if (filePairs[idx + 1]?.image) formData.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+
+        if (filePairs[idx + 1]?.audio) formData.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+        console.log("inside if ");
       }
     });
+    console.log("form data ", formData);
     try {
       const response = await axios.post(apiUrlPost, formData, {
         headers: {
@@ -103,6 +106,7 @@ export const UploadData: React.FC = (props) => {
       console.error("Error uploading files:", error);
     }
   }
+  console.log("File pairs : ", filePairs);
 
   // get all songs data into the right format for manifest file
   async function transformSongsData() {
@@ -112,16 +116,33 @@ export const UploadData: React.FC = (props) => {
       console.log("THE RESPONSE data IS : ", responseDataCIDs);
 
       if (!responseDataCIDs) throw new Error("Upload songs did not work correctly");
-      // Iterate through the second list and find the matching cidv1
+      // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
-          const matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
-          const matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.trackFile[0]?.name);
+          let matchingObjImage;
+          let matchingObjSong;
+          console.log("index", index);
+          const fileObj = filePairs[index + 1];
+          console.log("fileobg", fileObj);
+          if (fileObj) {
+            if (fileObj.image && fileObj.image.name) {
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
+              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found");
+            }
+            if (fileObj.audio && fileObj.audio.name)
+              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.file[0]?.name);
+            if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found");
+          }
+
+          // matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `image.${songObj.title}`);
+          // matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName === `audio.${songObj.title}`); ///songObj.file[0]?.name);
+          console.log("matching IMG: ", matchingObjImage);
+          console.log("SONG:", matchingObjSong);
 
           // if the file were not found throw error
-          if (!matchingObjImage || !matchingObjSong) {
-            throw new Error("The data has not been uploaded correctly. CID could not be found");
-          }
+          // if (!matchingObjImage && !matchingObjSong) {
+          //   throw new Error("The data has not been uploaded correctly. CID could not be found");
+          // }
 
           return {
             idx: index + 1,
@@ -129,8 +150,8 @@ export const UploadData: React.FC = (props) => {
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: `ipfs://${matchingObjSong.cidv1}`,
-            cover_art_url: `ipfs://${matchingObjImage.cidv1}`,
+            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.cidv1}` : songObj.file,
+            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.cidv1}` : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
@@ -183,7 +204,7 @@ export const UploadData: React.FC = (props) => {
       });
 
       console.log("Response upload manifest:", response.data);
-      const ipfs: any = "ipfs://" + response.data[0].cidv1;
+      const ipfs: any = "https://ipfs.io/ipfs/" + response.data[0].cidv1;
       if (response.data[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly");
@@ -208,6 +229,7 @@ export const UploadData: React.FC = (props) => {
     });
   };
 
+  /// analyze this for performance
   function swapSongs(first: number, second: number) {
     //console.log(first, second, numberOfSongs);
     if (first < 1 || second >= numberOfSongs) {
@@ -216,48 +238,67 @@ export const UploadData: React.FC = (props) => {
 
     if (second === -1) {
       const variableSongsData = { ...songsData };
+      const variableFilePairs = { ...filePairs };
       // means we want to delete song with index first
       for (var i = first; i < numberOfSongs - 1; ++i) {
         variableSongsData[i] = variableSongsData[i + 1];
-        variableSongsData[i] = variableSongsData[i + 1];
+        variableFilePairs[i] = variableFilePairs[i + 1];
       }
       delete variableSongsData[numberOfSongs - 1];
-      delete filePairs[numberOfSongs - 1];
+      delete variableFilePairs[numberOfSongs - 1];
       setSongsData(variableSongsData);
+      setFilePairs(variableFilePairs);
       setNumberOfSongs((prev) => prev - 1);
       return;
     }
 
     //console.log("SongsData before swap: ", songsData);
-
-    const storeSong = songsData[second];
     var songsDataVar = { ...songsData };
+    const storeSong = songsDataVar[second];
     songsDataVar[second] = songsDataVar[first];
     songsDataVar[first] = storeSong;
-    const storeFile = filePairs[second];
+
     var storeFilesVar = { ...filePairs };
+    const storeFile = storeFilesVar[second];
     storeFilesVar[second] = storeFilesVar[first];
     storeFilesVar[first] = storeFile;
-    //console.log("song data set dele", songsData);
 
-    //console.log("after swap", songsDataVar);
     setSongsData(songsDataVar);
     setFilePairs(storeFilesVar);
   }
 
+  // setter function for a music Data nft form fields
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
-    //console.log("IN PARENT :", index, formInputs, image, audio);
-    if (image && audio) setFilePairs(Object.assign({}, filePairs, { [index]: { image: image, audio: audio } }));
+    if (image && audio) {
+      // Both image and audio exist
+      setFilePairs((prevFilePairs) => ({
+        ...prevFilePairs,
+        [index]: { image: image, audio: audio },
+      }));
+    } else if (image) {
+      // Only image exists
+      setFilePairs((prevFilePairs) => ({
+        ...prevFilePairs,
+        [index]: { ...prevFilePairs[index], image: image },
+      }));
+    } else if (audio) {
+      // Only audio exists
+      setFilePairs((prevFilePairs) => ({
+        ...prevFilePairs,
+        [index]: { ...prevFilePairs[index], audio: audio },
+      }));
+    } else {
+      // Neither image nor audio exists
+      console.log("Both image and audio are missing");
+    }
 
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
-    //console.log("SIR de files", filePairs);
   };
 
   function copyLink(): void {
     if (manifestCid) navigator.clipboard.writeText(manifestCid);
     else console.log("Error: Manifest is null. Nothing to copy");
   }
-
   return (
     <div className="p-4 flex flex-col">
       <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
