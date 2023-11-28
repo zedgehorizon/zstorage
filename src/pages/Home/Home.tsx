@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { XStorageCheckBox } from "../../components/InputComponents/XStorageCheckBox";
 import { Button } from "../../libComponents/Button";
 import { Link } from "react-router-dom";
+import { DataAssetList } from "../../components/Lists/DataAssetsList";
 
 export const Home: React.FC = () => {
   // options
@@ -36,7 +37,10 @@ export const Home: React.FC = () => {
         setterFunction={setDataAssetAction}
       />
       {dataAssetAction === "Update Data Asset" ? (
-        <div className="bg-sky-300/60 w-[80%] h-screen"> FETCH BACKEND AND SELECT DATA ASSET</div>
+        <div className=" w-[80%] h-screen">
+          {" "}
+          <DataAssetList />
+        </div>
       ) : (
         dataAssetAction === "Create Data Asset" && (
           <>
@@ -93,7 +97,9 @@ export const Home: React.FC = () => {
           storage: storage,
           descentralized: descentralizedStorage,
         }}>
-        <Button className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">Next</Button>
+        {dataAssetAction !== "Update Data Asset" && (
+          <Button className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">Next</Button>
+        )}
       </Link>
     </div>
   );

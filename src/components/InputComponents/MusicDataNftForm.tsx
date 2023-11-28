@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2 } from "lucide-react";
+import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2, SaveIcon, CheckCheck, CheckCircleIcon } from "lucide-react";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 import songFallbackImage from "../../assets/img/audio-player-image.png";
 
@@ -162,7 +162,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       <form onChange={() => setIsSaved(false)} onSubmit={form.handleSubmit(onSubmit)} className="flex flex-row space-y-4 gap-4 ">
         <div>
           <div>
-            <label className="block text-gray-700">Date</label>
+            <label className="block text-foreground">Date</label>
             <input
               type="date"
               className="bg-black/20 w-full p-2 border border-gray-300 rounded"
@@ -175,28 +175,34 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           </div>
 
           <div>
-            <label className="block text-gray-700">Category</label>
+            <label className="block text-foreground">Category</label>
             <input type="text" className=" bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("category")} />
             {form.formState.errors.category && <p className="text-red-500">{form.formState.errors.category.message}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-700">Artist</label>
+            <label className="block text-foreground">Artist</label>
             <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("artist")} />
             {form.formState.errors.artist && <p className="text-red-500">{form.formState.errors.artist.message}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-700">Album</label>
+            <label className="block text-foreground">Album</label>
             <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("album")} />
             {form.formState.errors.album && <p className="text-red-500">{form.formState.errors.album.message}</p>}
           </div>
 
           <div>
-            <label className="block text-gray-700">Title</label>
+            <label className="block text-foreground">Title</label>
             <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("title")} />
             {form.formState.errors.title && <p className="text-red-500">{form.formState.errors.title.message}</p>}
           </div>
+          {isSaved && (
+            <div className="mt-2  flex flex-row gap-2 text-green-400">
+              {" "}
+              Saved <CheckCircleIcon />{" "}
+            </div>
+          )}
         </div>
         <div className="gap-4 flex-col flex items-center justify-center ">
           <img
@@ -204,7 +210,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             src={imageURL !== "" ? imageURL : songFallbackImage}
             alt={"Cover Image"}></img>
           <div className="">
-            <label className=" block text-gray-700">Cover Art Image</label>
+            <label className=" block text-foreground">Cover Art Image</label>
             {(imageFile || imageURL !== "") && !wantToEditImage ? (
               <div className="flex w-full ">
                 <p className="flex justify-center allign-center"> {imageFile ? imageFile.name : "Image.img or nothing ?"}</p>
@@ -225,7 +231,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             {form.formState.errors.coverArt && <p className="text-red-500">{form.formState.errors.coverArt.message?.toString()}</p>}
           </div>
           <div>
-            <label className="block text-gray-700">Track File (MP3)</label>
+            <label className="block text-foreground">Track File (MP3)</label>
 
             {(audioFile || audioURL) && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
@@ -248,7 +254,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           {/* onClick={() => onSubmit(form.getValues())}  */}
           <div className="w-full flex flex-row ">
             <div className="w-full flex justify-center">
-              <button type="submit" className=" self-center hover:shadow-inner hover:shadow-sky-400   text-white p-2 rounded  ">
+              <button type="submit" className=" self-center hover:shadow-inner hover:shadow-sky-400  text-foreground p-2 rounded  ">
                 Save
               </button>
             </div>
@@ -256,7 +262,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               <Trash2 />
             </Button>
           </div>
-          {isSaved && <p className="text-green-400"> saved</p>}
         </div>
       </form>
     </div>

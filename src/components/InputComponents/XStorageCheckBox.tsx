@@ -6,7 +6,7 @@ type XStorageCheckBoxProps = {
   description: string;
   options: any[];
   descriptions: any[];
-  setterFunction: (selectedOption: any) => void; // function to set in big component
+  setterFunction: (selectedOption: any) => void; // function to save in parent component
   disabled?: boolean[];
 };
 
@@ -47,13 +47,14 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               peer-checked:bg-green-200 disabled:bg-sky-300 hover:bg-gray-50 
               dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 
               transform hover:scale-105 shadow-md hover:shadow-lg
-              ${props.disabled && props.disabled[index] ? "hover:cursor-not-allowed" : ""}
+              ${props.disabled && props.disabled[index] ? "hover:cursor-not-allowed bg-gray-500/40" : ""}
             `}>
               <div className="block">
                 {/* add logo maybe */}
                 <div className="w-full text-lg font-semibold">{title}</div>
                 <div className="w-full text-sm"> {descriptions[index]}</div>
-              </div>
+              </div>{" "}
+              {props.disabled && props.disabled[index] && <p className="text-gray-500">Coming soon...</p>}
             </label>{" "}
             <label htmlFor={`react-option-${title + "->" + index}`} className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
               <CheckCircle className="ml-auto" color="green"></CheckCircle>

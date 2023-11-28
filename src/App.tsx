@@ -18,6 +18,18 @@ const routes = [
     component: Home,
     authenticatedRoute: false,
   },
+  {
+    path: "/upload",
+    title: "Upload Files",
+    component: UploadData,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/unlock",
+    title: "Unlock",
+    component: Unlock,
+    authenticatedRoute: false,
+  },
 ];
 
 function App() {

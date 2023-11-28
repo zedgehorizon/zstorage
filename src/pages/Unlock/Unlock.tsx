@@ -5,6 +5,7 @@ import { useGetNetworkConfig } from "@multiversx/sdk-dapp/hooks";
 import { NativeAuthConfigType } from "@multiversx/sdk-dapp/types";
 import { useLocation } from "react-router-dom";
 import { getApi } from "../../utils/misc";
+import { walletConnectV2ProjectId } from "../../config";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
@@ -36,12 +37,14 @@ export const Unlock: React.FC = () => {
           onLoginRedirect={() => navigate("/")}
           loginButtonText={"Extension"}
         />
+
         <WalletConnectLoginButton
           className={buttonStyles}
           {...commonProps}
           callbackRoute={"/"}
           onLoginRedirect={() => navigate("/")}
-          loginButtonText={"xPortal"}
+          loginButtonText="xPortal App"
+          {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
         />
         <WebWalletLoginButton className={buttonStyles} {...commonProps} callbackRoute={"/"} loginButtonText={"Web wallet"} />
         <LedgerLoginButton className={buttonStyles} loginButtonText="Ledger" {...commonProps} />
