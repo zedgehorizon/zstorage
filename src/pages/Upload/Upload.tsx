@@ -27,8 +27,7 @@ export const UploadData: React.FC = (props) => {
   // const action = state ? state.action : null;
   //const { manifestFile } = location.state || {};
   //const {  } = location.state || {};
-  const { manifestFile, action, type, template, storage, descentralized } = location.state || {};
-  console.log("upload manifest : ", manifestFile);
+  const { manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
 
@@ -48,15 +47,12 @@ export const UploadData: React.FC = (props) => {
     stream: "no",
   });
   const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNWQyZWJiMDE0ZmFiZTg4YjI4MTE3MjY4NTZmOThiMDVkMTEyNDkzZjBiNjZjMmIwY2UzYzgxNGViMjVkZWI1Ni43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFeE9UQXdNREI5.e4bc5176f9fd7547bcd69d23c8e846ff97194ecb10a9d588924013a12310dd46ba54023a9155f85e23dd96262bce2cf13a72fa5992ba256ae5c2d7ac3a167406";
+    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuZDMwZTYyZTZmZmE2YmZiN2E1N2E4NjYzNjQ0ZmExZmM3Y2UwMzAyMzkwMjRhMDUzOThlYjljNWJjZmNjNjhkYy43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFek16VXlOemg5.956c0f735682424e733d38bac96cb35590928a3ebd7275a367ff5c11ad48d9782204510ab9ad4bcb44fa6d976c9498e365f431969079616295c42866c29fc60b";
   const apiUrlPost = `${API_URL}/upload`; //refactor this as env file
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
-      console.log("forms", formData);
-      console.log("forms", manifestFile.data);
       const dataStream = manifestFile.data_stream;
-      console.log(dataStream);
       setFormData({
         ["name"]: dataStream.name,
         ["creator"]: dataStream.creator,
@@ -73,29 +69,30 @@ export const UploadData: React.FC = (props) => {
         },
         {} as Record<number, SongData>
       );
-      console.log("SOngsData MAP ", songsDataMap);
+      //console.log("SOngsData MAP ", songsDataMap);
       setSongsData(songsDataMap);
     }
   }, [manifestFile]);
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
-    const formData = new FormData();
-    console.log("UPLOADING");
+    const filesToUpload = new FormData();
+    //console.log("UPLOADING");
     //iterating over the songsData and for each object add its image and song to the formData
     Object.values(songsData).forEach((songData, idx) => {
       // todo must change the way of storing, its not ok only by title
-      console.log("Before");
+      //console.log("Before");
       if (songData && songData?.title && filePairs[idx + 1]) {
-        if (filePairs[idx + 1]?.image) formData.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+        if (filePairs[idx + 1]?.image) filesToUpload.append("files", filePairs[idx + 1].image, "image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
 
-        if (filePairs[idx + 1]?.audio) formData.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
-        console.log("inside if ");
+        if (filePairs[idx + 1]?.audio) filesToUpload.append("files", filePairs[idx + 1].audio, "audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+        //console.log("inside if ");
       }
     });
-    console.log("form data ", formData);
+    //console.log("form data ", formData);
+    if (filesToUpload.getAll("files").length === 0) return [];
     try {
-      const response = await axios.post(apiUrlPost, formData, {
+      const response = await axios.post(apiUrlPost, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
           "Content-Type": "multipart/form-data",
@@ -106,7 +103,7 @@ export const UploadData: React.FC = (props) => {
       console.error("Error uploading files:", error);
     }
   }
-  console.log("File pairs : ", filePairs);
+  // console.log("File pairs : ", filePairs);
 
   // get all songs data into the right format for manifest file
   async function transformSongsData() {
@@ -166,9 +163,11 @@ export const UploadData: React.FC = (props) => {
       setIsUploadingSongs(false);
     }
   }
+  console.log("Manifest file from update", manifestFile);
 
   const generateManifestFile = async () => {
     const data = await transformSongsData();
+    console.log("The data", data);
     if (data === undefined) {
       throw new Error("Error transforming the data");
     }
@@ -191,15 +190,19 @@ export const UploadData: React.FC = (props) => {
     // console.log("TOJEN", tokenLogin?.nativeAuthToken);
 
     ///GETTER
-
     const formDataFormat = new FormData();
-    formDataFormat.append("files", new Blob([JSON.stringify(manifest)], { type: "application/json" }), "manifest-" + formData.name + "-" + formData.creator);
+    formDataFormat.append(
+      "files",
+      new Blob([JSON.stringify(manifest)], { type: "application/json" }),
+      (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator
+    );
 
     try {
       const response = await axios.post(apiUrlPost, formDataFormat, {
         headers: {
           "authorization": `Bearer ${theToken}`,
           "Content-Type": "multipart/form-data",
+          "x-amz-meta-marshal-deep-fetch": 1,
         },
       });
 
@@ -252,7 +255,6 @@ export const UploadData: React.FC = (props) => {
       return;
     }
 
-    //console.log("SongsData before swap: ", songsData);
     var songsDataVar = { ...songsData };
     const storeSong = songsDataVar[second];
     songsDataVar[second] = songsDataVar[first];
@@ -267,7 +269,7 @@ export const UploadData: React.FC = (props) => {
     setFilePairs(storeFilesVar);
   }
 
-  // setter function for a music Data nft form fields
+  // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
     if (image && audio) {
       // Both image and audio exist
@@ -299,6 +301,7 @@ export const UploadData: React.FC = (props) => {
     if (manifestCid) navigator.clipboard.writeText(manifestCid);
     else console.log("Error: Manifest is null. Nothing to copy");
   }
+
   return (
     <div className="p-4 flex flex-col">
       <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
@@ -334,7 +337,10 @@ export const UploadData: React.FC = (props) => {
       </div>
       <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl bg-black/20">
         <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Header</h1>
+          <div className="flex flex-row gap-8 items-center">
+            <h1 className="text-2xl font-bold mb-6">Header </h1>
+            <h3 className="ml-auto"> {version && `Version:  ${version}`}</h3>
+          </div>
           <form className="flex gap-x-4">
             <div className="mb-4">
               <label htmlFor="name" className="block text-foreground mb-2">
