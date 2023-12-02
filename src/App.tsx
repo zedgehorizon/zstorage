@@ -16,7 +16,7 @@ const routes = [
     path: "/",
     title: "Home",
     component: Home,
-    authenticatedRoute: false,
+    authenticatedRoute: true,
   },
   {
     path: "/upload",

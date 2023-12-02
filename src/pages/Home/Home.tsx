@@ -13,14 +13,6 @@ export const Home: React.FC = () => {
   const [storage, setStorage] = useState();
   const [descentralizedStorage, setDescentralizedStorage] = useState();
 
-  var options = {
-    action: 0, // update, create
-    type: 0, //static, dynamic
-    template: 0, // music, trailbrazer , create
-    storage: 0, // centralized , descentralized
-    descentralized: 0, // 4 options
-  };
-
   const descriptions = ["Description1", "Description2", "Description3", "ASD"]; // Replace with your actual descriptions array
   /// TODO ADD CONSTANTS and just map through them
   return (
@@ -81,7 +73,7 @@ export const Home: React.FC = () => {
                 options={["DNS (domain) + IPFS", "DNS (domain) + Arweave", "Ceramic", "IPNS + IPFS"]}
                 descriptions={descriptions}
                 setterFunction={setDescentralizedStorage}
-                disabled={[true, true, true, false]}
+                disabled={[false, true, true, true]}
               />
             )}
           </>

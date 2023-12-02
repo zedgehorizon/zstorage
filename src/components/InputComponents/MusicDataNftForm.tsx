@@ -7,7 +7,11 @@ import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2, SaveIcon, CheckCheck, Ch
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 import songFallbackImage from "../../assets/img/audio-player-image.png";
 
-// validation schema
+//todo add validation for the file size and type
+// todo if the img is not loading it keeps the image of the song you are swaping with (maybe add a fallback image)
+// todo check why getting 502(The gateway is currently overloaded. Please wait a while and retry your request.
+
+/// validation schema
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
   category: z.string().min(1, "Required field"),
@@ -97,18 +101,16 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   // populate the form
   useEffect(() => {
+    console.log("received song props", props.song);
     form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
     form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
-    //form.setValue("file", props.song["file"] ? props.song["file"] : "");
-    //form.setValue("cover_art_url", props.song["cover_art_url"] ? props.song["cover_art_url"] : "");
-    if (props.song["cover_art_url"]) {
-      setImageURL(props.song["cover_art_url"]);
-      //setImageURL("https://ipfs.io/ipfs/" + props.song["cover_art_url"].replace("ipfs://", ""));
 
+    if (props.song["cover_art_url"]) {
       form.setValue("cover_art_url", props.song["cover_art_url"]);
+      setImageURL(props.song["cover_art_url"]);
     } else {
       setwantToEditImage(false);
       setImageURL("");
@@ -125,7 +127,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }, [props.song]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    //console.log("VAL on submit", values);
     props.setterFunction(props.index, values, imageFile, audioFile);
     setIsSaved(true);
   }
@@ -162,14 +163,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div>
           <div>
             <label className="block text-foreground">Date</label>
-            <input
-              type="date"
-              className="bg-black/20 w-full p-2 border border-gray-300 rounded"
-              {...form.register("date")}
-              onChange={(e) => {
-                //form.setValue("date", new Date(e.target.value));
-              }}
-            />
+            <input type="date" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("date")} />
             {form.formState.errors.date && <p className="text-red-500">{form.formState.errors.date.message}</p>}
           </div>
 
@@ -207,12 +201,14 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <img
             className="mx-auto flex justify-center allign-center w-32 h-32 border border-white"
             src={imageURL !== "" ? imageURL : songFallbackImage}
+            onError={() => {
+              setImageURL(songFallbackImage);
+            }}
             alt={"Cover Image"}></img>{" "}
           <label className=" block text-foreground">Cover Art Image</label>
           <div className="flex w-full justify-end">
             {(imageFile || imageURL !== "") && !wantToEditImage ? (
               <div>
-                {/* <p className="flex justify-center allign-center"> {imageFile ? imageFile.name : "Image.img or nothing ?"}</p> */}
                 <Button className="scale-75  justify-end hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditImage(true)}>
                   <Edit2 scale={0.5}></Edit2>
                 </Button>
@@ -236,7 +232,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
                   <audio src={audioURL} className="scale-75" controls></audio>
-                  {/* <p className="flex justify-center allign-center"> {audioFile?.name}</p> */}
                   <Button className="scale-75  ml-auto  hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditAudio(true)}>
                     <Edit2 scale={0.5}></Edit2>
                   </Button>
@@ -247,7 +242,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             )}
             {form.formState.errors.file && <p className="text-red-500">{form.formState.errors.file.message?.toString()}</p>}
           </div>
-          {/* onClick={() => onSubmit(form.getValues())}  */}
           <div className="w-full flex flex-row ">
             <div className="w-full flex justify-center">
               <button type="submit" className=" self-center hover:shadow-inner hover:shadow-sky-400  text-foreground p-2 rounded  ">
