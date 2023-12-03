@@ -4,6 +4,7 @@ import { XStorageCheckBox } from "../../components/InputComponents/XStorageCheck
 import { Button } from "../../libComponents/Button";
 import { Link } from "react-router-dom";
 import { DataAssetList } from "../../components/Lists/DataAssetsList";
+import toast, { ToastBar, Toaster } from "react-hot-toast";
 
 export const Home: React.FC = () => {
   // options
@@ -12,8 +13,15 @@ export const Home: React.FC = () => {
   const [dynamicDataStream, setDynamicDataStream] = useState();
   const [storage, setStorage] = useState();
   const [descentralizedStorage, setDescentralizedStorage] = useState();
-
   const descriptions = ["Description1", "Description2", "Description3", "ASD"]; // Replace with your actual descriptions array
+
+  function checkSelectedOptions() {
+    if (dataAssetAction === "Update Data Asset" || !dataAssetAction || !dynamicDataStreamOption || !dynamicDataStream || !storage || !descentralizedStorage) {
+      return false;
+    }
+    return true;
+  }
+
   /// TODO ADD CONSTANTS and just map through them
   return (
     <div className="w-full  min-h-screen flex flex-col justify-center items-center gap-12 p-12">
@@ -79,20 +87,40 @@ export const Home: React.FC = () => {
           </>
         )
       )}
-
-      <Link
-        to={"/upload"}
-        state={{
-          action: dataAssetAction,
-          type: dynamicDataStreamOption,
-          template: dynamicDataStream,
-          storage: storage,
-          descentralized: descentralizedStorage,
-        }}>
-        {dataAssetAction !== "Update Data Asset" && (
-          <Button className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">Next</Button>
-        )}
-      </Link>
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        containerStyle={{
+          position: "absolute",
+        }}
+        toastOptions={{
+          className: "",
+          duration: 5000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            duration: 3000,
+          },
+        }}
+      />
+      {checkSelectedOptions() ? (
+        <Link
+          to={"/upload"}
+          state={{
+            action: dataAssetAction,
+            type: dynamicDataStreamOption,
+            template: dynamicDataStream,
+            storage: storage,
+            descentralized: descentralizedStorage,
+          }}
+          className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">
+          Next
+        </Link>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

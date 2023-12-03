@@ -10,7 +10,12 @@ import { CopyIcon, InfoIcon } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast, { Toaster } from "react-hot-toast";
 
-/// todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
+import { theToken } from "../../utils/constants";
+
+//todo verify and dont allow users to upload manifest files without songs
+// todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
+// todo error handling , watch a video before
+
 type SongData = {
   date: string;
   category: string;
@@ -20,6 +25,7 @@ type SongData = {
   file: string;
   cover_art_url: string;
 };
+
 type FilePair = {
   image: File;
   audio: File;
@@ -34,10 +40,11 @@ export const UploadData: React.FC = (props) => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
+
   const [isUploadingSongs, setIsUploadingSongs] = useState(false);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
-  const [progressBar, setProgressBar] = useState(0);
 
+  const [progressBar, setProgressBar] = useState(0);
   const [manifestCid, setManifestCid] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -47,51 +54,62 @@ export const UploadData: React.FC = (props) => {
     totalItems: 0,
     stream: "false",
   });
-  const theToken =
-    "ZXJkMXZ5ZWp2NTJlNDNmeHE5NmNzY2h5eWo5ZzU3cW45a2d0eHJoa2c5MmV5aGZ1NWEwMjJwbHF0ZHh2ZG0.YUhSMGNITTZMeTkxZEdsc2N5NXRkV3gwYVhabGNuTjRMbU52YlEuNWExYWY1ZGY3ZjQ5NzFiOTJhMDQwNDRjMmZmNTIzYTUxYjA5ZmIxZTczYzdhYmM3NDVhNWIxN2M2NWZkZWE2Mi43MjAwLmV5SjBhVzFsYzNSaGJYQWlPakUzTURFMU5URXlNemw5.548e50cdf78e360e566340fc84d5f42673da0bfc64b97b0576db5f96160ce0a4c0a7588ff3ef208a26146003b89794e111771b81c92126eab9fc6db8a3419d0d";
   const apiUrlPost = `${API_URL}/upload`;
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
-      const dataStream = manifestFile.data_stream;
-      setFormData({
-        ["name"]: dataStream.name,
-        ["creator"]: dataStream.creator,
-        ["createdOn"]: dataStream.created_on,
-        ["modifiedOn"]: new Date(dataStream.last_modified_on).toISOString().split("T")[0],
-        ["stream"]: dataStream.marshalManifest.nestedStream === true ? "true" : "false",
-        ["totalItems"]: dataStream.marshalManifest.totalItems,
-      });
-      setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
-      const songsDataMap = manifestFile.data.reduce(
-        (acc: any, song: any) => {
-          if (song) acc[song.idx] = song;
-          return acc;
-        },
-        {} as Record<number, SongData>
-      );
-      setSongsData(songsDataMap);
+      try {
+        const dataStream = manifestFile.data_stream;
+        setFormData({
+          ["name"]: dataStream.name,
+          ["creator"]: dataStream.creator,
+          ["createdOn"]: dataStream.created_on,
+          ["modifiedOn"]: new Date(dataStream.last_modified_on).toISOString().split("T")[0],
+          ["stream"]: dataStream.marshalManifest.nestedStream === true ? "true" : "false",
+          ["totalItems"]: dataStream.marshalManifest.totalItems,
+        });
+        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        const songsDataMap = manifestFile.data.reduce(
+          (acc: any, song: any) => {
+            if (song) acc[song.idx] = song;
+            return acc;
+          },
+          {} as Record<number, SongData>
+        );
+        setSongsData(songsDataMap);
+      } catch (err) {
+        console.log("ERROR: ", err);
+        if (err instanceof Error) {
+          toast.error("Error parsing manifest file. Invalid manifest file : " + err.message);
+        } else {
+          toast.error("Error parsing manifest file.");
+        }
+      }
     }
   }, [manifestFile]);
 
-  console.log(manifestFile);
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
     /// refactor , iterate through the files, not through the songsData
     const filesToUpload = new FormData();
-
-    //iterating over the songsData and for each object add its image and song to the formData
-    Object.values(songsData).forEach((songData, idx) => {
-      // todo must change the way of storing, its not ok only by title
-      if (songData && songData?.title && filePairs[idx + 1]) {
-        if (filePairs[idx + 1]?.image) {
-          filesToUpload.append("files", filePairs[idx + 1].image, (version ? version + 1 : "1") + ".-image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+    try {
+      //iterating over the songsData and for each object add its image and song to the formData
+      Object.values(songsData).forEach((songData, idx) => {
+        // todo must change the way of storing, its not ok only by title
+        if (songData && songData?.title && filePairs[idx + 1]) {
+          if (filePairs[idx + 1]?.image) {
+            filesToUpload.append("files", filePairs[idx + 1].image, (version ? version + 1 : "1") + ".-image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+          }
+          if (filePairs[idx + 1]?.audio) filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
         }
-        if (filePairs[idx + 1]?.audio) filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
-      }
-    });
-    //console.log("form data : ", filesToUpload.getAll("files").length);
-
+      });
+      //console.log("form data : ", filesToUpload.getAll("files").length);
+    } catch (err) {
+      console.log("ERROR iterating through songs Data : ", err);
+      toast.error(
+        "Error iterating through songs Data : " + `${err instanceof Error ? err.message : ""}` + " Please check all the fields to be filled correctly."
+      );
+    }
     if (filesToUpload.getAll("files").length === 0) return [];
     try {
       const response = await axios.post(apiUrlPost, filesToUpload, {
@@ -103,10 +121,16 @@ export const UploadData: React.FC = (props) => {
       return response.data;
     } catch (error) {
       console.error("Error uploading files:", error);
+      toast.error("Error uploading files to Ipfs: " + `${error instanceof Error ? error.message : ""}`);
     }
   }
 
-  // get all songs data into the right format for manifest file
+  /**
+   * Get all songs data into the right format for manifest file
+   * Transforms the songs data and uploads the songs and images files.
+   * @returns {Array<Object>} The transformed data of the songs.
+   * @throws {Error} If the upload songs process did not work correctly or if the data has not been uploaded correctly.
+   */
   async function transformSongsData() {
     setIsUploadingSongs(true);
     setProgressBar(20);
@@ -114,7 +138,7 @@ export const UploadData: React.FC = (props) => {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       //console.log("THE RESPONSE data IS : ", responseDataCIDs);
 
-      if (!responseDataCIDs) throw new Error("Upload songs did not work correctly");
+      if (!responseDataCIDs) throw new Error("Upload songs returned empty array");
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -126,13 +150,13 @@ export const UploadData: React.FC = (props) => {
               matchingObjImage = responseDataCIDs.find(
                 (uploadedFileObj: any) => uploadedFileObj.fileName === (version ? version + 1 : "1") + `.-image.${songObj.title}`
               );
-              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found");
+              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
               matchingObjSong = responseDataCIDs.find(
                 (uploadedFileObj: any) => uploadedFileObj.fileName === (version ? version + 1 : "1") + `.-audio.${songObj.title}`
               );
-              if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found");
+              if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
 
@@ -153,68 +177,85 @@ export const UploadData: React.FC = (props) => {
       });
 
       setIsUploadingSongs(false);
-      // console.log(
-      //   "transformed data: ",
-      //   transformedData.filter((song: any) => song !== null)
-      // );
+      // return only the songs that are not null
       return transformedData.filter((song: any) => song !== null);
     } catch (err) {
-      console.log("ERROR: ", err);
+      toast.error("Error transforming the data: " + `${err instanceof Error ? err.message : ""}`);
+      console.log("ERROR transforming the data: ", err);
       setIsUploadingSongs(false);
     }
   }
-
+  /**
+   * Generates a manifest file based on the form data and uploads it to the server.
+   * If any required fields are missing, an error toast is displayed.
+   * The manifest file is created with the following structure:
+   * {
+   *   "data_stream": {
+   *     "name": string,
+   *     "creator": string,
+   *     "created_on": string,
+   *     "last_modified_on": string,
+   *     "marshalManifest": {
+   *       "totalItems": number,
+   *       "nestedStream": boolean
+   *     }
+   *   },
+   *   "data": any
+   * }
+   * The manifest file is uploaded to the server using a multipart/form-data request.
+   * The response contains the CID (Content Identifier) of the uploaded manifest file.
+   * If the upload is successful, the CID is set as the manifestCid state.
+   * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
+   */
   const generateManifestFile = async () => {
-    if (!formData.name || !formData.creator || !formData.createdOn) {
+    if (!formData.name || !formData.creator || !formData.createdOn || !songsData) {
       toast.error("Please fill all the fields from the header section");
       return;
     }
-    const data = await transformSongsData();
-    if (data === undefined) {
-      throw new Error("Error transforming the data");
-    }
-    setIsUploadingManifest(true);
-    setProgressBar(60);
-    const manifest = {
-      "data_stream": {
-        "name": formData.name,
-        "creator": formData.creator,
-        "created_on": formData.createdOn,
-        "last_modified_on": version ? new Date().toISOString() : formData.createdOn,
-        "marshalManifest": {
-          "totalItems": numberOfSongs - 1,
-          "nestedStream": formData.stream === "true" ? true : false,
-        },
-      },
-      "data": data,
-    };
-    // console.log("new Manifest fIle", manifest);
-    ///GETTER
-    const formDataFormat = new FormData();
-    formDataFormat.append(
-      "files",
-      new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-      (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator
-    );
-
     try {
+      const data = await transformSongsData();
+      if (data === undefined) {
+        throw new Error("Error transforming the data. Add at least one song.");
+      }
+      setIsUploadingManifest(true);
+      setProgressBar(60);
+      const manifest = {
+        "data_stream": {
+          "name": formData.name,
+          "creator": formData.creator,
+          "created_on": formData.createdOn,
+          "last_modified_on": version ? new Date().toISOString() : formData.createdOn,
+          "marshalManifest": {
+            "totalItems": numberOfSongs - 1,
+            "nestedStream": formData.stream === "true" ? true : false,
+          },
+        },
+        "data": data,
+      };
+      const formDataFormat = new FormData();
+      formDataFormat.append(
+        "files",
+        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
+        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator
+      );
+
       const response = await axios.post(apiUrlPost, formDataFormat, {
         headers: {
           "authorization": `Bearer ${theToken}`,
           "Content-Type": "multipart/form-data",
-          "x-amz-meta-marshal-deep-fetch": 1,
+          // "x-amz-meta-marshal-deep-fetch": 1,
         },
       });
 
-      //console.log("Response upload manifest:", response.data);
       const ipfs: any = "ipfs/" + response.data[0].cidv1;
       if (response.data[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly");
       }
     } catch (error) {
+      toast.error("Error generating the manifest file: " + `${error instanceof Error ? error.message : ""}`);
       setIsUploadingManifest(false);
-      console.error("Error:", error);
+      console.log("Error:", error);
     }
     setIsUploadingManifest(false);
     setProgressBar(100);
@@ -233,6 +274,20 @@ export const UploadData: React.FC = (props) => {
     });
   };
 
+  function deleteSong(index: number) {
+    const variableSongsData = { ...songsData };
+    const variableFilePairs = { ...filePairs };
+    for (let i = index; i < numberOfSongs - 1; ++i) {
+      variableSongsData[i] = variableSongsData[i + 1];
+      variableFilePairs[i] = variableFilePairs[i + 1];
+    }
+    delete variableSongsData[numberOfSongs - 1];
+    delete variableFilePairs[numberOfSongs - 1];
+    setSongsData(variableSongsData);
+    setFilePairs(variableFilePairs);
+    setNumberOfSongs((prev) => prev - 1);
+  }
+
   /**
    * Swaps the songs at the given indices in the songsData and filePairs state.
    * If second is -1, it deletes the song at index first.
@@ -244,19 +299,9 @@ export const UploadData: React.FC = (props) => {
       return;
     }
 
+    // deleting song with index first
     if (second === -1) {
-      const variableSongsData = { ...songsData };
-      const variableFilePairs = { ...filePairs };
-      // means we want to delete song with index first
-      for (let i = first; i < numberOfSongs - 1; ++i) {
-        variableSongsData[i] = variableSongsData[i + 1];
-        variableFilePairs[i] = variableFilePairs[i + 1];
-      }
-      delete variableSongsData[numberOfSongs - 1];
-      delete variableFilePairs[numberOfSongs - 1];
-      setSongsData(variableSongsData);
-      setFilePairs(variableFilePairs);
-      setNumberOfSongs((prev) => prev - 1);
+      deleteSong(first);
       return;
     }
 
@@ -277,39 +322,38 @@ export const UploadData: React.FC = (props) => {
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
     if (image && audio) {
-      // Both image and audio exist
+      // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, audio: audio },
       }));
     } else if (image) {
-      // Only image exists
+      // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
     } else if (audio) {
-      // Only audio exists
+      // Only audio file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], audio: audio },
       }));
-    } else {
-      // Neither image nor audio exists
-      console.log("Both image and audio are missing");
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
 
+  /// copy the link to clipboard
   function copyLink(text: string): void {
     if (text) navigator.clipboard.writeText(text);
-    else console.log("Error: Manifest is null. Nothing to copy");
+    else toast.error("Error copying the link to clipboard");
   }
   // console.log("songsData: ", songsData);
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
   // console.log("formData: ", formData);
   // console.log("totalItems: ", numberOfSongs);
+  // console.log("manifestCid: ", manifestCid);
 
   return (
     <div className="p-4 flex flex-col">
@@ -432,7 +476,8 @@ export const UploadData: React.FC = (props) => {
                   No
                 </label>
               </div>
-            </div> } */}
+            </div> } 
+              */}
           </form>
         </div>
         <div className="mt-4 space-y-8 p-8 rounded-lg shadow-md   ">
@@ -513,7 +558,21 @@ export const UploadData: React.FC = (props) => {
           </div>
         </div>
       )}
-      <Toaster />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          className: "",
+          duration: 5000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            duration: 3000,
+          },
+        }}
+      />
       <ProgressBar progress={progressBar} />
     </div>
   );
