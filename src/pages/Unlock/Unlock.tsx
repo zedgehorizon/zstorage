@@ -50,7 +50,7 @@ export const Unlock: React.FC = () => {
         <LedgerLoginButton className={buttonStyles} loginButtonText="Ledger" {...commonProps} />
         <WebWalletLoginButton
           className={buttonStyles}
-          loginButtonText={"Custom Web Wallet"}
+          loginButtonText={"Google (xAlias)"}
           buttonClassName="auth_button"
           customWalletAddress="https://web2auth.com"
           {...commonProps}></WebWalletLoginButton>

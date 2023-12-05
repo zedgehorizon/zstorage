@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle } from "lucide-react";
+import { twMerge } from "tailwind-merge";
+import { ToolTip } from "../../libComponents/Tooltip";
 
 type XStorageCheckBoxProps = {
   title: string;
@@ -40,21 +42,24 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
             />{" "}
             <label
               htmlFor={`react-option-${title + "->" + index}`}
-              className={`
+              className={twMerge(`
               inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer 
               dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-sky-500 
               hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 
               peer-checked:bg-green-200 disabled:bg-sky-300 hover:bg-gray-50 
               dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 
               transform hover:scale-105 shadow-md hover:shadow-lg
-              ${props.disabled && props.disabled[index] ? "hover:cursor-not-allowed bg-gray-400/40 " : ""}
-            `}>
-              <div className="block">
-                {/* add logo maybe */}
-                <div className="w-full text-lg font-semibold">{title}</div>
-                <div className="w-full text-sm"> {descriptions[index]}</div>
-              </div>{" "}
-              {props.disabled && props.disabled[index] && <p className="text-gray-500">Coming soon...</p>}
+              ${props.disabled && props.disabled[index] ? " hover:cursor-not-allowed  bg-gray-400/40 " : ""}  
+            `)}>
+              <ToolTip tooltip={props.disabled && props.disabled[index] ? "Coming soon" : ""}>
+                <div className="block">
+                  {/* add logo maybe */}
+                  <div className="w-full text-lg font-semibold">{title}</div>
+                  <div className="w-full text-sm"> {descriptions[index]}</div>
+                </div>{" "}
+              </ToolTip>
+
+              {/* {props.disabled && props.disabled[index] && <div className="w-full h-full"></div>} */}
             </label>{" "}
             <label htmlFor={`react-option-${title + "->" + index}`} className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
               <CheckCircle className="ml-auto" color="green"></CheckCircle>

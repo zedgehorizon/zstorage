@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, Loader, Loader2 } from "lucide-react";
 import React from "react";
 
 interface ProgressBarProps {
@@ -37,15 +37,19 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
               </div>
             </div>
           ) : (
-            <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-              <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
-                <div className="  relative bg-white  shadow-lg px-2 py-1 rounded mt-20  ">
-                  <p tabIndex={0} className="focus:outline-none text-indigo-700 text-xs font-bold">
-                    Uploading files
-                  </p>
+            <>
+              <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
+                {progress == 20 && <Loader color={"blue"} className="absolute w-32 animate-spin color-green-400"></Loader>}
+
+                <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
+                  <div className="  relative bg-white  shadow-lg px-2 py-1 rounded mt-20  ">
+                    <p tabIndex={0} className="focus:outline-none text-indigo-700 text-xs font-bold">
+                      Uploading files
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
         <div className="w-1/4 ">
@@ -58,17 +62,18 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
               </div>{" "}
             </div>
           ) : (
-            <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-              <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
-                <div
-                  className="relative bg-white  shadow-lg px-2 py-1 rounded mt-20
-                ">
-                  <p tabIndex={0} className="focus:outline-none text-indigo-700 text-xs font-bold">
-                    Uploading manifest
-                  </p>
+            <>
+              <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
+                {progress == 60 && <Loader color={"blue"} className="absolute w-32 animate-ping color-green-400"></Loader>}
+                <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
+                  <div className="relative bg-white  shadow-lg px-2 py-1 rounded mt-20">
+                    <p tabIndex={0} className="focus:outline-none text-indigo-700 text-xs font-bold">
+                      Uploading manifest
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
         <div className=" ">

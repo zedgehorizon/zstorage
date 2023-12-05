@@ -95,11 +95,15 @@ export const DataAssetList: React.FC = () => {
     }
   }
   useEffect(() => {
-    toast.promise(fetchAllDataAssetsOfAnAddress(), {
-      loading: "Fetching all data assets from Ipfs of your address...",
-      success: <b>Fetched all data assets from Ipfs of your address!</b>,
-      error: <b>The data assests could not be fetched. Check your connection and try again.</b>,
-    });
+    if (storedDataAssets.length === 0) {
+      console.log("Fetching all data assets from Ipfs of your address...");
+
+      toast.promise(fetchAllDataAssetsOfAnAddress(), {
+        loading: "Fetching all data assets from Ipfs of your address...",
+        success: <b>Fetched all data assets from Ipfs of your address!</b>,
+        error: <b>The data assests could not be fetched. Check your connection and try again.</b>,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -123,21 +127,6 @@ export const DataAssetList: React.FC = () => {
           </Link>
         ))}
       </div>
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        toastOptions={{
-          className: "",
-          duration: 5000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 3000,
-          },
-        }}
-      />
     </div>
   );
 };
