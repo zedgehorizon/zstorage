@@ -39,7 +39,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
           ) : (
             <>
               <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-                {progress == 20 && <Loader color={"blue"} className="absolute w-32 animate-spin color-green-400"></Loader>}
+                {progress == 20 && <Loader color={"blue"} className="absolute scale-75 animate-ping "></Loader>}
 
                 <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
                   <div className="  relative bg-white  shadow-lg px-2 py-1 rounded mt-20  ">
@@ -64,7 +64,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
           ) : (
             <>
               <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-                {progress == 60 && <Loader color={"blue"} className="absolute w-32 animate-ping color-green-400"></Loader>}
+                {progress == 60 && <Loader color={"blue"} className="absolute scale-75 animate-ping "></Loader>}
                 <div className="bg-indigo-700 h-3 w-3 rounded-full shadow flex items-center justify-center">
                   <div className="relative bg-white  shadow-lg px-2 py-1 rounded mt-20">
                     <p tabIndex={0} className="focus:outline-none text-indigo-700 text-xs font-bold">
