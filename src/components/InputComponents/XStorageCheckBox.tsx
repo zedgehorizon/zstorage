@@ -25,8 +25,8 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
 
   return (
     <div className="w-[80%] z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50  ">
-      <b className="p-2 text-xl  font-medium dark:text-purple-800"> {props.title}</b>
-      <b className="p-2 text-lg  font-medium  dark:text-blue-400">{props.description} </b>
+      <b className="p-2 text-xl font-medium dark:text-purple-800"> {props.title}</b>
+      <b className="p-2 text-lg font-medium dark:text-blue-400">{props.description} </b>
       <ul className="grid w-full gap-6 md:grid-cols-3">
         {options.map((title: string, index) => (
           <li key={index} className=" relative ">
@@ -49,19 +49,23 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               peer-checked:bg-green-200 disabled:bg-sky-300 hover:bg-gray-50 
               dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-300 
               transform hover:scale-105 shadow-md hover:shadow-lg
-              ${props.disabled && props.disabled[index] ? " hover:cursor-not-allowed  bg-gray-400/40 " : ""}  
+              ${
+                props.disabled && props.disabled[index] ? " hover:cursor-not-allowed bg-gray-400/1 text-gray-300" : ""
+              }  
             `)}>
               <ToolTip tooltip={props.disabled && props.disabled[index] ? "Coming soon" : ""}>
                 <div className="block">
                   {/* add logo maybe */}
                   <div className="w-full text-lg font-semibold">{title}</div>
-                  <div className="w-full text-sm"> {descriptions[index]}</div>
+                  <div className="w-full text-sm hidden"> {descriptions[index]}</div>
                 </div>{" "}
               </ToolTip>
 
               {/* {props.disabled && props.disabled[index] && <div className="w-full h-full"></div>} */}
             </label>{" "}
-            <label htmlFor={`react-option-${title + "->" + index}`} className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
+            <label
+              htmlFor={`react-option-${title + "->" + index}`}
+              className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
               <CheckCircle className="ml-auto" color="green"></CheckCircle>
             </label>
           </li>
