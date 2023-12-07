@@ -15,7 +15,14 @@ export const Home: React.FC = () => {
   const descriptions = ["Description1", "Description2", "Description3", "ASD"]; // Replace with your actual descriptions array
 
   function checkSelectedOptions() {
-    if (dataAssetAction === "Update Data Asset" || !dataAssetAction || !dynamicDataStreamOption || !dynamicDataStream || !storage || !descentralizedStorage) {
+    if (
+      dataAssetAction === "Update Data Asset" ||
+      !dataAssetAction ||
+      !dynamicDataStreamOption ||
+      !dynamicDataStream ||
+      !storage ||
+      !descentralizedStorage
+    ) {
       return false;
     }
     return true;
@@ -47,7 +54,8 @@ export const Home: React.FC = () => {
       />
       <div className="w-full  min-h-screen flex flex-col justify-center items-center gap-12 p-12">
         <span className="text-3xl leading-relaxed">
-          <b className="  text-blue-400">zStorage: </b> End-to-End Storage Solution for the Itheum Protocol.&nbsp; <br></br>
+          <b className="  text-blue-400">zStorage: </b> End-to-End Storage Solution for the Itheum Protocol.&nbsp;{" "}
+          <br></br>
           Allows seamless storage solutions that integrate directly with the Itheum data brokerage protocol.
         </span>
         <XStorageCheckBox
