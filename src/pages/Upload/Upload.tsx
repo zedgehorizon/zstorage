@@ -35,12 +35,13 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
+  const { ipnsKey, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
+  const apiUrlPost = `${API_URL}/upload_v2`;
 
   const [isUploadingSongs, setIsUploadingSongs] = useState(false);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
@@ -53,10 +54,9 @@ export const UploadData: React.FC = (props) => {
     createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
     modifiedOn: new Date().toISOString().split("T")[0],
     totalItems: 0,
-    stream: "false",
+    stream: "true",
   });
-  const apiUrlPost = `${API_URL}/upload`;
-  console.log("nr of songs: ", numberOfSongs);
+
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -103,6 +103,7 @@ export const UploadData: React.FC = (props) => {
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
+    console.log("uploading songs and images files");
     /// refactor , iterate through the files, not through the songsData
     const filesToUpload = new FormData();
     try {
@@ -116,7 +117,7 @@ export const UploadData: React.FC = (props) => {
           if (filePairs[idx + 1]?.audio) filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
         }
       });
-      //console.log("form data : ", filesToUpload.getAll("files").length);
+      console.log("form data : ", filesToUpload.getAll("files"));
     } catch (err) {
       console.log("ERROR iterating through songs Data : ", err);
       toast.error(
@@ -163,9 +164,9 @@ export const UploadData: React.FC = (props) => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       //console.log("THE RESPONSE data IS : ", responseDataCIDs);
-
+      console.log("THE RESPONSE data IS : ", responseDataCIDs);
       if (!responseDataCIDs) throw new Error("Upload songs returned empty array");
-      // Iterate through the response list and find the matching cidv1
+      // Iterate through the response list and find the matching hash
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
           let matchingObjImage;
@@ -195,14 +196,15 @@ export const UploadData: React.FC = (props) => {
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.cidv1}` : songObj.file,
-            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.cidv1}` : songObj.cover_art_url,
+            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.hash}` : songObj.file,
+            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.hash}` : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
       });
 
       setIsUploadingSongs(false);
+      console.log("transformed data: ", transformedData);
       // return only the songs that are not null
       return transformedData.filter((song: any) => song !== null);
     } catch (err) {
@@ -286,7 +288,8 @@ export const UploadData: React.FC = (props) => {
         },
       });
 
-      const ipfs: any = "ipfs/" + response.data[0].cidv1;
+      const ipfs: any = "ipfs/" + response.data[0].hash;
+      addToIpns(response.data[0].hash);
       if (response.data[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly");
@@ -306,6 +309,23 @@ export const UploadData: React.FC = (props) => {
     setIsUploadingManifest(false);
     setProgressBar(100);
   };
+
+  async function addToIpns(cid: string, key?: string) {
+    const apiUrlPublishIpns = `${API_URL}/ipns/publish`;
+    try {
+      const response = await axios.get(apiUrlPublishIpns, {
+        params: { cid: cid, key: ipnsKey ? ipnsKey : undefined }, // maybe will throw error if there is no ipns key
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("response: ", response.data);
+    } catch (error) {
+      console.error(error);
+      throw error; // error to be catched by toast.promise
+    }
+  }
 
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
@@ -634,7 +654,6 @@ export const UploadData: React.FC = (props) => {
           </div>
         </div>
       )}
-
       {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
     </div>
   );
