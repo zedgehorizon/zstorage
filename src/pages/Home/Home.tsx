@@ -58,7 +58,7 @@ export const Home: React.FC = () => {
           setterFunction={setDataAssetAction}
         />
         {dataAssetAction === "Update Data Asset" ? (
-          <div className="w-[80%]">
+          <div className="w-full">
             {" "}
             <DataAssetList />
           </div>

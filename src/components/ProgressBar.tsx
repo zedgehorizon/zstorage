@@ -7,7 +7,7 @@ interface ProgressBarProps {
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
   return (
-    <div className="w-[33rem] mx-auto my-12 ">
+    <div className="w-[33rem] mx-auto  my-12 z-10">
       <div className="bg-gray-200 h-1 flex items-center justify-between">
         {" "}
         <div className="w-1/4">

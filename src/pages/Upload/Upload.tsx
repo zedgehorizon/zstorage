@@ -35,7 +35,7 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
 
@@ -53,10 +53,9 @@ export const UploadData: React.FC = (props) => {
     createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
     modifiedOn: new Date().toISOString().split("T")[0],
     totalItems: 0,
-    stream: "false",
+    stream: "true",
   });
   const apiUrlPost = `${API_URL}/upload`;
-  console.log("nr of songs: ", numberOfSongs);
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -78,25 +77,16 @@ export const UploadData: React.FC = (props) => {
           {} as Record<number, SongData>
         );
         setSongsData(songsDataMap);
-      } catch (err) {
+      } catch (err: any) {
         console.log("ERROR: ", err);
-        if (err instanceof Error) {
-          toast.error("Error parsing manifest file. Invalid manifest file : " + err.message, {
-            icon: (
-              <button onClick={() => toast.dismiss()}>
-                <XCircle color="red" />
-              </button>
-            ),
-          });
-        } else {
-          toast.error("Error parsing manifest file.", {
-            icon: (
-              <button onClick={() => toast.dismiss()}>
-                <XCircle color="red" />
-              </button>
-            ),
-          });
-        }
+
+        toast.error("Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "", {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <XCircle color="red" />
+            </button>
+          ),
+        });
       }
     }
   }, [manifestFile]);
@@ -111,9 +101,10 @@ export const UploadData: React.FC = (props) => {
         // todo must change the way of storing, its not ok only by title
         if (songData && songData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
-            filesToUpload.append("files", filePairs[idx + 1].image, (version ? version + 1 : "1") + ".-image." + songData.title); ///   + "-" + filePairs[idx+1].image.name);
+            filesToUpload.append("files", filePairs[idx + 1].image, (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + getRandomInt(1000000)); ///   + "-" + filePairs[idx+1].image.name);
           }
-          if (filePairs[idx + 1]?.audio) filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title); //+ "-" + filePairs[idx+1].audio.name);
+          if (filePairs[idx + 1]?.audio)
+            filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + getRandomInt(1000000)); //+ "-" + filePairs[idx+1].audio.name);
         }
       });
       //console.log("form data : ", filesToUpload.getAll("files").length);
@@ -135,7 +126,7 @@ export const UploadData: React.FC = (props) => {
       const response = await axios.post(apiUrlPost, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
-          "Content-Type": "multipart/form-data",
+          // "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
@@ -164,7 +155,7 @@ export const UploadData: React.FC = (props) => {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       //console.log("THE RESPONSE data IS : ", responseDataCIDs);
 
-      if (!responseDataCIDs) throw new Error("Upload songs returned empty array");
+      if (!responseDataCIDs) throw new Error("Upload songs returned an error. Check all the files");
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -173,14 +164,14 @@ export const UploadData: React.FC = (props) => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find(
-                (uploadedFileObj: any) => uploadedFileObj.fileName === (version ? version + 1 : "1") + `.-image.${songObj.title}`
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-image.${songObj.title}`)
               );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
-              matchingObjSong = responseDataCIDs.find(
-                (uploadedFileObj: any) => uploadedFileObj.fileName === (version ? version + 1 : "1") + `.-audio.${songObj.title}`
+              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-audio.${songObj.title}`)
               );
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
@@ -217,6 +208,7 @@ export const UploadData: React.FC = (props) => {
       setIsUploadingSongs(false);
     }
   }
+
   /**
    * Generates a manifest file based on the form data and uploads it to the server.
    * If any required fields are missing, an error toast is displayed.
@@ -281,15 +273,14 @@ export const UploadData: React.FC = (props) => {
       const response = await axios.post(apiUrlPost, formDataFormat, {
         headers: {
           "authorization": `Bearer ${theToken}`,
-          "Content-Type": "multipart/form-data",
-          // "x-amz-meta-marshal-deep-fetch": 1,
+          //"Content-Type": "multipart/form-data",
         },
       });
 
-      const ipfs: any = "ipfs/" + response.data[0].cidv1;
+      const ipfs: any = "ipfs/" + response.data[0]?.cidv1;
       if (response.data[0]) setManifestCid(ipfs);
       else {
-        throw new Error("The manifest file has not been uploaded correctly");
+        throw new Error("The manifest file has not been uploaded correctly ");
       }
     } catch (error) {
       toast.error("Error generating the manifest file: " + `${error instanceof Error ? error.message : ""}`, {
@@ -401,13 +392,17 @@ export const UploadData: React.FC = (props) => {
         ),
       });
   }
+
+  function getRandomInt(max: number) {
+    return Math.floor(Math.random() * max);
+  }
   //  console.log("songsData: ", songsData);
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
   // console.log("formData: ", formData);
   // console.log("totalItems: ", numberOfSongs);
   // console.log("manifestCid: ", manifestCid);
-
+  /// todo if error happens delete the progress bar
   return (
     <div className="p-4 flex flex-col">
       <Toaster
@@ -467,6 +462,7 @@ export const UploadData: React.FC = (props) => {
         <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
           <div className="flex flex-row gap-8 items-center">
             <h1 className="text-2xl font-bold mb-6">Header </h1>
+
             <div className="ml-auto flex flex-col">
               <h3> {version && `Version:  ${version}`}</h3>
               <label htmlFor="totalItems" className="block text-foreground ">
@@ -555,6 +551,7 @@ export const UploadData: React.FC = (props) => {
               */}
           </form>
         </div>
+        {currentManifestFileCID && <h3 className=""> Manifest CID - {currentManifestFileCID} </h3>}
         <div className="mt-4 space-y-8 p-8 rounded-lg shadow-md   ">
           {Object.keys(songsData).map((index: any) => (
             <MusicDataNftForm
@@ -619,6 +616,7 @@ export const UploadData: React.FC = (props) => {
                           hash."
                         </p>
                       </li>
+                      <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
                       <li>
                         <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
                       </li>
@@ -634,7 +632,7 @@ export const UploadData: React.FC = (props) => {
           </div>
         </div>
       )}
-
+      {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
       {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
     </div>
   );

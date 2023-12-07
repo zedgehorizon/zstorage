@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2, SaveIcon, CheckCheck, CheckCircleIcon } from "lucide-react";
+import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2, SaveIcon, CheckCheck, CheckCircleIcon, Loader, Loader2 } from "lucide-react";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
 import songFallbackImage from "../../assets/img/audio-player-image.png";
 
@@ -83,6 +83,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageFile, setImageFile] = useState<File>();
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
+  const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
   const handleImageFileChange = (event: any) => {
     const file = event.target.files[0];
     setImageFile(file);
@@ -242,12 +243,23 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             {audioURL && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
-                  <audio tabIndex={-1} onError={() => setAudioError(true)} src={audioURL} className="scale-75" controls></audio>
+                  <audio
+                    tabIndex={-1}
+                    onLoadStart={() => setAudioFileIsLoading(true)}
+                    onError={() => {
+                      setAudioFileIsLoading(false);
+                      setAudioError(true);
+                    }}
+                    onLoadedData={() => setAudioFileIsLoading(false)}
+                    src={audioURL}
+                    className="scale-75"
+                    controls></audio>
+                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center -ml-8 mt-3  animate-spin" />}
                   <Button tabIndex={-1} className="scale-75  ml-auto  hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditAudio(true)}>
                     <Edit2 scale={0.5}></Edit2>
                   </Button>
                 </div>
-                {audioError && <p className="mx-auto text-red-500">Error loading audio file from IPFS.</p>}
+                {audioError && <p className="mx-auto text-red-500">Error loading audio file from IPFS. Try again later. </p>}
               </div>
             ) : (
               <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} />

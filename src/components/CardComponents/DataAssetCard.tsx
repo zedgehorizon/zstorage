@@ -23,7 +23,6 @@ const DataAssetCard: React.FC<DataAssetCardProps> = ({ dataAsset }) => {
     last_modified_on,
     marshalManifest: { totalItems, nestedStream },
   } = dataAsset;
-
   return (
     <div className="truncate  hover:bg-sky-400/30  gap-4 bg-black bg-opacity-20 border border-sky-400 p-4 rounded-md shadow-md">
       <h2 className="text-2xl font-bold mb-2">{name}</h2>
