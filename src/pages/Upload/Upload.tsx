@@ -11,6 +11,7 @@ import ProgressBar from "../../components/ProgressBar";
 import toast, { Toaster } from "react-hot-toast";
 
 import { theToken } from "../../utils/constants";
+import { generateRandomString } from "../../utils/utils";
 
 // todo verify and dont allow users to upload manifest files without songs
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
@@ -35,7 +36,8 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } =
+    location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
 
@@ -50,7 +52,10 @@ export const UploadData: React.FC = (props) => {
   const [formData, setFormData] = useState({
     name: "",
     creator: "",
-    createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
+    createdOn:
+      manifestFile && manifestFile.data_stream.created_on
+        ? manifestFile.data_stream.created_on
+        : new Date().toISOString().split("T")[0],
     modifiedOn: new Date().toISOString().split("T")[0],
     totalItems: 0,
     stream: "true",
@@ -80,13 +85,16 @@ export const UploadData: React.FC = (props) => {
       } catch (err: any) {
         console.log("ERROR: ", err);
 
-        toast.error("Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <XCircle color="red" />
-            </button>
-          ),
-        });
+        toast.error(
+          "Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "",
+          {
+            icon: (
+              <button onClick={() => toast.dismiss()}>
+                <XCircle color="red" />
+              </button>
+            ),
+          }
+        );
       }
     }
   }, [manifestFile]);
@@ -101,17 +109,37 @@ export const UploadData: React.FC = (props) => {
         // todo must change the way of storing, its not ok only by title
         if (songData && songData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
-            filesToUpload.append("files", filePairs[idx + 1].image, (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + getRandomInt(1000000)); ///   + "-" + filePairs[idx+1].image.name);
+            filesToUpload.append(
+              "files",
+              filePairs[idx + 1].image,
+              (version ? version + 1 : "1") +
+                ".-image." +
+                songData.title +
+                "-|" +
+                generateRandomString() +
+                filePairs[idx + 1].image.name
+            ); ///   + "-" + filePairs[idx+1].image.name);
           }
           if (filePairs[idx + 1]?.audio)
-            filesToUpload.append("files", filePairs[idx + 1].audio, (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + getRandomInt(1000000)); //+ "-" + filePairs[idx+1].audio.name);
+            filesToUpload.append(
+              "files",
+              filePairs[idx + 1].audio,
+              (version ? version + 1 : "1") +
+                ".-audio." +
+                songData.title +
+                "-|" +
+                generateRandomString() +
+                filePairs[idx + 1].audio.name
+            ); //+ "-" + filePairs[idx+1].audio.name);
         }
       });
       //console.log("form data : ", filesToUpload.getAll("files").length);
     } catch (err) {
       console.log("ERROR iterating through songs Data : ", err);
       toast.error(
-        "Error iterating through songs Data : " + `${err instanceof Error ? err.message : ""}` + " Please check all the fields to be filled correctly.",
+        "Error iterating through songs Data : " +
+          `${err instanceof Error ? err.message : ""}` +
+          " Please check all the fields to be filled correctly.",
         {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -167,13 +195,15 @@ export const UploadData: React.FC = (props) => {
               matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
                 uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-image.${songObj.title}`)
               );
-              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
+              if (!matchingObjImage)
+                throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
               matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
                 uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-audio.${songObj.title}`)
               );
-              if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
+              if (!matchingObjSong)
+                throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
 
@@ -267,7 +297,14 @@ export const UploadData: React.FC = (props) => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator
+        (version ? version + 1 : "1") +
+          ".-manifest-" +
+          formData.name +
+          "-" +
+          formData.creator +
+          "|" +
+          generateRandomString() +
+          ".json"
       );
 
       const response = await axios.post(apiUrlPost, formDataFormat, {
@@ -393,9 +430,6 @@ export const UploadData: React.FC = (props) => {
       });
   }
 
-  function getRandomInt(max: number) {
-    return Math.floor(Math.random() * max);
-  }
   //  console.log("songsData: ", songsData);
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
@@ -563,13 +597,17 @@ export const UploadData: React.FC = (props) => {
               swapFunction={swapSongs}></MusicDataNftForm>
           ))}
         </div>
-        <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
+        <Button
+          className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"}
+          onClick={handleAddMoreSongs}>
           {" "}
           Add more songs
         </Button>
       </div>
       {!manifestCid ? (
-        <button onClick={generateManifestFile} /*disabled={progressBar > 0}*/ className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+        <button
+          onClick={generateManifestFile}
+          /*disabled={progressBar > 0}*/ className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
           Upload
         </button>
       ) : (
@@ -579,14 +617,21 @@ export const UploadData: React.FC = (props) => {
               <div className="flex flex-col justify-center items-center gap-4">
                 <div className="text-green-400 flex flex-row gap-4">
                   Success:
-                  <a href={"https://ipfs.io/" + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
+                  <a
+                    href={"https://ipfs.io/" + manifestCid}
+                    target="_blank"
+                    className="font-semibold underline text-blue-500">
                     {"https://ipfs.io/" + manifestCid}
                   </a>
-                  <CopyIcon onClick={() => copyLink("https://ipfs.io/" + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                  <CopyIcon
+                    onClick={() => copyLink("https://ipfs.io/" + manifestCid)}
+                    className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
                 </div>
                 <div className="text-green-400 flex flex-row gap-4">
                   {manifestCid}
-                  <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                  <CopyIcon
+                    onClick={() => copyLink(manifestCid)}
+                    className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
                 </div>
               </div>
             </ToolTip>
@@ -597,14 +642,17 @@ export const UploadData: React.FC = (props) => {
                 tooltipBox={
                   <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
                     <ol className="list-decimal ml-4">
-                      <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
+                      <p>
+                        To point a subdomain to your IPFS file after generating its hash via zStorage, follow these
+                        refined steps:
+                      </p>
                       <li>
                         <p>Access Domain Controller: Open the control panel of your domain provider.</p>
                       </li>
                       <li>
                         <p>
-                          CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a public IPFS
-                          gateway, such as "ipfs.namebase.io."
+                          CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use.
+                          Point this subdomain to a public IPFS gateway, such as "ipfs.namebase.io."
                         </p>
                       </li>
                       <li>
@@ -612,11 +660,14 @@ export const UploadData: React.FC = (props) => {
                       </li>
                       <li>
                         <p>
-                          DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file
-                          hash."
+                          DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value
+                          to dnslink=/ipfs/"IPFS manifest file hash."
                         </p>
                       </li>
-                      <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
+                      <li>
+                        Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with
+                        value 1{" "}
+                      </li>
                       <li>
                         <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
                       </li>
@@ -632,7 +683,9 @@ export const UploadData: React.FC = (props) => {
           </div>
         </div>
       )}
-      {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
+      {isUploadingManifest && progressBar < 100 && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>
+      )}
       {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
     </div>
   );
