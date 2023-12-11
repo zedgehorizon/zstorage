@@ -105,9 +105,9 @@ export const DataAssetList: React.FC = () => {
       setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
     } catch (error) {
       console.log("Error downloading manifest files:", error);
-      toast.error("Error downloading manifest files. Check your connection and try again. " + (error as Error).message, { id: "fetch-manifest-file" });
-      toast("Wait some more time for the manifest file to get pinned", {
-        icon: <Lightbulb></Lightbulb>,
+      //toast.error("Error downloading manifest files. Check your connection and try again. " + (error as Error).message, { id: "fetch-manifest-file" });
+      toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
+        icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
       });
     }
@@ -128,11 +128,14 @@ export const DataAssetList: React.FC = () => {
   }, [storedDataAssets]);
 
   useEffect(() => {
-    if (Object.keys(latestVersionCid).length !== 0) {
-      Object.entries(latestVersionCid).map(([key, manifestCid]) => {
-        downloadTheManifestFile(manifestCid.version, manifestCid.cidv1);
-      });
-    }
+    const downloadLatestVersionsManifestFiles = async () => {
+      if (Object.keys(latestVersionCid).length !== 0) {
+        Object.entries(latestVersionCid).map(([key, manifestCid]) => {
+          downloadTheManifestFile(manifestCid.version, manifestCid.cidv1);
+        });
+      }
+    };
+    downloadLatestVersionsManifestFiles();
   }, [latestVersionCid]);
 
   return (

@@ -12,6 +12,10 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { theToken } from "../../utils/constants";
 import { generateRandomString } from "../../utils/utils";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import { Err } from "@multiversx/sdk-core/out";
+import { error } from "console";
 
 // todo verify and dont allow users to upload manifest files without songs
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
@@ -315,7 +319,7 @@ export const UploadData: React.FC = (props) => {
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
-    //setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
+    setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
   };
 
   const handleChange = (e: any) => {
@@ -350,7 +354,6 @@ export const UploadData: React.FC = (props) => {
           hasUnsavedChanges = true;
         }
       });
-
       if (hasUnsavedChanges) {
         errorMessage = "Please save all the changes before uploading the data";
       }
@@ -359,7 +362,6 @@ export const UploadData: React.FC = (props) => {
     }
     if (errorMessage !== "") {
       setIsUploadButtonDisabled(true);
-      console.log("errorMessage: ", errorMessage);
       // toast.error(errorMessage, {
       //   icon: (
       //     <button onClick={() => toast.dismiss()}>
@@ -393,7 +395,7 @@ export const UploadData: React.FC = (props) => {
       toast.error("Please save all the changes before swapping the songs", {
         icon: (
           <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
+            <Lightbulb color="yellow" />
           </button>
         ),
       });
@@ -460,134 +462,135 @@ export const UploadData: React.FC = (props) => {
   // console.log("unsavedChanges: ", unsavedChanges);
 
   return (
-    <div className="p-4 flex flex-col">
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        containerStyle={{
-          position: "sticky",
-          top: "0",
-          right: "0",
-          width: "100%",
-        }}
-        toastOptions={{
-          className: "",
-          duration: 5000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 3000,
-          },
-        }}
-      />
-      <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
-      <div className="flex flex-row gap-4 mb-4">
-        {action && (
-          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-            {action}
-          </span>
-        )}
-        {type && (
-          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-            {type}
-          </span>
-        )}
-        {template && (
-          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center  text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-            {template}
-          </span>
-        )}
-        {storage && (
-          <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-            {descentralized ? descentralized : storage}
-          </span>
-        )}
-      </div>
-      <div className="z-[-1] relative w-full ">
-        <div className="absolute top-30 left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
+    <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
+      <div className="p-4 flex flex-col">
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          containerStyle={{
+            position: "sticky",
+            top: "0",
+            right: "0",
+            width: "100%",
+          }}
+          toastOptions={{
+            className: "",
+            duration: 5000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              duration: 3000,
+            },
+          }}
+        />
+        <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
+        <div className="flex flex-row gap-4 mb-4">
+          {action && (
+            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {action}
+            </span>
+          )}
+          {type && (
+            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {type}
+            </span>
+          )}
+          {template && (
+            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center  text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {template}
+            </span>
+          )}
+          {storage && (
+            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {descentralized ? descentralized : storage}
+            </span>
+          )}
+        </div>
+        <div className="z-[-1] relative w-full ">
+          <div className="absolute top-30 left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
 
-        <div className="absolute top-0 -left-4 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
-        <div className="absolute top-0 -right-4 w-72 h-96 bg-[#300171] rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
-        <div className="absolute top-30 -left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
-        <div className="absolute top-20 -left-20 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
-      </div>
-      {/** Refactor this into a Header component */}
-      <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl bg-black/20">
-        <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
-          <div className="flex flex-row gap-8 items-center">
-            <h1 className="text-2xl font-bold mb-6">Header </h1>
+          <div className="absolute top-0 -left-4 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
+          <div className="absolute top-0 -right-4 w-72 h-96 bg-[#300171] rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
+          <div className="absolute top-30 -left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
+          <div className="absolute top-20 -left-20 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
+        </div>
+        {/** Refactor this into a Header component */}
+        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl bg-black/20">
+          <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
+            <div className="flex flex-row gap-8 items-center">
+              <h1 className="text-2xl font-bold mb-6">Header </h1>
 
-            <div className="ml-auto flex flex-col">
-              <h3> {version && `Version:  ${version}`}</h3>
-              <label htmlFor="totalItems" className="block text-foreground ">
-                Total Items: {numberOfSongs - 1}
-              </label>
+              <div className="ml-auto flex flex-col">
+                <h3> {version && `Version:  ${version}`}</h3>
+                <label htmlFor="totalItems" className="block text-foreground ">
+                  Total Items: {numberOfSongs - 1}
+                </label>
+              </div>
             </div>
-          </div>
-          <form className="flex gap-x-4">
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-foreground mb-2">
-                Name:
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 bg-black/20 py-2 border-2 border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                required={true}
-              />
-            </div>
+            <form className="flex gap-x-4">
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-foreground mb-2">
+                  Name:
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-3 bg-black/20 py-2 border-2 border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  required={true}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="creator" className="block text-foreground mb-2">
-                Creator:
-              </label>
-              <input
-                type="text"
-                id="creator"
-                name="creator"
-                value={formData.creator}
-                onChange={handleChange}
-                className="w-full bg-black/20 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                required={true}
-              />
-            </div>
+              <div className="mb-4">
+                <label htmlFor="creator" className="block text-foreground mb-2">
+                  Creator:
+                </label>
+                <input
+                  type="text"
+                  id="creator"
+                  name="creator"
+                  value={formData.creator}
+                  onChange={handleChange}
+                  className="w-full bg-black/20 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  required={true}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="createdOn" className="block text-foreground mb-2">
-                Created On:
-              </label>
-              <input
-                type="date"
-                id="createdOn"
-                name="createdOn"
-                value={formData.createdOn}
-                onChange={handleChange}
-                className="w-full px-3 bg-black/20 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 "
-                required={true}
-              />
-            </div>
+              <div className="mb-4">
+                <label htmlFor="createdOn" className="block text-foreground mb-2">
+                  Created On:
+                </label>
+                <input
+                  type="date"
+                  id="createdOn"
+                  name="createdOn"
+                  value={formData.createdOn}
+                  onChange={handleChange}
+                  className="w-full px-3 bg-black/20 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 "
+                  required={true}
+                />
+              </div>
 
-            <div className="mb-4">
-              <label htmlFor="modifiedOn" className="block text-foreground mb-2">
-                Modified On:
-              </label>
-              <input
-                type="date"
-                id="modifiedOn"
-                name="modifiedOn"
-                disabled={true}
-                value={formData.modifiedOn}
-                onChange={handleChange}
-                className="w-full bg-black/20 px-3 py-2   rounded focus:outline-none focus:border-blue-500"
-              />
-            </div>
+              <div className="mb-4">
+                <label htmlFor="modifiedOn" className="block text-foreground mb-2">
+                  Modified On:
+                </label>
+                <input
+                  type="date"
+                  id="modifiedOn"
+                  name="modifiedOn"
+                  disabled={true}
+                  value={formData.modifiedOn}
+                  onChange={handleChange}
+                  className="w-full bg-black/20 px-3 py-2   rounded focus:outline-none focus:border-blue-500"
+                />
+              </div>
 
-            {/* { template !== "Music Data Nft" && <div className="mb-4">
+              {/* { template !== "Music Data Nft" && <div className="mb-4">
               <ToolTip tooltip="Music Data Nft shoud be streamed- select yes">
                 <label htmlFor="stream" className="block text-foreground mb-2">
                   Stream:
@@ -605,96 +608,102 @@ export const UploadData: React.FC = (props) => {
               </div>
             </div> } 
               */}
-          </form>
-        </div>
-        {currentManifestFileCID && <h3 className=""> Manifest CID - {currentManifestFileCID} </h3>}
-        <div className="mt-4 space-y-8 p-8 rounded-lg shadow-md   ">
-          {Object.keys(songsData).map((index: any) => (
-            <MusicDataNftForm
-              key={index}
-              index={index}
-              lastItem={Number(index) === numberOfSongs - 1}
-              song={songsData[index]}
-              setterFunction={handleFilesSelected}
-              swapFunction={swapSongs}
-              unsavedChanges={unsavedChanges[index]}
-              setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
-          ))}
-        </div>
-        <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
-          {" "}
-          Add more songs
-        </Button>
-      </div>
-      {!manifestCid ? (
-        <button
-          onClick={generateManifestFile}
-          disabled={isUploadButtonDisabled}
-          className={"bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-500/10"}>
-          Upload
-        </button>
-      ) : (
-        <div>
-          <div className="flex flex-col items-center justify-center p-8">
-            <ToolTip tooltip="It might take more than 10 min for the files to get pinned and to be visible">
-              <div className="flex flex-col justify-center items-center gap-4">
-                <div className="text-green-400 flex flex-row gap-4">
-                  Success:
-                  <a href={"https://ipfs.io/" + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
-                    {"https://ipfs.io/" + manifestCid}
-                  </a>
-                  <CopyIcon onClick={() => copyLink("https://ipfs.io/" + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                </div>
-                <div className="text-green-400 flex flex-row gap-4">
-                  {manifestCid}
-                  <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                </div>
-              </div>
-            </ToolTip>
+            </form>
+          </div>
+          {currentManifestFileCID && <h3 className="mt-4"> Manifest CID - {currentManifestFileCID} </h3>}
+          <ErrorBoundary
+            onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
+            FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
+            <div className="mt-4 space-y-8 p-8 rounded-lg shadow-md   ">
+              {Object.keys(songsData).map((index: any) => (
+                <MusicDataNftForm
+                  key={index}
+                  index={index}
+                  lastItem={Number(index) === numberOfSongs - 1}
+                  song={songsData[index]}
+                  setterFunction={handleFilesSelected}
+                  swapFunction={swapSongs}
+                  unsavedChanges={unsavedChanges[index]}
+                  setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
+              ))}
+            </div>
+          </ErrorBoundary>
 
-            <div className="mt-4 mx-auto">
-              <ToolTip
-                tooltip=""
-                tooltipBox={
-                  <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
-                    <ol className="list-decimal ml-4">
-                      <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
-                      <li>
-                        <p>Access Domain Controller: Open the control panel of your domain provider.</p>
-                      </li>
-                      <li>
-                        <p>
-                          CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a public IPFS
-                          gateway, such as "ipfs.namebase.io."
-                        </p>
-                      </li>
-                      <li>
-                        <p>Obtain IPFS Manifest Hash: Retrieve the IPFS manifest hash from your zStorage.</p>
-                      </li>
-                      <li>
-                        <p>
-                          DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file
-                          hash."
-                        </p>
-                      </li>
-                      <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
-                      <li>
-                        <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
-                      </li>
-                    </ol>
+          <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
+            {" "}
+            Add more songs
+          </Button>
+        </div>
+        {!manifestCid ? (
+          <button
+            onClick={generateManifestFile}
+            disabled={isUploadButtonDisabled}
+            className={"bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-500/10"}>
+            Upload
+          </button>
+        ) : (
+          <div>
+            <div className="flex flex-col items-center justify-center p-8">
+              <ToolTip tooltip="It might take more than 10 min for the files to get pinned and to be visible">
+                <div className="flex flex-col justify-center items-center gap-4">
+                  <div className="text-green-400 flex flex-row gap-4">
+                    Success:
+                    <a href={"https://ipfs.io/" + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
+                      {"https://ipfs.io/" + manifestCid}
+                    </a>
+                    <CopyIcon onClick={() => copyLink("https://ipfs.io/" + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
                   </div>
-                }>
-                <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
-                <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
-                  What's next ? <InfoIcon className=" scale-75"></InfoIcon>
+                  <div className="text-green-400 flex flex-row gap-4">
+                    {manifestCid}
+                    <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                  </div>
                 </div>
               </ToolTip>
+
+              <div className="mt-4 mx-auto">
+                <ToolTip
+                  tooltip=""
+                  tooltipBox={
+                    <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
+                      <ol className="list-decimal ml-4">
+                        <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
+                        <li>
+                          <p>Access Domain Controller: Open the control panel of your domain provider.</p>
+                        </li>
+                        <li>
+                          <p>
+                            CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a public IPFS
+                            gateway, such as "ipfs.namebase.io."
+                          </p>
+                        </li>
+                        <li>
+                          <p>Obtain IPFS Manifest Hash: Retrieve the IPFS manifest hash from your zStorage.</p>
+                        </li>
+                        <li>
+                          <p>
+                            DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file
+                            hash."
+                          </p>
+                        </li>
+                        <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
+                        <li>
+                          <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
+                        </li>
+                      </ol>
+                    </div>
+                  }>
+                  <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
+                  <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
+                    What's next ? <InfoIcon className=" scale-75"></InfoIcon>
+                  </div>
+                </ToolTip>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
-      {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
-    </div>
+        )}
+        {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
+        {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
+      </div>
+    </ErrorBoundary>
   );
 };

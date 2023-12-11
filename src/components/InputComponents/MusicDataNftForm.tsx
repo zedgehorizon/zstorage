@@ -127,6 +127,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
     setImageFile(undefined);
     setAudioFile(undefined);
+    setAudioError(false);
   }, [props.song]);
 
   useEffect(() => {
