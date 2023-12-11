@@ -47,7 +47,6 @@ export const DataAssetList: React.FC = () => {
       const response = await axios.get(apiUrlGet, {
         headers: {
           "authorization": `Bearer ${theToken}`,
-          // "Access-Control-Allow-Credentials": "true",
         },
       });
       setStoredDataAssets(response.data);
@@ -73,7 +72,7 @@ export const DataAssetList: React.FC = () => {
 
       let latestVersionManifestFile: { [key: string]: { version: number; cidv1: string } } = {};
       filteredData.forEach((item) => {
-        const fileName = item.fileName.split(".-")[1]; //   filename format is "1.-manifest-name-creator"
+        const fileName = item.fileName.split(".-")[1]; //   filename format is "1.-manifest-name-creator-|random.json"
         const version = parseInt(item.fileName.split(".-")[0]);
         if (!fileName) return;
 
@@ -106,12 +105,14 @@ export const DataAssetList: React.FC = () => {
       setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
     } catch (error) {
       console.log("Error downloading manifest files:", error);
-      toast.error("Error downloading manifest files. Check your connection and try again. " + (error as Error).message);
+      toast.error("Error downloading manifest files. Check your connection and try again. " + (error as Error).message, { id: "fetch-manifest-file" });
       toast("Wait some more time for the manifest file to get pinned", {
         icon: <Lightbulb></Lightbulb>,
+        id: "fetch-manifest-file1",
       });
     }
   }
+
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {

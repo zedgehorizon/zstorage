@@ -6,7 +6,7 @@ import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL } from "../../utils/constants";
 import { ToolTip } from "../../libComponents/Tooltip";
-import { CopyIcon, InfoIcon, XCircle } from "lucide-react";
+import { CopyIcon, InfoIcon, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -36,15 +36,14 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } =
-    location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
+  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-
-  const [isUploadingSongs, setIsUploadingSongs] = useState(false);
+  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
 
   const [progressBar, setProgressBar] = useState(0);
@@ -52,15 +51,13 @@ export const UploadData: React.FC = (props) => {
   const [formData, setFormData] = useState({
     name: "",
     creator: "",
-    createdOn:
-      manifestFile && manifestFile.data_stream.created_on
-        ? manifestFile.data_stream.created_on
-        : new Date().toISOString().split("T")[0],
+    createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
     modifiedOn: new Date().toISOString().split("T")[0],
     totalItems: 0,
     stream: "true",
   });
   const apiUrlPost = `${API_URL}/upload`;
+
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -83,18 +80,15 @@ export const UploadData: React.FC = (props) => {
         );
         setSongsData(songsDataMap);
       } catch (err: any) {
-        console.log("ERROR: ", err);
+        console.log("ERROR parsing manifest file : ", err);
 
-        toast.error(
-          "Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "",
-          {
-            icon: (
-              <button onClick={() => toast.dismiss()}>
-                <XCircle color="red" />
-              </button>
-            ),
-          }
-        );
+        toast.error("Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "", {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <XCircle color="red" />
+            </button>
+          ),
+        });
       }
     }
   }, [manifestFile]);
@@ -112,24 +106,14 @@ export const UploadData: React.FC = (props) => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              (version ? version + 1 : "1") +
-                ".-image." +
-                songData.title +
-                "-|" +
-                generateRandomString() +
-                filePairs[idx + 1].image.name
+              (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + generateRandomString() + filePairs[idx + 1].image.name
             ); ///   + "-" + filePairs[idx+1].image.name);
           }
           if (filePairs[idx + 1]?.audio)
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              (version ? version + 1 : "1") +
-                ".-audio." +
-                songData.title +
-                "-|" +
-                generateRandomString() +
-                filePairs[idx + 1].audio.name
+              (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + generateRandomString() + filePairs[idx + 1].audio.name
             ); //+ "-" + filePairs[idx+1].audio.name);
         }
       });
@@ -137,9 +121,7 @@ export const UploadData: React.FC = (props) => {
     } catch (err) {
       console.log("ERROR iterating through songs Data : ", err);
       toast.error(
-        "Error iterating through songs Data : " +
-          `${err instanceof Error ? err.message : ""}` +
-          " Please check all the fields to be filled correctly.",
+        "Error iterating through songs Data : " + `${err instanceof Error ? err.message : ""}` + " Please check all the fields to be filled correctly.",
         {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -154,13 +136,18 @@ export const UploadData: React.FC = (props) => {
       const response = await axios.post(apiUrlPost, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
-          // "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading files:", error);
-      toast.error("Error uploading files to Ipfs: " + `${error instanceof Error ? error.message : ""}`, {
+      if (error?.response.data.statusCode === 403) {
+        /// forbidden  - token expired
+        toast("Re-login and try again! ", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      }
+      toast.error("Error uploading files to Ipfs: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
             <XCircle color="red" />
@@ -177,13 +164,12 @@ export const UploadData: React.FC = (props) => {
    * @throws {Error} If the upload songs process did not work correctly or if the data has not been uploaded correctly.
    */
   async function transformSongsData() {
-    setIsUploadingSongs(true);
     setProgressBar(20);
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       //console.log("THE RESPONSE data IS : ", responseDataCIDs);
 
-      if (!responseDataCIDs) throw new Error("Upload songs returned an error. Check all the files");
+      if (!responseDataCIDs) return;
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -195,20 +181,15 @@ export const UploadData: React.FC = (props) => {
               matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
                 uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-image.${songObj.title}`)
               );
-              if (!matchingObjImage)
-                throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
+              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
               matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
                 uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-audio.${songObj.title}`)
               );
-              if (!matchingObjSong)
-                throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
+              if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
-
-          // console.log("matching IMG: ", matchingObjImage);
-          // console.log("SONG:", matchingObjSong);
 
           return {
             idx: index + 1,
@@ -223,7 +204,6 @@ export const UploadData: React.FC = (props) => {
         }
       });
 
-      setIsUploadingSongs(false);
       // return only the songs that are not null
       return transformedData.filter((song: any) => song !== null);
     } catch (err) {
@@ -235,10 +215,21 @@ export const UploadData: React.FC = (props) => {
         ),
       });
       console.log("ERROR transforming the data: ", err);
-      setIsUploadingSongs(false);
     }
   }
-
+  function verifyHeaderFields() {
+    if (!formData.name || !formData.creator || !formData.createdOn || !songsData) {
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    return true;
+  }
   /**
    * Generates a manifest file based on the form data and uploads it to the server.
    * If any required fields are missing, an error toast is displayed.
@@ -262,22 +253,16 @@ export const UploadData: React.FC = (props) => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
-    setIsUploadingManifest(true);
-
-    if (!formData.name || !formData.creator || !formData.createdOn || !songsData) {
-      toast.error((t) => <span>Please fill all the fields from the header section</span>, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
+    if (!verifyHeaderFields()) {
       return;
     }
+
     try {
+      setIsUploadingManifest(true);
       const data = await transformSongsData();
       if (data === undefined) {
-        throw new Error("Error transforming the data. Add at least one song.");
+        setIsUploadingManifest(false);
+        return;
       }
       setProgressBar(60);
       const manifest = {
@@ -297,20 +282,12 @@ export const UploadData: React.FC = (props) => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        (version ? version + 1 : "1") +
-          ".-manifest-" +
-          formData.name +
-          "-" +
-          formData.creator +
-          "|" +
-          generateRandomString() +
-          ".json"
+        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + "|" + generateRandomString() + ".json"
       );
 
       const response = await axios.post(apiUrlPost, formDataFormat, {
         headers: {
           "authorization": `Bearer ${theToken}`,
-          //"Content-Type": "multipart/form-data",
         },
       });
 
@@ -338,6 +315,7 @@ export const UploadData: React.FC = (props) => {
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
+    //setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
   };
 
   const handleChange = (e: any) => {
@@ -357,10 +335,42 @@ export const UploadData: React.FC = (props) => {
     }
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
+    setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
     setNumberOfSongs((prev) => prev - 1);
   }
+
+  useEffect(() => {
+    let errorMessage = "";
+    if (numberOfSongs > 1 && songsData[1].title) {
+      let hasUnsavedChanges = false;
+      Object.values(unsavedChanges).forEach((item) => {
+        if (item === true) {
+          hasUnsavedChanges = true;
+        }
+      });
+
+      if (hasUnsavedChanges) {
+        errorMessage = "Please save all the changes before uploading the data";
+      }
+    } else {
+      errorMessage = "Please fill all the fields from the songs section";
+    }
+    if (errorMessage !== "") {
+      setIsUploadButtonDisabled(true);
+      console.log("errorMessage: ", errorMessage);
+      // toast.error(errorMessage, {
+      //   icon: (
+      //     <button onClick={() => toast.dismiss()}>
+      //       <XCircle color="red" />
+      //     </button>
+      //   ),
+      // });
+    } else {
+      setIsUploadButtonDisabled(false);
+    }
+  }, [songsData, unsavedChanges]);
 
   /**
    * Swaps the songs at the given indices in the songsData and filePairs state.
@@ -376,6 +386,17 @@ export const UploadData: React.FC = (props) => {
     // deleting song with index first
     if (second === -1) {
       deleteSong(first);
+      return;
+    }
+
+    if (unsavedChanges[first] || unsavedChanges[second]) {
+      toast.error("Please save all the changes before swapping the songs", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <XCircle color="red" />
+          </button>
+        ),
+      });
       return;
     }
 
@@ -436,7 +457,8 @@ export const UploadData: React.FC = (props) => {
   // console.log("formData: ", formData);
   // console.log("totalItems: ", numberOfSongs);
   // console.log("manifestCid: ", manifestCid);
-  /// todo if error happens delete the progress bar
+  // console.log("unsavedChanges: ", unsavedChanges);
+
   return (
     <div className="p-4 flex flex-col">
       <Toaster
@@ -594,12 +616,12 @@ export const UploadData: React.FC = (props) => {
               lastItem={Number(index) === numberOfSongs - 1}
               song={songsData[index]}
               setterFunction={handleFilesSelected}
-              swapFunction={swapSongs}></MusicDataNftForm>
+              swapFunction={swapSongs}
+              unsavedChanges={unsavedChanges[index]}
+              setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
           ))}
         </div>
-        <Button
-          className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"}
-          onClick={handleAddMoreSongs}>
+        <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
           {" "}
           Add more songs
         </Button>
@@ -607,7 +629,8 @@ export const UploadData: React.FC = (props) => {
       {!manifestCid ? (
         <button
           onClick={generateManifestFile}
-          /*disabled={progressBar > 0}*/ className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          disabled={isUploadButtonDisabled}
+          className={"bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-500/10"}>
           Upload
         </button>
       ) : (
@@ -617,21 +640,14 @@ export const UploadData: React.FC = (props) => {
               <div className="flex flex-col justify-center items-center gap-4">
                 <div className="text-green-400 flex flex-row gap-4">
                   Success:
-                  <a
-                    href={"https://ipfs.io/" + manifestCid}
-                    target="_blank"
-                    className="font-semibold underline text-blue-500">
+                  <a href={"https://ipfs.io/" + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
                     {"https://ipfs.io/" + manifestCid}
                   </a>
-                  <CopyIcon
-                    onClick={() => copyLink("https://ipfs.io/" + manifestCid)}
-                    className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                  <CopyIcon onClick={() => copyLink("https://ipfs.io/" + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
                 </div>
                 <div className="text-green-400 flex flex-row gap-4">
                   {manifestCid}
-                  <CopyIcon
-                    onClick={() => copyLink(manifestCid)}
-                    className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                  <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
                 </div>
               </div>
             </ToolTip>
@@ -642,17 +658,14 @@ export const UploadData: React.FC = (props) => {
                 tooltipBox={
                   <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
                     <ol className="list-decimal ml-4">
-                      <p>
-                        To point a subdomain to your IPFS file after generating its hash via zStorage, follow these
-                        refined steps:
-                      </p>
+                      <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
                       <li>
                         <p>Access Domain Controller: Open the control panel of your domain provider.</p>
                       </li>
                       <li>
                         <p>
-                          CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use.
-                          Point this subdomain to a public IPFS gateway, such as "ipfs.namebase.io."
+                          CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a public IPFS
+                          gateway, such as "ipfs.namebase.io."
                         </p>
                       </li>
                       <li>
@@ -660,14 +673,11 @@ export const UploadData: React.FC = (props) => {
                       </li>
                       <li>
                         <p>
-                          DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value
-                          to dnslink=/ipfs/"IPFS manifest file hash."
+                          DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file
+                          hash."
                         </p>
                       </li>
-                      <li>
-                        Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with
-                        value 1{" "}
-                      </li>
+                      <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
                       <li>
                         <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
                       </li>
@@ -683,9 +693,7 @@ export const UploadData: React.FC = (props) => {
           </div>
         </div>
       )}
-      {isUploadingManifest && progressBar < 100 && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>
-      )}
+      {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
       {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
     </div>
   );

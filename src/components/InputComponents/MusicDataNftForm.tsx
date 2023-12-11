@@ -3,8 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, DeleteIcon, Trash2, Edit2, SaveIcon, CheckCheck, CheckCircleIcon, Loader, Loader2 } from "lucide-react";
-import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "../../utils/constants";
+import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2 } from "lucide-react";
 import songFallbackImage from "../../assets/img/audio-player-image.png";
 
 //todo add validation for the file size and type
@@ -58,6 +57,8 @@ type MusicDataNftFormProps = {
   lastItem: boolean;
   setterFunction: (index: number, formInputs: any, image: any, audio: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
+  unsavedChanges: boolean;
+  setUnsavedChanges: (index: number, value: boolean) => void;
 };
 
 /// the form for each song that is going to be uploaded
@@ -136,6 +137,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     props.setterFunction(props.index, values, imageFile, audioFile);
     setIsSaved(true);
+    props.setUnsavedChanges(props.index, false);
   }
 
   function handleMoveUp() {
@@ -151,6 +153,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   function deleteSong() {
     props.swapFunction(Number(props.index), -1);
   }
+
   return (
     <div className="  z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
       <div className="relative">
@@ -169,7 +172,13 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           </div>
         </div>
       </div>
-      <form onChange={() => setIsSaved(false)} onSubmit={form.handleSubmit(onSubmit)} className="flex flex-row space-y-4 gap-4 ">
+      <form
+        onChange={() => {
+          setIsSaved(false);
+          props.setUnsavedChanges(props.index, true);
+        }}
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-row space-y-4 gap-4 ">
         <div>
           <div>
             <label className="block text-foreground">Date</label>
@@ -200,7 +209,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("title")} />
             {form.formState.errors.title && <p className="text-red-500">{form.formState.errors.title.message}</p>}
           </div>
-          {isSaved && (
+          {props.unsavedChanges != undefined && props.unsavedChanges === false && (
             <div className="mt-2  flex flex-row gap-2 text-green-400">
               {" "}
               Saved <CheckCircleIcon />{" "}
@@ -267,10 +276,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             {form.formState.errors.file && <p className="text-red-500">{form.formState.errors.file.message?.toString()}</p>}
           </div>
           <div className="w-full flex flex-row ">
-            <div className="w-full flex justify-center">
+            <div className="w-full flex flex-col justify-center items-center ">
               <button type="submit" className=" self-center hover:shadow-inner hover:shadow-sky-400  text-foreground p-2 rounded  ">
                 Save
               </button>
+              {props.unsavedChanges && <p className="text-sky-400 "> Unsaved changes, please save</p>}
             </div>
             <Button tabIndex={-1} onClick={deleteSong} className="ml-auto flex justify-end self-end hover:shadow-inner hover:shadow-red-400">
               <Trash2 />
