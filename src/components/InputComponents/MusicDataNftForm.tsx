@@ -6,11 +6,10 @@ import { Button } from "../../libComponents/Button";
 import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2 } from "lucide-react";
 import songFallbackImage from "../../assets/img/audio-player-image.png";
 
-//todo add validation for the file size and type
+// todo add validation for the file size and type
 // todo if the img is not loading it keeps the image of the song you are swaping with (maybe add a fallback image)
 // todo check why getting 502(The gateway is currently overloaded. Please wait a while and retry your request.
 // todo when deleting a song the next one after gets required fields and saved
-/// validation schema
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -20,7 +19,7 @@ const formSchema = z.object({
   title: z.string().min(1, "Required field"),
   cover_art_url: z.string().min(1, "Required field"),
   file: z.string().min(1, "Required field"),
-  // file: z   ///TODO FIND A WAY TO ADD THE VALIDATION
+  // file: z   ///TODO  ADD THE VALIDATION if needed max size and type
   //   .any()
   //   .refine(
   //     (file) => {
@@ -63,13 +62,12 @@ type MusicDataNftFormProps = {
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
-  const [isSaved, setIsSaved] = useState(false);
   const [wantToEditImage, setwantToEditImage] = useState(false);
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "", /// add date with time in minutes
+      date: "",
       category: "",
       artist: "",
       album: "",
@@ -85,6 +83,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
+
   const handleImageFileChange = (event: any) => {
     const file = event.target.files[0];
     setImageFile(file);
@@ -130,14 +129,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     setAudioError(false);
   }, [props.song]);
 
-  useEffect(() => {
-    const values = form.getValues();
-    props.setterFunction(props.index, values, imageFile, audioFile);
-  }, [form]);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
     props.setterFunction(props.index, values, imageFile, audioFile);
-    setIsSaved(true);
     props.setUnsavedChanges(props.index, false);
   }
 
@@ -175,7 +168,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       </div>
       <form
         onChange={() => {
-          setIsSaved(false);
           props.setUnsavedChanges(props.index, true);
         }}
         onSubmit={form.handleSubmit(onSubmit)}
@@ -228,10 +220,13 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               alt={"Cover Image"}></img>{" "}
           </Suspense>
           <label className=" block text-foreground">Cover Art Image</label>
-          <div className="flex w-full justify-end">
+          <div className="flex flex-col w-full justify-end">
             {(imageFile || imageURL !== "") && !wantToEditImage ? (
-              <div>
-                <Button tabIndex={-1} className="scale-75  justify-end hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditImage(true)}>
+              <div className="flex flex-row">
+                <Button
+                  tabIndex={-1}
+                  className="scale-75 ml-auto justify-end hover:shadow-inner hover:shadow-sky-400 "
+                  onClick={() => setwantToEditImage(true)}>
                   <Edit2 scale={0.5}></Edit2>
                 </Button>
               </div>
@@ -269,7 +264,16 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                     <Edit2 scale={0.5}></Edit2>
                   </Button>
                 </div>
-                {audioError && <p className="mx-auto text-red-500">Error loading audio file from IPFS. Try again later. </p>}
+                {audioFileIsLoading && (
+                  <>
+                    <p className="mx-auto text-foreground"> Pinning file to IPFS may take some time. </p>
+                  </>
+                )}
+                {audioError && (
+                  <>
+                    <p className="mx-auto text-foreground">Unable to load audio file from IPFS. </p>
+                  </>
+                )}
               </div>
             ) : (
               <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} />

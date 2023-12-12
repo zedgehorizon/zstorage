@@ -60,7 +60,6 @@ export const UploadData: React.FC = (props) => {
     totalItems: 0,
     stream: "true",
   });
-  const apiUrlPost = `${API_URL}/upload`;
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -86,7 +85,7 @@ export const UploadData: React.FC = (props) => {
       } catch (err: any) {
         console.log("ERROR parsing manifest file : ", err);
 
-        toast.error("Error parsing manifest file. Invalid manifest file fetched : " + (err instanceof Error) ? err.message : "", {
+        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
           icon: (
             <button onClick={() => toast.dismiss()}>
               <XCircle color="red" />
@@ -104,24 +103,22 @@ export const UploadData: React.FC = (props) => {
     try {
       //iterating over the songsData and for each object add its image and song to the formData
       Object.values(songsData).forEach((songData, idx) => {
-        // todo must change the way of storing, its not ok only by title
         if (songData && songData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + generateRandomString() + filePairs[idx + 1].image.name
-            ); ///   + "-" + filePairs[idx+1].image.name);
+              (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + generateRandomString() + "-|" + filePairs[idx + 1].image.name
+            );
           }
           if (filePairs[idx + 1]?.audio)
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + generateRandomString() + filePairs[idx + 1].audio.name
-            ); //+ "-" + filePairs[idx+1].audio.name);
+              (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + generateRandomString() + "-|" + filePairs[idx + 1].audio.name
+            );
         }
       });
-      //console.log("form data : ", filesToUpload.getAll("files").length);
     } catch (err) {
       console.log("ERROR iterating through songs Data : ", err);
       toast.error(
@@ -136,8 +133,13 @@ export const UploadData: React.FC = (props) => {
       );
     }
     if (filesToUpload.getAll("files").length === 0) return [];
+    const response = await uploadFilesRequest(filesToUpload);
+    return response;
+  }
+
+  async function uploadFilesRequest(filesToUpload: FormData) {
     try {
-      const response = await axios.post(apiUrlPost, filesToUpload, {
+      const response = await axios.post(`${API_URL}/upload`, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
@@ -147,7 +149,7 @@ export const UploadData: React.FC = (props) => {
       console.error("Error uploading files:", error);
       if (error?.response.data.statusCode === 403) {
         /// forbidden  - token expired
-        toast("Re-login and try again! ", {
+        toast("Native auth token expired. Re-login and try again! ", {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       }
@@ -171,9 +173,8 @@ export const UploadData: React.FC = (props) => {
     setProgressBar(20);
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
-      //console.log("THE RESPONSE data IS : ", responseDataCIDs);
-
       if (!responseDataCIDs) return;
+
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -207,8 +208,7 @@ export const UploadData: React.FC = (props) => {
           };
         }
       });
-
-      // return only the songs that are not null
+      // return only the songs that are not null in case there are any empty songs
       return transformedData.filter((song: any) => song !== null);
     } catch (err) {
       toast.error("Error transforming the data: " + `${err instanceof Error ? err.message : ""}`, {
@@ -221,6 +221,7 @@ export const UploadData: React.FC = (props) => {
       console.log("ERROR transforming the data: ", err);
     }
   }
+
   function verifyHeaderFields() {
     if (!formData.name || !formData.creator || !formData.createdOn || !songsData) {
       toast.error("Please fill all the fields from the header section", {
@@ -234,23 +235,11 @@ export const UploadData: React.FC = (props) => {
     }
     return true;
   }
+
   /**
    * Generates a manifest file based on the form data and uploads it to the server.
    * If any required fields are missing, an error toast is displayed.
-   * The manifest file is created with the following structure:
-   * {
-   *   "data_stream": {
-   *     "name": string,
-   *     "creator": string,
-   *     "created_on": string,
-   *     "last_modified_on": string,
-   *     "marshalManifest": {
-   *       "totalItems": number,
-   *       "nestedStream": boolean
-   *     }
-   *   },
-   *   "data": any
-   * }
+
    * The manifest file is uploaded to the server using a multipart/form-data request.
    * The response contains the CID (Content Identifier) of the uploaded manifest file.
    * If the upload is successful, the CID is set as the manifestCid state.
@@ -268,7 +257,9 @@ export const UploadData: React.FC = (props) => {
         setIsUploadingManifest(false);
         return;
       }
+
       setProgressBar(60);
+
       const manifest = {
         "data_stream": {
           "name": formData.name,
@@ -282,21 +273,17 @@ export const UploadData: React.FC = (props) => {
         },
         "data": data,
       };
+
       const formDataFormat = new FormData();
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
         (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + "|" + generateRandomString() + ".json"
       );
+      const response = await uploadFilesRequest(formDataFormat);
 
-      const response = await axios.post(apiUrlPost, formDataFormat, {
-        headers: {
-          "authorization": `Bearer ${theToken}`,
-        },
-      });
-
-      const ipfs: any = "ipfs/" + response.data[0]?.cidv1;
-      if (response.data[0]) setManifestCid(ipfs);
+      const ipfs: any = "ipfs/" + response[0]?.cidv1;
+      if (response[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -310,7 +297,7 @@ export const UploadData: React.FC = (props) => {
       });
 
       setIsUploadingManifest(false);
-      console.log("Error:", error);
+      console.log("Error generating the manifest file:", error);
     }
     setIsUploadingManifest(false);
     setProgressBar(100);
@@ -333,18 +320,25 @@ export const UploadData: React.FC = (props) => {
   function deleteSong(index: number) {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
+    const variableUnsavedChanges = { ...unsavedChanges };
+
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
+      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
     }
+
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
-    setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+    delete variableUnsavedChanges[numberOfSongs - 1];
+
+    setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
     setNumberOfSongs((prev) => prev - 1);
   }
 
+  // ask Mark if there should not be a better way like to only show errrs to the user when trying to upload the manifest file
   useEffect(() => {
     let errorMessage = "";
     if (numberOfSongs > 1 && songsData[1].title) {
@@ -362,13 +356,6 @@ export const UploadData: React.FC = (props) => {
     }
     if (errorMessage !== "") {
       setIsUploadButtonDisabled(true);
-      // toast.error(errorMessage, {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <XCircle color="red" />
-      //     </button>
-      //   ),
-      // });
     } else {
       setIsUploadButtonDisabled(false);
     }
@@ -453,7 +440,7 @@ export const UploadData: React.FC = (props) => {
       });
   }
 
-  //  console.log("songsData: ", songsData);
+  // console.log("songsData: ", songsData);
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
   // console.log("formData: ", formData);
