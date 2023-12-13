@@ -49,15 +49,16 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
+      console.log("response.data", response.data);
       setStoredDataAssets(response.data);
     } catch (error: any) {
-      console.error("ERR", error.code, error.message);
-      if (error?.code === "ERR_BAD_REQUEST") {
+      console.error("Eror fetching data assets", error.code, error.message);
+      if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       } else {
-        toast("Sorry, there’s a problem with the service, try again later " + error?.message, {
+        toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       }
@@ -72,7 +73,8 @@ export const DataAssetList: React.FC = () => {
 
       let latestVersionManifestFile: { [key: string]: { version: number; cidv1: string } } = {};
       filteredData.forEach((item) => {
-        const fileName = item.fileName.split(".-")[1]; //   filename format is "1.-manifest-name-creator-|random.json"
+        const fileName = item.fileName.split(".-")[1].split("|")[0]; //   filename format is "1.-manifest-name-creator|random-.json"
+
         const version = parseInt(item.fileName.split(".-")[0]);
         if (!fileName) return;
 

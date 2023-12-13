@@ -108,14 +108,14 @@ export const UploadData: React.FC = (props) => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              (version ? version + 1 : "1") + ".-image." + songData.title + "-|" + generateRandomString() + "-|" + filePairs[idx + 1].image.name
+              (version ? version + 1 : "1") + ".-image." + songData.title + ".-" + generateRandomString() + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.audio)
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              (version ? version + 1 : "1") + ".-audio." + songData.title + "-|" + generateRandomString() + "-|" + filePairs[idx + 1].audio.name
+              (version ? version + 1 : "1") + ".-audio." + songData.title + ".-" + generateRandomString() + "." + filePairs[idx + 1].audio.name.split(".")[1]
             );
         }
       });
@@ -144,6 +144,7 @@ export const UploadData: React.FC = (props) => {
           "authorization": `Bearer ${theToken}`,
         },
       });
+      console.log("THE RESPONSE OF UPLOAD REQ : " + response.data);
       return response.data;
     } catch (error: any) {
       console.error("Error uploading files:", error);
@@ -174,7 +175,7 @@ export const UploadData: React.FC = (props) => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
-
+      console.log("responseDataCIDs upload files ", responseDataCIDs);
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -195,30 +196,31 @@ export const UploadData: React.FC = (props) => {
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
-
+          console.log("matchingObjImage", matchingObjImage);
+          console.log("responseDataCIDs", responseDataCIDs);
           return {
             idx: index + 1,
             date: new Date(songObj?.date).toISOString(),
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.cidv1}` : songObj.file,
-            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.cidv1}` : songObj.cover_art_url,
+            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.folderCidv1}/${matchingObjSong.fileName}` : songObj.file,
+            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.folderCidv1}/${matchingObjImage.fileName}` : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
       });
       // return only the songs that are not null in case there are any empty songs
       return transformedData.filter((song: any) => song !== null);
-    } catch (err) {
-      toast.error("Error transforming the data: " + `${err instanceof Error ? err.message : ""}`, {
+    } catch (error: any) {
+      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
             <XCircle color="red" />
           </button>
         ),
       });
-      console.log("ERROR transforming the data: ", err);
+      console.log("ERROR transforming the data: ", error);
     }
   }
 
@@ -278,11 +280,11 @@ export const UploadData: React.FC = (props) => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + "|" + generateRandomString() + ".json"
+        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + ".-" + generateRandomString() + ".json"
       );
       const response = await uploadFilesRequest(formDataFormat);
-
-      const ipfs: any = "ipfs/" + response[0]?.cidv1;
+      console.log(response[0].toString(), "MANIFEST");
+      const ipfs: any = "ipfs/" + response[0]?.folderCidv1 + "/" + response[0]?.fileName;
       if (response[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly ");
@@ -343,6 +345,7 @@ export const UploadData: React.FC = (props) => {
     let errorMessage = "";
     if (numberOfSongs > 1 && songsData[1].title) {
       let hasUnsavedChanges = false;
+      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
