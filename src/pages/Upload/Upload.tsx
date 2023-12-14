@@ -40,7 +40,7 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
+  const { ipnsKey, currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -60,7 +60,6 @@ export const UploadData: React.FC = (props) => {
     totalItems: 0,
     stream: "true",
   });
-
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -98,6 +97,7 @@ export const UploadData: React.FC = (props) => {
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
+    console.log("Starting to upload songs and images files");
     /// refactor , iterate through the files, not through the songsData
     const filesToUpload = new FormData();
     try {
@@ -133,18 +133,21 @@ export const UploadData: React.FC = (props) => {
       );
     }
     if (filesToUpload.getAll("files").length === 0) return [];
+    console.log("filesToUpload", filesToUpload.getAll("files"));
     const response = await uploadFilesRequest(filesToUpload);
     return response;
   }
 
   async function uploadFilesRequest(filesToUpload: FormData) {
+    const uploadURL = `${API_URL}/${ipnsKey || descentralized.includes("IPNS") ? "upload_v2" : "upload"}`;
+    console.log("uploadURL", uploadURL);
     try {
-      const response = await axios.post(`${API_URL}/upload`, filesToUpload, {
+      const response = await axios.post(uploadURL, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("THE RESPONSE OF UPLOAD REQ : " + response.data);
+      console.log("THE RESPONSE OF UPLOAD REQ : " + response);
       return response.data;
     } catch (error: any) {
       console.error("Error uploading files:", error);
@@ -174,8 +177,10 @@ export const UploadData: React.FC = (props) => {
     setProgressBar(20);
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
-      if (!responseDataCIDs) return;
       console.log("responseDataCIDs upload files ", responseDataCIDs);
+
+      if (!responseDataCIDs) return;
+
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -238,6 +243,24 @@ export const UploadData: React.FC = (props) => {
     return true;
   }
 
+  async function addToIpns(hash: string) {
+    console.log("ADD", hash);
+
+    try {
+      const response = await axios.get(`${API_URL}/ipns/publish`, {
+        params: { cid: hash }, // maybe will throw error if there is no ipns key
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("response adding to ipns: ", response.data);
+    } catch (error) {
+      console.error(error);
+      throw error; // error to be catched by toast.promise
+    }
+  }
+
   /**
    * Generates a manifest file based on the form data and uploads it to the server.
    * If any required fields are missing, an error toast is displayed.
@@ -283,8 +306,9 @@ export const UploadData: React.FC = (props) => {
         (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + ".-" + generateRandomString() + ".json"
       );
       const response = await uploadFilesRequest(formDataFormat);
-      console.log(response[0].toString(), "MANIFEST");
-      const ipfs: any = "ipfs/" + response[0]?.folderCidv1 + "/" + response[0]?.fileName;
+      console.log(response[0], "MANIFEST file uploaded successfully");
+      const ipfs: any = "ipfs/" + response[0].folderHash ? response[0].folderHash : response[0]?.folderCid + "/" + response[0]?.fileName;
+      if (descentralized.includes("IPNS")) addToIpns(response[0].hash);
       if (response[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly ");
@@ -601,6 +625,8 @@ export const UploadData: React.FC = (props) => {
             </form>
           </div>
           {currentManifestFileCID && <h3 className="mt-4"> Manifest CID - {currentManifestFileCID} </h3>}
+          {ipnsKey && <h3 className="mt-4"> Ipns Key - {ipnsKey} </h3>}
+
           <ErrorBoundary
             onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
             FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
