@@ -6,7 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function generateRandomString() {
-  const timestampInSeconds = Math.floor(new Date().getTime() / 1000);
-  const randomNum = Math.floor(Math.random() * 1000000);
+  const timestampInSeconds = Math.floor(new Date().getTime() / 1000) % 100000;
+  console.log("timestampInSeconds", timestampInSeconds);
+  const randomNum = Math.floor(Math.random() * 1000);
   return `${timestampInSeconds}-${randomNum}`;
 }

@@ -16,7 +16,12 @@ const formSchema = z.object({
   category: z.string().min(1, "Required field"),
   artist: z.string().min(1, "Required field"),
   album: z.string().min(1, "Required field"),
-  title: z.string().min(1, "Required field"),
+  title: z
+    .string()
+    .min(1, "Required field")
+    .refine((data) => !data.includes("manifest"), {
+      message: "The title cannot contain the word 'manifest'",
+    }),
   cover_art_url: z.string().min(1, "Required field"),
   file: z.string().min(1, "Required field"),
   // file: z   ///TODO  ADD THE VALIDATION if needed max size and type

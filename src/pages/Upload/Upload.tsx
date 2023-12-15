@@ -14,14 +14,12 @@ import { theToken } from "../../utils/constants";
 import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-import { Err } from "@multiversx/sdk-core/out";
-import { error } from "console";
 
 // todo verify and dont allow users to upload manifest files without songs
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
 //todo add a modal after the upload with whats next
 ///remove save button
-
+// if you want to update only the header should he be able to upload only that?
 type SongData = {
   date: string;
   category: string;
@@ -40,7 +38,7 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -98,6 +96,7 @@ export const UploadData: React.FC = (props) => {
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
+    console.log("songs uploading");
     /// refactor , iterate through the files, not through the songsData
     const filesToUpload = new FormData();
     try {
@@ -108,14 +107,14 @@ export const UploadData: React.FC = (props) => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              (version ? version + 1 : "1") + ".-image." + songData.title + ".-" + generateRandomString() + "." + filePairs[idx + 1].image.name.split(".")[1]
+              (version ? version + 1 : "1") + ".-image." + songData.title + "_" + generateRandomString() + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.audio)
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              (version ? version + 1 : "1") + ".-audio." + songData.title + ".-" + generateRandomString() + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              (version ? version + 1 : "1") + ".-audio." + songData.title + "_" + generateRandomString() + "." + filePairs[idx + 1].audio.name.split(".")[1]
             );
         }
       });
@@ -132,19 +131,21 @@ export const UploadData: React.FC = (props) => {
         }
       );
     }
+    console.log("form data created", filesToUpload.getAll("files"));
     if (filesToUpload.getAll("files").length === 0) return [];
     const response = await uploadFilesRequest(filesToUpload);
     return response;
   }
 
   async function uploadFilesRequest(filesToUpload: FormData) {
+    console.log("request");
     try {
       const response = await axios.post(`${API_URL}/upload`, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("THE RESPONSE OF UPLOAD REQ : " + response.data);
+      console.log("THE RESPONSE OF UPLOAD REQ : " + response);
       return response.data;
     } catch (error: any) {
       console.error("Error uploading files:", error);
@@ -204,8 +205,8 @@ export const UploadData: React.FC = (props) => {
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.folderCidv1}/${matchingObjSong.fileName}` : songObj.file,
-            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.folderCidv1}/${matchingObjImage.fileName}` : songObj.cover_art_url,
+            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.folderCid}/${matchingObjSong.fileName}` : songObj.file,
+            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.folderCid}/${matchingObjImage.fileName}` : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
@@ -267,7 +268,7 @@ export const UploadData: React.FC = (props) => {
           "name": formData.name,
           "creator": formData.creator,
           "created_on": formData.createdOn,
-          "last_modified_on": version ? new Date().toISOString() : formData.createdOn,
+          "last_modified_on": version ? new Date().toISOString().split("T")[0] : formData.createdOn,
           "marshalManifest": {
             "totalItems": numberOfSongs - 1,
             "nestedStream": formData.stream === "true" ? true : false,
@@ -280,11 +281,11 @@ export const UploadData: React.FC = (props) => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        (version ? version + 1 : "1") + ".-manifest-" + formData.name + "-" + formData.creator + ".-" + generateRandomString() + ".json"
+        manifestFileName ? manifestFileName : "manifest-" + formData.name + "_" + generateRandomString() + ".json"
       );
       const response = await uploadFilesRequest(formDataFormat);
-      console.log(response[0].toString(), "MANIFEST");
-      const ipfs: any = "ipfs/" + response[0]?.folderCidv1 + "/" + response[0]?.fileName;
+      console.log("manifest", response[0]?.folderCid + "/" + response[0]?.fileName);
+      const ipfs: any = "ipfs/" + response[0]?.folderCid + "/" + response[0]?.fileName;
       if (response[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly ");
@@ -514,6 +515,7 @@ export const UploadData: React.FC = (props) => {
 
               <div className="ml-auto flex flex-col">
                 <h3> {version && `Version:  ${version}`}</h3>
+                {/* <h4> {manifestFileName && `File Name: ${manifestFileName}`}</h4> */}
                 <label htmlFor="totalItems" className="block text-foreground ">
                   Total Items: {numberOfSongs - 1}
                 </label>
@@ -601,6 +603,9 @@ export const UploadData: React.FC = (props) => {
             </form>
           </div>
           {currentManifestFileCID && <h3 className="mt-4"> Manifest CID - {currentManifestFileCID} </h3>}
+          {folderCid && <h3 className="mt-4"> Folder CID - {folderCid} </h3>}
+          {manifestFileName && <h3 className="mt-4"> Manifest Name - {manifestFileName} </h3>}
+
           <ErrorBoundary
             onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
             FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
