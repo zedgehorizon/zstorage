@@ -61,7 +61,7 @@ export const UploadData: React.FC = (props) => {
     stream: "true",
   });
 
-  const isIPNS = descentralized?.includes("IPNS");
+  const isIPNS = descentralized?.includes("IPNS") || (ipnsKey ? true : false);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -316,7 +316,7 @@ export const UploadData: React.FC = (props) => {
       const response = await uploadFilesRequest(formDataFormat);
       console.log(response[0], "MANIFEST file uploaded successfully");
       let ipfs: any = "";
-      if (isIPNS || ipnsKey) {
+      if (isIPNS) {
         const ipnsHash = await addToIpns(response[0].hash);
         ipfs = "ipns/" + ipnsHash; //"/" + response[0]?.fileName;
       } else {
