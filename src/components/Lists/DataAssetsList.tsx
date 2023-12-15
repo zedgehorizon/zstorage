@@ -88,18 +88,32 @@ export const DataAssetList: React.FC = () => {
     }
   }
 
-  function getManifestFileFromIpnsHash(cid: string) {
+  async function getManifestFileFromIpnsHash(cid: string) {
     const apiUrlGetManifest = `${API_URL}/file_v2/` + cid;
     try {
-      const response = axios.get(apiUrlGetManifest, {
+      const response = await axios.get(apiUrlGetManifest, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
       return response;
-    } catch (error) {
-      console.error(error);
-      throw error; // error to be catched by toast.promise
+    } catch (error: any) {
+      console.log("Error downloading manifest file from ipns", error);
+      if (error?.response.data.statusCode === 403) {
+        toast("Native auth token expired. Re-login and try again! ", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      } else if (error?.response.data.statusCode === 404 || error?.response.data.statusCode === 500) {
+        toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+          id: "fetch-manifest-file1",
+        });
+      } else {
+        toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      }
+      //throw error; // error to be catched by toast.promise
     }
   }
 
@@ -109,11 +123,15 @@ export const DataAssetList: React.FC = () => {
     Object(ipnsFiles).map(async (item: any) => {
       try {
         const response = await getManifestFileFromIpnsHash(item.pointingHash);
-        //console.log("response of manifest : ", response.data);
-        setManifestFilesLighthouse(
-          (prev) =>
-            [...prev, { data_stream: response.data.data_stream, data: response.data.data, ipnsKey: item.key, cidv1: item.pointingHash }] as ManifestFile[]
-        );
+        if (response && response.data?.data_stream) {
+          setManifestFilesLighthouse(
+            (prev) =>
+              [...prev, { data_stream: response.data.data_stream, data: response.data.data, ipnsKey: item.key, cidv1: item.pointingHash }] as ManifestFile[]
+          );
+        } else {
+          return undefined;
+        }
+        console.log("response of manifest : ", response!.data);
       } catch (error) {
         console.error(error);
         throw error;

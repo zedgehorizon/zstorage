@@ -60,6 +60,9 @@ export const UploadData: React.FC = (props) => {
     totalItems: 0,
     stream: "true",
   });
+
+  const isIPNS = descentralized?.includes("IPNS");
+
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -147,7 +150,7 @@ export const UploadData: React.FC = (props) => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("THE RESPONSE OF UPLOAD REQ : " + response);
+      console.log("THE RESPONSE OF UPLOAD REQ : " + response.data);
       return response.data;
     } catch (error: any) {
       console.error("Error uploading files:", error);
@@ -209,8 +212,12 @@ export const UploadData: React.FC = (props) => {
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.folderCidv1}/${matchingObjSong.fileName}` : songObj.file,
-            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.folderCidv1}/${matchingObjImage.fileName}` : songObj.cover_art_url,
+            file: matchingObjSong
+              ? `https://ipfs.io/ipfs/${isIPNS ? matchingObjSong.folderHash : matchingObjSong.folderCidv1}/${matchingObjSong.fileName}`
+              : songObj.file,
+            cover_art_url: matchingObjImage
+              ? `https://ipfs.io/ipfs/${isIPNS ? matchingObjImage.folderHash : matchingObjImage.folderCidv1}/${matchingObjImage.fileName}`
+              : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
@@ -248,13 +255,14 @@ export const UploadData: React.FC = (props) => {
 
     try {
       const response = await axios.get(`${API_URL}/ipns/publish`, {
-        params: { cid: hash }, // maybe will throw error if there is no ipns key
+        params: { cid: hash, key: ipnsKey }, // maybe will throw error if there is no ipns key
         headers: {
           "authorization": `Bearer ${theToken}`,
           "Content-Type": "application/json",
         },
       });
       console.log("response adding to ipns: ", response.data);
+      return response.data.hash;
     } catch (error) {
       console.error(error);
       throw error; // error to be catched by toast.promise
@@ -307,8 +315,13 @@ export const UploadData: React.FC = (props) => {
       );
       const response = await uploadFilesRequest(formDataFormat);
       console.log(response[0], "MANIFEST file uploaded successfully");
-      const ipfs: any = "ipfs/" + response[0].folderHash ? response[0].folderHash : response[0]?.folderCid + "/" + response[0]?.fileName;
-      if (descentralized.includes("IPNS")) addToIpns(response[0].hash);
+      let ipfs: any = "";
+      if (isIPNS || ipnsKey) {
+        const ipnsHash = await addToIpns(response[0].hash);
+        ipfs = "ipns/" + ipnsHash; //"/" + response[0]?.fileName;
+      } else {
+        ipfs = "ipfs/" + response[0]?.folderCid + "/" + response[0]?.fileName;
+      }
       if (response[0]) setManifestCid(ipfs);
       else {
         throw new Error("The manifest file has not been uploaded correctly ");
