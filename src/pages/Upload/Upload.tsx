@@ -38,7 +38,7 @@ type FilePair = {
 export const UploadData: React.FC = (props) => {
   const location = useLocation();
 
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, descentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -495,7 +495,7 @@ export const UploadData: React.FC = (props) => {
           )}
           {storage && (
             <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-              {descentralized ? descentralized : storage}
+              {decentralized ? decentralized : storage}
             </span>
           )}
         </div>

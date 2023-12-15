@@ -11,11 +11,11 @@ export const Home: React.FC = () => {
   const [dynamicDataStreamOption, setDynamicDataStreamOption] = useState();
   const [dynamicDataStream, setDynamicDataStream] = useState();
   const [storage, setStorage] = useState();
-  const [descentralizedStorage, setDescentralizedStorage] = useState();
+  const [decentralizedStorage, setDecentralizedStorage] = useState();
   const descriptions = ["Description1", "Description2", "Description3", "ASD"]; // Replace with your actual descriptions array
 
   function checkSelectedOptions() {
-    if (dataAssetAction === "Update Data Asset" || !dataAssetAction || !dynamicDataStreamOption || !dynamicDataStream || !storage || !descentralizedStorage) {
+    if (dataAssetAction === "Update Data Asset" || !dataAssetAction || !dynamicDataStreamOption || !dynamicDataStream || !storage || !decentralizedStorage) {
       return false;
     }
     return true;
@@ -95,13 +95,13 @@ export const Home: React.FC = () => {
                 setterFunction={setStorage}
                 disabled={[true, false]}
               />
-              {storage == "Dentralized web3 Storage" && (
+              {storage == "Decentralized web3 Storage" && (
                 <XStorageCheckBox
                   title="Decentralized web3 Storage"
                   description="What decentralized solution would you like to go with?"
                   options={["DNS (domain) + IPFS", "DNS (domain) + Arweave", "Ceramic", "IPNS + IPFS"]}
                   descriptions={descriptions}
-                  setterFunction={setDescentralizedStorage}
+                  setterFunction={setDecentralizedStorage}
                   disabled={[false, true, true, true]}
                 />
               )}
@@ -117,7 +117,7 @@ export const Home: React.FC = () => {
               type: dynamicDataStreamOption,
               template: dynamicDataStream,
               storage: storage,
-              descentralized: descentralizedStorage,
+              decentralized: decentralizedStorage,
             }}
             className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none hover:bg-blue-600">
             Next
