@@ -10,6 +10,7 @@ import { Content } from "./components/Layout/Content";
 import { Footer } from "./components/Layout/Footer";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
+import { Toaster } from "react-hot-toast";
 
 const routes = [
   {
@@ -48,6 +49,26 @@ function App() {
         <div className="backgroundCircle"></div>
         <div className="backgroundCircle1"></div>
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
+          <Toaster
+            position="top-right"
+            reverseOrder={false}
+            containerStyle={{
+              position: "sticky",
+
+              width: "100%",
+            }}
+            toastOptions={{
+              className: "",
+              duration: 5000,
+              style: {
+                background: "#363636",
+                color: "#fff",
+              },
+              success: {
+                duration: 3000,
+              },
+            }}
+          />
           <Navbar />
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">

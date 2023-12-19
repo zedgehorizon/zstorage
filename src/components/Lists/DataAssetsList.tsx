@@ -5,9 +5,8 @@ import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL } from "../../utils/constants";
 import { theToken } from "../../utils/constants";
 import DataAssetCard from "../CardComponents/DataAssetCard";
-import toast, { Toaster } from "react-hot-toast";
-import { Lightbulb, Loader, Loader2 } from "lucide-react";
-import { set } from "react-hook-form";
+import toast from "react-hot-toast";
+import { Lightbulb, Loader2 } from "lucide-react";
 
 interface DataStream {
   name: string;
@@ -19,6 +18,7 @@ interface DataStream {
     nestedStream: boolean;
   };
 }
+
 interface ManifestFile {
   data_stream: DataStream;
   data: [];
@@ -36,17 +36,17 @@ type DataAsset = {
   cidv1: string;
   mimeType: string;
 };
-/// todo check why some of the manifest files are not downloaded and show the bad manifest
+
 export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
-  // const [latestVersionCid, setLatestVersionCid] = useState<{ [key: string]: { version: number; cidv1: string } }>({});
+  //const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // fetch all data assets of an address
   async function fetchAllDataAssetsOfAnAddress() {
-    const apiUrlGet = `${API_URL}/files?manifest=true`;
+    const apiUrlGet = `${API_URL}/files`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
@@ -54,12 +54,6 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("response.data");
-
-      response.data.map((item: any) => {
-        console.log(item);
-      });
-
       setStoredDataAssets(response.data);
     } catch (error: any) {
       console.error("Eror fetching data assets", error);
@@ -76,29 +70,6 @@ export const DataAssetList: React.FC = () => {
     }
   }
 
-  // // get the latest version of the manifest file for each data asset
-  // function getManifestFilesFromDataAssets() {
-  //   if (storedDataAssets) {
-  //     const filteredData = storedDataAssets.filter((item) => item.fileName && item.fileName.includes("manifest"));
-
-  //     let latestVersionManifestFile: { [key: string]: { version: number; cidv1: string } } = {};
-  //     filteredData.forEach((item) => {
-  //       const fileName = item.fileName.split(".-")[1]; //.split("|")[0]; //   filename format is "1.-manifest-name-creator|random-.json"
-
-  //       const version = parseInt(item.fileName.split(".-")[0]);
-  //       if (!fileName) return;
-
-  //       if (!latestVersionManifestFile[fileName] || version > latestVersionManifestFile[fileName].version) {
-  //         latestVersionManifestFile[fileName] = {
-  //           version: version,
-  //           cidv1: item.cidv1,
-  //         };
-  //       }
-  //     });
-  //     setLatestVersionCid(latestVersionManifestFile);
-  //   }
-  // }
-
   // download the manifest file for the coresponding CID
   async function downloadTheManifestFile(folderCid: string, manifestFileName: string, manifestCid: string) {
     const apiUrlDownloadFile = `${API_URL}/file/` + manifestCid;
@@ -110,14 +81,14 @@ export const DataAssetList: React.FC = () => {
         },
       });
       if (!response.data?.data_stream) {
-        /// empty manifest file or wrong format
+        /// empty manifest file or wrong format should not happen only with older versions
+        console.log("Manifest file is empty or wrong format", manifestCid);
         return undefined;
       }
       const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, cidv1: manifestCid, folderCid: folderCid };
       setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
     } catch (error) {
-      console.log("Error downloading manifest files:", error);
-      //toast.error("Error downloading manifest files. Check your connection and try again. " + (error as Error).message, { id: "fetch-manifest-file" });
+      console.log("Error downloading manifest files:", manifestCid, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
@@ -127,6 +98,7 @@ export const DataAssetList: React.FC = () => {
 
   useEffect(() => {
     if (storedDataAssets.length === 0) {
+      /// think about is, what happens if the user has no data assets
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all data assets from Ipfs of your address...",
         success: <b>Fetched all data assets from Ipfs of your address!</b>,
@@ -135,29 +107,26 @@ export const DataAssetList: React.FC = () => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   getManifestFilesFromDataAssets();
-  // }, [storedDataAssets]);
-
   useEffect(() => {
     const downloadLatestVersionsManifestFiles = async () => {
-      if (storedDataAssets.length !== 0) {
-        await Promise.all(
-          storedDataAssets.map(async (manifestAsset: any) => {
-            await downloadTheManifestFile(manifestAsset.folderCid, manifestAsset.fileName, manifestAsset.cidv1);
-          })
-        );
-        setIsLoading(false);
-      }
+      await Promise.all(
+        storedDataAssets.map(async (manifestAsset) => {
+          await downloadTheManifestFile(manifestAsset.folderCid, manifestAsset.fileName, manifestAsset.cidv1);
+        })
+      );
+      setIsLoading(false);
     };
-    downloadLatestVersionsManifestFiles();
+
+    if (storedDataAssets.length > 0) {
+      downloadLatestVersionsManifestFiles();
+    }
   }, [storedDataAssets]);
 
   return (
     <div className="p-4 flex flex-col">
       {isLoading && (
-        <div className=" flex justify-center items-center -mt-4">
-          <Loader2 color="cyan" className="animate-spin rounded-full"></Loader2>
+        <div className="flex justify-center items-center -mt-4">
+          <Loader2 color="blue-400" className="animate-spin rounded-full"></Loader2>
         </div>
       )}
       <div className="gap-4 grid grid-cols-3">
@@ -176,6 +145,11 @@ export const DataAssetList: React.FC = () => {
           </Link>
         ))}
       </div>
+      {manifestFiles.length === 0 && !isLoading && (
+        <div className="flex justify-center items-center">
+          <p className="text-gray-400 text-2xl">No data assets found.</p>
+        </div>
+      )}
     </div>
   );
 };

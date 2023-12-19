@@ -15,11 +15,11 @@ import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 
-// todo verify and dont allow users to upload manifest files without songs
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
 //todo add a modal after the upload with whats next
 ///remove save button
 // if you want to update only the header should he be able to upload only that?
+
 type SongData = {
   date: string;
   category: string;
@@ -96,8 +96,6 @@ export const UploadData: React.FC = (props) => {
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
-    console.log("songs uploading");
-    /// refactor , iterate through the files, not through the songsData
     const filesToUpload = new FormData();
     try {
       //iterating over the songsData and for each object add its image and song to the formData
@@ -118,10 +116,12 @@ export const UploadData: React.FC = (props) => {
             );
         }
       });
-    } catch (err) {
-      console.log("ERROR iterating through songs Data : ", err);
+    } catch (error: any) {
+      console.log("ERROR iterating through songs Data : ", error);
       toast.error(
-        "Error iterating through songs Data : " + `${err instanceof Error ? err.message : ""}` + " Please check all the fields to be filled correctly.",
+        "Error iterating through songs Data : " +
+          `${error ? error.message + ". " + error?.response?.data.message : ""}` +
+          " Please check all the fields to be filled correctly.",
         {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -131,21 +131,20 @@ export const UploadData: React.FC = (props) => {
         }
       );
     }
-    console.log("form data created", filesToUpload.getAll("files"));
+
     if (filesToUpload.getAll("files").length === 0) return [];
     const response = await uploadFilesRequest(filesToUpload);
     return response;
   }
 
   async function uploadFilesRequest(filesToUpload: FormData) {
-    console.log("request");
     try {
       const response = await axios.post(`${API_URL}/upload`, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("THE RESPONSE OF UPLOAD REQ : " + response);
+
       return response.data;
     } catch (error: any) {
       console.error("Error uploading files:", error);
@@ -176,7 +175,7 @@ export const UploadData: React.FC = (props) => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
-      console.log("responseDataCIDs upload files ", responseDataCIDs);
+
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -197,8 +196,7 @@ export const UploadData: React.FC = (props) => {
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
-          console.log("matchingObjImage", matchingObjImage);
-          console.log("responseDataCIDs", responseDataCIDs);
+
           return {
             idx: index + 1,
             date: new Date(songObj?.date).toISOString(),
@@ -211,7 +209,7 @@ export const UploadData: React.FC = (props) => {
           };
         }
       });
-      // return only the songs that are not null in case there are any empty songs
+
       return transformedData.filter((song: any) => song !== null);
     } catch (error: any) {
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
@@ -284,14 +282,22 @@ export const UploadData: React.FC = (props) => {
         manifestFileName ? manifestFileName : "manifest-" + formData.name + "_" + generateRandomString() + ".json"
       );
       const response = await uploadFilesRequest(formDataFormat);
-      console.log("manifest", response[0]?.folderCid + "/" + response[0]?.fileName);
-      const ipfs: any = "ipfs/" + response[0]?.folderCid + "/" + response[0]?.fileName;
-      if (response[0]) setManifestCid(ipfs);
-      else {
+      if (response[0]) {
+        const ipfs: any = "ipfs/" + response[0]?.folderCid + "/" + response[0]?.fileName;
+        setManifestCid(ipfs);
+
+        toast.success("Manifest file uploaded successfully", {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow" />
+            </button>
+          ),
+        });
+      } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
-    } catch (error) {
-      toast.error("Error generating the manifest file: " + `${error instanceof Error ? error.message : ""}`, {
+    } catch (error: any) {
+      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
             <XCircle color="red" />
@@ -376,7 +382,7 @@ export const UploadData: React.FC = (props) => {
       return;
     }
 
-    // deleting song with index first
+    // deleting song with index = first
     if (second === -1) {
       deleteSong(first);
       return;
@@ -455,27 +461,6 @@ export const UploadData: React.FC = (props) => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        <Toaster
-          position="top-right"
-          reverseOrder={false}
-          containerStyle={{
-            position: "sticky",
-            top: "0",
-            right: "0",
-            width: "100%",
-          }}
-          toastOptions={{
-            className: "",
-            duration: 5000,
-            style: {
-              background: "#363636",
-              color: "#fff",
-            },
-            success: {
-              duration: 3000,
-            },
-          }}
-        />
         <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
         <div className="flex flex-row gap-4 mb-4">
           {action && (
@@ -581,25 +566,6 @@ export const UploadData: React.FC = (props) => {
                   className="w-full bg-black/20 px-3 py-2   rounded focus:outline-none focus:border-blue-500"
                 />
               </div>
-
-              {/* { template !== "Music Data Nft" && <div className="mb-4">
-              <ToolTip tooltip="Music Data Nft shoud be streamed- select yes">
-                <label htmlFor="stream" className="block text-foreground mb-2">
-                  Stream:
-                </label>
-              </ToolTip> 
-              <div className="flex items-center">
-                <input type="radio" id="streamYes" name="stream" value="true" checked={formData.stream === "true"} onChange={handleChange} className="mr-2" />
-                <label htmlFor="streamYes" className="text-foreground mr-4 cursor-pointer">
-                  Yes
-                </label>
-                <input type="radio" id="streamNo" name="stream" value="false" checked={formData.stream === "false"} onChange={handleChange} className="mr-2" />
-                <label htmlFor="streamNo" className="text-foreground cursor-pointer">
-                  No
-                </label>
-              </div>
-            </div> } 
-              */}
             </form>
           </div>
           {currentManifestFileCID && <h3 className="mt-4"> Manifest CID - {currentManifestFileCID} </h3>}
@@ -625,7 +591,6 @@ export const UploadData: React.FC = (props) => {
           </ErrorBoundary>
 
           <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
-            {" "}
             Add more songs
           </Button>
         </div>

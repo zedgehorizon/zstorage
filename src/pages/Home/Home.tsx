@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { XStorageCheckBox } from "../../components/InputComponents/XStorageCheckBox";
 import { Link } from "react-router-dom";
 import { DataAssetList } from "../../components/Lists/DataAssetsList";
-import { Toaster } from "react-hot-toast";
 
 export const Home: React.FC = () => {
   // options
@@ -12,6 +11,7 @@ export const Home: React.FC = () => {
   const [dynamicDataStream, setDynamicDataStream] = useState();
   const [storage, setStorage] = useState();
   const [decentralizedStorage, setDecentralizedStorage] = useState();
+
   const descriptions = ["Description1", "Description2", "Description3", "ASD"]; // Replace with your actual descriptions array
 
   function checkSelectedOptions() {
@@ -24,27 +24,6 @@ export const Home: React.FC = () => {
   /// TODO ADD CONSTANTS and just map through them
   return (
     <>
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        containerStyle={{
-          position: "sticky",
-          top: "0",
-          right: "0",
-          width: "100%",
-        }}
-        toastOptions={{
-          className: "",
-          duration: 5000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 3000,
-          },
-        }}
-      />
       <div className="w-full  min-h-screen flex flex-col justify-center items-center gap-12 p-12">
         <span className="text-3xl leading-relaxed">
           <b className="  text-blue-400">zStorage: </b> End-to-End Storage Solution for the Itheum Protocol.&nbsp; <br></br>
@@ -59,7 +38,6 @@ export const Home: React.FC = () => {
         />
         {dataAssetAction === "Update Data Asset" ? (
           <div className="w-full">
-            {" "}
             <DataAssetList />
           </div>
         ) : (
