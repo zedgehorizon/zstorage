@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_URL } from "../../utils/constants";
+import { API_URL, API_VERSION } from "../../utils/constants";
 import { theToken } from "../../utils/constants";
 import DataAssetCard from "../CardComponents/DataAssetCard";
 import toast from "react-hot-toast";
@@ -26,6 +26,8 @@ interface ManifestFile {
   manifestFileName: string;
   folderCid: string;
   cidv1: string;
+  hash: string;
+  folderHash: string;
 }
 
 type DataAsset = {
@@ -35,6 +37,8 @@ type DataAsset = {
   cid: string;
   cidv1: string;
   mimeType: string;
+  hash: string;
+  folderHash: string;
 };
 
 export const DataAssetList: React.FC = () => {
@@ -46,7 +50,7 @@ export const DataAssetList: React.FC = () => {
 
   // fetch all data assets of an address
   async function fetchAllDataAssetsOfAnAddress() {
-    const apiUrlGet = `${API_URL}/files`;
+    const apiUrlGet = `${API_URL}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
@@ -54,6 +58,7 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
+      console.log("Data assets fetched", response.data);
       setStoredDataAssets(response.data);
     } catch (error: any) {
       console.error("Eror fetching data assets", error);
@@ -71,8 +76,8 @@ export const DataAssetList: React.FC = () => {
   }
 
   // download the manifest file for the coresponding CID
-  async function downloadTheManifestFile(folderCid: string, manifestFileName: string, manifestCid: string) {
-    const apiUrlDownloadFile = `${API_URL}/file/` + manifestCid;
+  async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
+    const apiUrlDownloadFile = `${API_URL}/file${API_VERSION}/` + manifest;
 
     try {
       const response = await axios.get(apiUrlDownloadFile, {
@@ -82,13 +87,13 @@ export const DataAssetList: React.FC = () => {
       });
       if (!response.data?.data_stream) {
         /// empty manifest file or wrong format should not happen only with older versions
-        console.log("Manifest file is empty or wrong format", manifestCid);
+        console.log("Manifest file is empty or wrong format", manifest);
         return undefined;
       }
-      const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, cidv1: manifestCid, folderCid: folderCid };
+      const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
       setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
     } catch (error) {
-      console.log("Error downloading manifest files:", manifestCid, error);
+      console.log("Error downloading manifest files:", manifest, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
@@ -111,7 +116,7 @@ export const DataAssetList: React.FC = () => {
     const downloadLatestVersionsManifestFiles = async () => {
       await Promise.all(
         storedDataAssets.map(async (manifestAsset) => {
-          await downloadTheManifestFile(manifestAsset.folderCid, manifestAsset.fileName, manifestAsset.cidv1);
+          await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash);
         })
       );
       setIsLoading(false);
@@ -137,9 +142,9 @@ export const DataAssetList: React.FC = () => {
             state={{
               manifestFile: manifestFiles[index],
               action: "Update Data Asset",
-              currentManifestFileCID: manifestFiles[index].cidv1,
+              currentManifestFileCID: manifestFiles[index].hash,
               manifestFileName: manifestFiles[index].manifestFileName,
-              folderCid: manifestFiles[index].folderCid,
+              folderCid: manifestFiles[index].folderHash,
             }}>
             <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
           </Link>

@@ -4,16 +4,17 @@ import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_URL } from "../../utils/constants";
+import { API_URL, API_VERSION, IPFS_GATEWAY } from "../../utils/constants";
 import { ToolTip } from "../../libComponents/Tooltip";
 import { CopyIcon, InfoIcon, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import { theToken } from "../../utils/constants";
 import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import SelectionList from "../../components/Lists/SelectionList";
 
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
 //todo add a modal after the upload with whats next
@@ -35,7 +36,7 @@ type FilePair = {
   audio: File;
 };
 
-export const UploadData: React.FC = (props) => {
+export const UploadData: React.FC = () => {
   const location = useLocation();
 
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
@@ -45,6 +46,8 @@ export const UploadData: React.FC = (props) => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
+  //const theToken = tokenLogin?.nativeAuthToken;
+
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
 
@@ -139,7 +142,7 @@ export const UploadData: React.FC = (props) => {
 
   async function uploadFilesRequest(filesToUpload: FormData) {
     try {
-      const response = await axios.post(`${API_URL}/upload`, filesToUpload, {
+      const response = await axios.post(`${API_URL}/upload${API_VERSION}`, filesToUpload, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
@@ -203,8 +206,8 @@ export const UploadData: React.FC = (props) => {
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `https://ipfs.io/ipfs/${matchingObjSong.folderCid}/${matchingObjSong.fileName}` : songObj.file,
-            cover_art_url: matchingObjImage ? `https://ipfs.io/ipfs/${matchingObjImage.folderCid}/${matchingObjImage.fileName}` : songObj.cover_art_url,
+            file: matchingObjSong ? `${IPFS_GATEWAY}ipfs/${matchingObjSong.folderHash}/${matchingObjSong.fileName}` : songObj.file,
+            cover_art_url: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : songObj.cover_art_url,
             title: songObj?.title,
           };
         }
@@ -283,7 +286,7 @@ export const UploadData: React.FC = (props) => {
       );
       const response = await uploadFilesRequest(formDataFormat);
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderCid + "/" + response[0]?.fileName;
+        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(ipfs);
 
         toast.success("Manifest file uploaded successfully", {
@@ -461,32 +464,9 @@ export const UploadData: React.FC = (props) => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        <b className=" py-2 text-xl  font-medium"> Let’s update your data! Here is what you wanted to do... </b>
-        <div className="flex flex-row gap-4 mb-4">
-          {action && (
-            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-              {action}
-            </span>
-          )}
-          {type && (
-            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-              {type}
-            </span>
-          )}
-          {template && (
-            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center  text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-              {template}
-            </span>
-          )}
-          {storage && (
-            <span className="w-32 border-2 text-bold border-blue-400 bg-blue-900 text-blue-400 text-center text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-              {decentralized ? decentralized : storage}
-            </span>
-          )}
-        </div>
+        <SelectionList items={[action, type, template, storage, decentralized]} />
         <div className="z-[-1] relative w-full ">
-          <div className="absolute top-30 left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
-
+          <div className="absolute top-30 left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
           <div className="absolute top-0 -left-4 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
           <div className="absolute top-0 -right-4 w-72 h-96 bg-[#300171] rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
           <div className="absolute top-30 -left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
@@ -604,21 +584,21 @@ export const UploadData: React.FC = (props) => {
         ) : (
           <div>
             <div className="flex flex-col items-center justify-center p-8">
-              <ToolTip tooltip="It might take more than 10 min for the files to get pinned and to be visible">
-                <div className="flex flex-col justify-center items-center gap-4">
-                  <div className="text-green-400 flex flex-row gap-4">
-                    Success:
-                    <a href={"https://ipfs.io/" + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
-                      {"https://ipfs.io/" + manifestCid}
-                    </a>
-                    <CopyIcon onClick={() => copyLink("https://ipfs.io/" + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                  </div>
+              <div className="flex flex-col justify-center items-center gap-4">
+                <div className="text-green-400 flex flex-row gap-4">
+                  Success:
+                  <a href={IPFS_GATEWAY + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
+                    Click here to open manifest file
+                  </a>
+                  <CopyIcon onClick={() => copyLink(IPFS_GATEWAY + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
+                </div>{" "}
+                <ToolTip tooltip="It might take some time for the files to get pinned and to be visible">
                   <div className="text-green-400 flex flex-row gap-4">
                     {manifestCid}
                     <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                  </div>
-                </div>
-              </ToolTip>
+                  </div>{" "}
+                </ToolTip>
+              </div>
 
               <div className="mt-4 mx-auto">
                 <ToolTip

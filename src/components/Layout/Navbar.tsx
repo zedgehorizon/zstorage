@@ -1,9 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
-import { Home, Menu, Store, Wallet } from "lucide-react";
-import lightLogo from "assets/img/logo-icon-b.png";
-import darkLogo from "assets/img/logo-sml-d.png";
+
 import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 import { Button } from "../../libComponents/Button";
