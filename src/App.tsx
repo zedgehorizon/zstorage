@@ -11,6 +11,7 @@ import { Footer } from "./components/Layout/Footer";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
+import LandingPage from "./pages/Home/LandingPage";
 
 const routes = [
   {
@@ -29,6 +30,13 @@ const routes = [
     path: "/unlock",
     title: "Unlock",
     component: Unlock,
+    authenticatedRoute: false,
+  },
+
+  {
+    path: "/landing",
+    title: "Landing Page",
+    component: LandingPage,
     authenticatedRoute: false,
   },
 ];
@@ -74,6 +82,8 @@ function App() {
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
                 <Route path="/" element={<Home />}></Route>
+                <Route path="/landing" element={<LandingPage />}></Route>
+
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
               </Routes>

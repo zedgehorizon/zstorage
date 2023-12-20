@@ -62,6 +62,7 @@ export const DataAssetList: React.FC = () => {
       setStoredDataAssets(response.data);
     } catch (error: any) {
       console.error("Eror fetching data assets", error);
+      setIsLoading(false);
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
           icon: <Lightbulb color="yellow"></Lightbulb>,
@@ -126,29 +127,29 @@ export const DataAssetList: React.FC = () => {
       downloadLatestVersionsManifestFiles();
     }
   }, [storedDataAssets]);
-
   return (
     <div className="p-4 flex flex-col">
       {isLoading && (
         <div className="flex justify-center items-center -mt-4">
-          <Loader2 color="blue-400" className="animate-spin rounded-full"></Loader2>
+          <Loader2 color="cyan" className="w-16 h-16 my-8 animate-spin "></Loader2>
         </div>
       )}
       <div className="gap-4 grid grid-cols-3">
-        {manifestFiles.map((manifest: ManifestFile, index) => (
-          <Link
-            key={index}
-            to={"/upload"}
-            state={{
-              manifestFile: manifestFiles[index],
-              action: "Update Data Asset",
-              currentManifestFileCID: manifestFiles[index].hash,
-              manifestFileName: manifestFiles[index].manifestFileName,
-              folderCid: manifestFiles[index].folderHash,
-            }}>
-            <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-          </Link>
-        ))}
+        {!isLoading &&
+          manifestFiles.map((manifest: ManifestFile, index) => (
+            <Link
+              key={index}
+              to={"/upload"}
+              state={{
+                manifestFile: manifestFiles[index],
+                action: "Update Data Asset",
+                currentManifestFileCID: manifestFiles[index].hash,
+                manifestFileName: manifestFiles[index].manifestFileName,
+                folderCid: manifestFiles[index].folderHash,
+              }}>
+              <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+            </Link>
+          ))}
       </div>
       {manifestFiles.length === 0 && !isLoading && (
         <div className="flex justify-center items-center">

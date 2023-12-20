@@ -15,6 +15,7 @@ import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import SelectionList from "../../components/Lists/SelectionList";
+import NextSteptsList from "../../components/Lists/NextStepsList";
 
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
 //todo add a modal after the upload with whats next
@@ -601,37 +602,7 @@ export const UploadData: React.FC = () => {
               </div>
 
               <div className="mt-4 mx-auto">
-                <ToolTip
-                  tooltip=""
-                  tooltipBox={
-                    <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
-                      <ol className="list-decimal ml-4">
-                        <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
-                        <li>
-                          <p>Access Domain Controller: Open the control panel of your domain provider.</p>
-                        </li>
-                        <li>
-                          <p>
-                            CNAME Record Setup: Add a CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a public IPFS
-                            gateway, such as "ipfs.namebase.io."
-                          </p>
-                        </li>
-                        <li>
-                          <p>Obtain IPFS Manifest Hash: Retrieve the IPFS manifest hash from your zStorage.</p>
-                        </li>
-                        <li>
-                          <p>
-                            DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file
-                            hash."
-                          </p>
-                        </li>
-                        <li>Response header modification: In the response header add "x-amz-meta-marshal-deep-fetch" with value 1 </li>
-                        <li>
-                          <p>This will effectively link your subdomain to the IPFS file using DNS records.</p>
-                        </li>
-                      </ol>
-                    </div>
-                  }>
+                <ToolTip tooltip="" tooltipBox={<NextSteptsList />}>
                   <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
                   <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
                     What's next ? <InfoIcon className=" scale-75"></InfoIcon>

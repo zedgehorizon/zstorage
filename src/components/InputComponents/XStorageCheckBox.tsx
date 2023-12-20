@@ -43,18 +43,16 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
             <label
               htmlFor={`react-option-${title + "->" + index}`}
               className={twMerge(`
-              inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer 
+              inline-flex items-center justify-center w-full h-[80%] p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer 
               peer-checked:border-green-600 peer-checked:text-gray-600 peer-checked:bg-green-200 
               hover:text-gray-600 hover:bg-green-100 hover:scale-105
               transition-all duration-300 
               transform  
-              ${props.disabled && props.disabled[index] ? " hover:cursor-not-allowed bg-gray-400/1 text-gray-300" : ""}  
+              ${props.disabled && props.disabled[index] ? "hover:cursor-not-allowed bg-gray-400/1 text-gray-300" : ""}  
             `)}>
               <ToolTip tooltip={props.disabled && props.disabled[index] ? "Coming soon" : ""}>
-                <div className="block">
-                  <div className="w-full text-lg font-semibold">{title}</div>
-                  {/* <div className="w-full text-sm hidden"> {descriptions[index]}</div> */}
-                </div>
+                <div className=" text-lg font-semibold">{title}</div>
+                {/* <div className="w-full text-sm hidden"> {descriptions[index]}</div> */}
               </ToolTip>
             </label>
             <label htmlFor={`react-option-${title + "->" + index}`} className=" flex p-2 opacity-0 peer-checked:opacity-100 ">
