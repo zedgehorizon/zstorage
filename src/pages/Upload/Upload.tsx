@@ -10,7 +10,7 @@ import { CopyIcon, InfoIcon, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast from "react-hot-toast";
 
-import { theToken } from "../../utils/constants";
+//import { theToken } from "../../utils/constants";
 import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
@@ -47,7 +47,7 @@ export const UploadData: React.FC = () => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  //const theToken = tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
 
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
