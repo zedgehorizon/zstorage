@@ -131,3 +131,5 @@ dist
 
 # Idea folder
 .idea/
+
+.DS_Store
