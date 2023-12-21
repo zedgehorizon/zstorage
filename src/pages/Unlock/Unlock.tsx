@@ -14,7 +14,6 @@ export const Unlock: React.FC = () => {
     return "hover:!bg-accent/25 focus:!bg-accent/75  focus:!border-0 !bg-muted-foreground/5 !rounded-2xl !py-3 !border-accent/25 !text-center !text-foreground/75 !text-base !font-medium !leading-relaxed";
   }, []);
 
-  const location = useLocation();
   const { chainID } = useGetNetworkConfig();
 
   const nativeAuthProps: NativeAuthConfigType = {
