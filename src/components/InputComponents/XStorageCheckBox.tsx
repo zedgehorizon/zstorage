@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle } from "lucide-react";
-import { twMerge } from "tailwind-merge";
 import { ToolTip } from "../../libComponents/Tooltip";
+import { cn } from "../../utils/utils";
 
 type XStorageCheckBoxProps = {
   title: string;
@@ -42,7 +42,7 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
             />
             <label
               htmlFor={`react-option-${title + "->" + index}`}
-              className={twMerge(`
+              className={cn(`
               inline-flex items-center justify-center w-full h-[80%] p-5 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer 
               peer-checked:border-green-600 peer-checked:text-gray-600 peer-checked:bg-green-200 
               hover:text-gray-600 hover:bg-green-100 hover:scale-105

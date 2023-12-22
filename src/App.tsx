@@ -11,7 +11,7 @@ import { Footer } from "./components/Layout/Footer";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
-import LandingPage from "./pages/Home/LandingPage";
+import LandingPage from "./pages/LandingPage/LandingPage";
 
 const routes = [
   {

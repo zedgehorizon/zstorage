@@ -3,6 +3,7 @@ import vault from "../../assets/img/illustration-vault.png";
 import hands from "../../assets/img/hands.png";
 
 import { Link } from "react-router-dom";
+import KeyFeatues from "../../components/LandingPage/KeyFeatures";
 
 const LandingPage: React.FC = () => {
   return (
@@ -35,6 +36,7 @@ const LandingPage: React.FC = () => {
           <img src={hands}></img>{" "}
         </div>
       </div>
+      <KeyFeatues />
     </div>
   );
 };

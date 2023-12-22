@@ -4,8 +4,8 @@ import { XStorageCheckBox } from "../../components/InputComponents/XStorageCheck
 import { Link } from "react-router-dom";
 import { DataAssetList } from "../../components/Lists/DataAssetsList";
 import zImageHalf from "../../assets/img/z-image-half.png";
-import storageIcon from "../../assets/img/ic_baseline-updatestore.png";
-import updateIcon from "../../assets/img/ic_baseline-updateupdate.png";
+import storageIcon from "../../assets/logo/ic_baseline-updatestore.png";
+import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
 
 import { ListRestartIcon, X, XCircle } from "lucide-react";
 export const Home: React.FC = () => {

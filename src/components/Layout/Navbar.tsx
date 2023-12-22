@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
-import logo from "../../assets/img/logo.png";
+import logo from "../../assets/logo/logo.png";
 import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 import { Button } from "../../libComponents/Button";
