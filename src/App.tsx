@@ -83,13 +83,11 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/landing" element={<LandingPage />}></Route>
-
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
-          <Footer />
         </div>
       </div>
     </DappProvider>
