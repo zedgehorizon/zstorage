@@ -5,6 +5,7 @@ import folders from "../../assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
 import KeyFeatues from "../../components/LandingPage/KeyFeatures";
 import { Footer } from "../../components/Layout/Footer";
+import Pricing from "../../components/LandingPage/Pricing";
 
 const LandingPage: React.FC = () => {
   return (
@@ -37,17 +38,25 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
       <KeyFeatues />
-      <div className="w-full h-screen bg-white flex flex-col items-centre  ">
-        <div className="w-screen h-[20%] relative">
-          <div
-            className=" absolute h-[20%] w-screen border-l-[100rem] border-b-[20rem] left-0 top-0
-          border-solid border-t-transparent border-b-transparent border-l-background"></div>
-          <div
-            className=" h-[20%] w-screen border-r-[100rem] border-b-[20rem]  right-0 top-0
-          border-solid border-t-transparent border-b-transparent border-r-background"></div>
+      <div className="w-full h-full bg-white flex flex-col items-center pb-16">
+        <div className="flex  ">
+          <div className="w-screen h-[20%] relative">
+            <div
+              className="absolute h-[20%]  border-l-[100rem] border-b-[20rem] left-0 top-0
+          border-solid border-t-transparent border-b-transparent border-l-background"
+            />{" "}
+          </div>{" "}
+        </div>
+        <div className="flex  ">
+          <div className="w-screen h-[20%] relative">
+            <div
+              className="h-[20%]  border-r-[100rem] border-b-[20rem]  top-0
+          border-solid border-t-transparent border-b-transparent border-r-background"
+            />
+          </div>
         </div>
         <div className="flex flex-col mx-auto gap-8 ">
-          <img className=" " src={folders}></img>
+          <img className="scale-75  " src={folders}></img>
           <span className="text-muted text-5xl  w-[60%] mx-auto text-center">
             Automative Toolkit
             <br /> for your Data Storage
@@ -57,6 +66,7 @@ const LandingPage: React.FC = () => {
           </span>{" "}
         </div>
       </div>
+      <Pricing />
       <Footer />
     </div>
   );
