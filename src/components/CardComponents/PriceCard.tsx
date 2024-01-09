@@ -23,7 +23,7 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
       )}>
       <div className="flex flex-row justify-between">
         <span className="text-[10px] ">{plan} STORAGE</span>
-        {plan === "PREMIUM" && <div className="relative mt-0 mr-0 bg-accent text-muted font-bold text-[10px] p-1 items-center justify-center">Best Offer</div>}
+        {plan === "PREMIUM" && <div className="mt-0 mr-0 bg-accent text-muted font-bold text-[10px] p-1 items-center justify-center">Best Offer</div>}
       </div>
       <span className={cn(colorClass, "text-lg")}>{title}</span>
       <span className="text-sm  ">{description}</span>

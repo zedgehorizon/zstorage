@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import KeyFeatues from "../../components/LandingPage/KeyFeatures";
 import { Footer } from "../../components/Layout/Footer";
 import Pricing from "../../components/LandingPage/Pricing";
+import Faq from "../../components/LandingPage/Faq";
 
 const LandingPage: React.FC = () => {
   return (
@@ -34,18 +35,18 @@ const LandingPage: React.FC = () => {
           </Link>
         </div>
         <div>
-          <img src={hands}></img>{" "}
+          <img src={hands}></img>
         </div>
       </div>
       <KeyFeatues />
       <div className="w-full h-full bg-white flex flex-col items-center pb-16">
-        <div className="flex  ">
+        <div className="flex">
           <div className="w-screen h-[20%] relative">
             <div
               className="absolute h-[20%]  border-l-[100rem] border-b-[20rem] left-0 top-0
           border-solid border-t-transparent border-b-transparent border-l-background"
-            />{" "}
-          </div>{" "}
+            />
+          </div>
         </div>
         <div className="flex  ">
           <div className="w-screen h-[20%] relative">
@@ -67,6 +68,7 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
       <Pricing />
+      <Faq />
       <Footer />
     </div>
   );

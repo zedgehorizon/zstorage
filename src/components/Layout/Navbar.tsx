@@ -35,10 +35,10 @@ export const Navbar: React.FC = () => {
               <p className=" ">Documentation</p>
             </Link>
           </div>
-          <div className="bg-accent px-8 py-2 rounded-full text-accent-foreground font-bold">
+          <div className="border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
             {isLoggedIn ? (
               <Link to={"/"}>
-                <div className="text-accent-foreground font-bold" onClick={handleLogout}>
+                <div className=" " onClick={handleLogout}>
                   Logout
                 </div>
               </Link>
