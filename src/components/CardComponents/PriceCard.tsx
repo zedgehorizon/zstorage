@@ -1,4 +1,4 @@
-import { CheckCircle, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import React from "react";
 import { Button } from "../../libComponents/Button";
 import { cn } from "../../utils/utils";
@@ -22,7 +22,7 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
         ${plan === "PREMIUM" ? "border-accent" : ""}`
       )}>
       <div className="flex flex-row justify-between">
-        <span className="text-[10px] ">{plan} STORAGE</span>
+        <span className="text-[10px] pb-2">{plan} STORAGE</span>
         {plan === "PREMIUM" && <div className="mt-0 mr-0 bg-accent text-muted font-bold text-[10px] p-1 items-center justify-center">Best Offer</div>}
       </div>
       <span className={cn(colorClass, "text-lg")}>{title}</span>

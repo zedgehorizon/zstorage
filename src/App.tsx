@@ -12,6 +12,7 @@ import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAsset";
 
 const routes = [
   {
@@ -38,6 +39,12 @@ const routes = [
     title: "Landing Page",
     component: LandingPage,
     authenticatedRoute: false,
+  },
+  {
+    path: "/storage",
+    title: "Store Data Asset",
+    component: StoreDataAsset,
+    authenticatedRoute: true,
   },
 ];
 
@@ -85,6 +92,7 @@ function App() {
                 <Route path="/landing" element={<LandingPage />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
+                <Route path="/storage" element={<StoreDataAsset />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
