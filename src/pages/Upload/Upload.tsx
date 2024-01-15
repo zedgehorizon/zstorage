@@ -172,7 +172,7 @@ export const UploadData: React.FC = () => {
    * Get all songs data into the right format for manifest file
    * Transforms the songs data and uploads the songs and images files.
    * @returns {Array<Object>} The transformed data of the songs.
-   * @throws {Error} If the upload songs process did not work correctly or if the data has not been uploaded correctly.
+   * @throws {Error} If the upload songs import.meta did not work correctly or if the data has not been uploaded correctly.
    */
   async function transformSongsData() {
     setProgressBar(20);
