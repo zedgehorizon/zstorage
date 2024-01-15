@@ -12,7 +12,7 @@ import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
-import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAsset";
+import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 
 const routes = [
   {

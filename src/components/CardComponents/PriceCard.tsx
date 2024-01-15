@@ -5,7 +5,7 @@ import { cn } from "../../utils/utils";
 
 interface PriceCardProps {
   title: string;
-  price: number;
+  price: string;
   description?: string;
   plan?: string;
   features: string[];

@@ -44,7 +44,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
         <label className=" text-foreground/80 text-center"> Storage preference</label>
       </div>
       <img className="-mt-16 " src={arrowRight}></img>
-      <div className="mt-6 flex flex-col justify-center items-center gap-4">
+      <div className=" flex flex-col justify-center items-center gap-4">
         <span
           className={cn(
             "bg-muted text-2xl font bold p-4 px-7 max-w-[5rem] rounded-3xl border border-accent text-center",
@@ -52,7 +52,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
           )}>
           4
         </span>
-        <span className=" text-foreground/80 max-w-[8rem] text-center"> Decentralized web3 storage</span>
+        <span className=" text-foreground/80 max-w-[8rem] text-center"> Storage option</span>
       </div>
     </div>
   );

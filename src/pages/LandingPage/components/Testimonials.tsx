@@ -40,7 +40,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         {starRating(testimonial.rating)}
-        <span className="text-foreground/50">{testimonial.feedback}</span>
+        <span className="text-foreground/50 max-w-[60%]">{testimonial.feedback}</span>
         <div className="flex flex-row gap-3  items-center justify-center">
           <img src={testimonial.avatar} className="rounded-full w-8 h-8"></img>
           <div className="flex flex-col border-r-2 border-foreground px-4">

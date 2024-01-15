@@ -19,24 +19,25 @@ const testimonialsData = [
     occupation: "Software Engineer",
     avatar: avatar,
     companyLogo: companyLogo,
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    feedback:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
   },
-  {
-    userName: "Jane Smith",
-    rating: 5,
-    occupation: "Product Manager",
-    avatar: avatar,
-    companyLogo: companyLogo,
-    feedback: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    userName: "Alex Johnson",
-    rating: 3,
-    occupation: "UX Designer",
-    avatar: avatar,
-    companyLogo: companyLogo,
-    feedback: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  },
+  // {
+  //   userName: "Jane Smith",
+  //   rating: 5,
+  //   occupation: "Product Manager",
+  //   avatar: avatar,
+  //   companyLogo: companyLogo,
+  //   feedback: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  // },
+  // {
+  //   userName: "Alex Johnson",
+  //   rating: 3,
+  //   occupation: "UX Designer",
+  //   avatar: avatar,
+  //   companyLogo: companyLogo,
+  //   feedback: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+  // },
 ];
 const LandingPage: React.FC = () => {
   return (
@@ -70,25 +71,8 @@ const LandingPage: React.FC = () => {
       </div>
       <UseCase />
       <KeyFeatues />
-      <div className="w-full h-screen bg-background flex flex-col items-center pb-16">
-        {/* <div className="flex">
-          <div className="w-screen h-[20%] relative">
-            <div
-              className="absolute h-[20%]  border-l-[100rem] border-b-[20rem] left-0 top-0
-          border-solid border-t-transparent border-b-transparent border-l-background"
-            />
-          </div>
-        </div>
-        <div className="flex  ">
-          <div className="w-screen h-[20%] relative">
-            <div
-              className="h-[20%]  border-r-[100rem] border-b-[20rem]  top-0
-          border-solid border-t-transparent border-b-transparent border-r-background"
-            />
-          </div>
-        </div> */}
-        {/* <img className="relative" src={whiteBackground}></img> */}
-        <div className="mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
+      <div className="w-full h-full bg-background flex flex-col items-center pb-16">
+        <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
           <img className="scale-75 lg:scale-100" src={folders}></img>
           <span className=" text-muted text-5xl w-[60%] mx-auto text-center">
             Automative Toolkit
