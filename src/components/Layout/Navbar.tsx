@@ -46,7 +46,7 @@ export const Navbar: React.FC = () => {
           <div className="border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
             {isLoggedIn ? (
               <Link to={"/"}>
-                <div className="w-full" onClick={handleLogout}>
+                <div className="" onClick={handleLogout}>
                   Logout
                 </div>
               </Link>

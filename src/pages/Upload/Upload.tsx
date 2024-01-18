@@ -8,7 +8,7 @@ import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL, API_VERSION, IPFS_GATEWAY } from "../../utils/constants";
 import { ToolTip } from "../../libComponents/Tooltip";
-import { Calendar, CalendarCheck, CopyIcon, ExternalLink, InfoIcon, Lightbulb, XCircle } from "lucide-react";
+import { CopyIcon, ExternalLink, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast from "react-hot-toast";
 
@@ -16,8 +16,6 @@ import toast from "react-hot-toast";
 import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-import SelectionList from "../../components/Lists/SelectionList";
-import NextSteptsList from "../../components/Lists/NextStepsList";
 
 // todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
 //todo add a modal after the upload with whats next
@@ -482,13 +480,6 @@ export const UploadData: React.FC = () => {
           <div className="flex flex-col mx-auto">
             <h1 className="text-4xl text-accent font- pt-16 pb-8">{manifestCid ? "Update" : "Upload"} Data </h1>
 
-            {/* <div className="ml-auto flex flex-col">
-              <h3> {version && `Version:  ${version}`}</h3>
-              {/* <h4> {manifestFileName && `File Name: ${manifestFileName}`}</h4>
-              <label htmlFor="totalItems" className="block text-foreground ">
-                Total Items: {numberOfSongs - 1}
-              </label>
-            </div> */}
             <form className="flex gap-x-4">
               <div className="mb-4  ">
                 <label htmlFor="name" className="block text-foreground font-thin mb-2">
@@ -522,15 +513,7 @@ export const UploadData: React.FC = () => {
 
               <div className="flex flex-col mb-4">
                 <label className="block text-foreground mb-2 ">Created On:</label>
-                {/* <input
-                  type="date"
-                  id="createdOn"
-                  name="createdOn"
-                  value={formData.createdOn}
-                  onChange={handleChange}
-                  className="w-full fill-accent text-accent/50 bg-background px-3 py-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                  required={true}
-                /> */}
+
                 <DatePicker setterFunction={setCreatedOn} previousDate={formData.createdOn} />
               </div>
 
@@ -549,7 +532,7 @@ export const UploadData: React.FC = () => {
             <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3 className="">Folder CID - {folderCid}</h3>
               <CopyIcon onClick={() => copyLink(folderCid)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-              <a href={IPFS_GATEWAY + folderCid} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
+              <a href={IPFS_GATEWAY + "ipfs/" + folderCid} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
                 <ExternalLink className="text-accent" />
               </a>
             </div>
@@ -564,7 +547,7 @@ export const UploadData: React.FC = () => {
           {manifestFileName && (
             <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3>Manifest File Name - {manifestFileName} </h3>{" "}
-              <CopyIcon onClick={() => copyLink(currentManifestFileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+              <CopyIcon onClick={() => copyLink(manifestFileName)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
           )}
 
