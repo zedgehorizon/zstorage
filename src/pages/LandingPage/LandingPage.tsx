@@ -54,14 +54,16 @@ const LandingPage: React.FC = () => {
       <div className="-mt-12 z-2  ">
         <img src={vault}></img>
       </div>
-      <div className="p-32 w-full flex items-center justify-center">
+      <div id="solution" className="p-32 w-full flex items-center justify-center">
         <div className="w-[60%] max-w-[40rem] px-8 flex flex-col allign-left gap-3">
           <span className="text-foreground/75">ZSTORAGE SOLUTION </span>
           <span className="text-2xl">Empowering users with true ownership of their data through storage</span>
           <span className="text-sm text-foreground/75">
             Itheum protocol is providing a seamless and secure way to self host data and for generating a Data Stream that can be used in Data NFT minting.{" "}
           </span>
-          <Link to={"/"} className="w-[50%] max-w-[10rem] font-bold text-accent-foreground bg-accent rounded-full px-4 py-2 flex items-center justify-center">
+          <Link
+            to={"/start"}
+            className="w-[50%] max-w-[10rem] font-bold text-accent-foreground bg-accent rounded-full px-4 py-2 flex items-center justify-center">
             Get Started
           </Link>
         </div>
@@ -70,6 +72,7 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
       <UseCase />
+      <div id="features"></div>
       <KeyFeatues />
       <div className="w-full h-full bg-background flex flex-col items-center pb-16">
         <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
@@ -83,7 +86,9 @@ const LandingPage: React.FC = () => {
           </span>{" "}
         </div>
       </div>
+      <div id="pricing"></div>
       <Pricing />
+      <div id="testimonials"></div>
       <Testimonials testimonials={testimonialsData} />
       <Faq />
       <Footer />

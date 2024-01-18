@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "../../components/InputComponents/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
+import { DatePicker } from "../../libComponents/DatePicker";
+
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL, API_VERSION, IPFS_GATEWAY } from "../../utils/constants";
 import { ToolTip } from "../../libComponents/Tooltip";
-import { CopyIcon, InfoIcon, Lightbulb, XCircle } from "lucide-react";
+import { Calendar, CalendarCheck, CopyIcon, InfoIcon, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast from "react-hot-toast";
 
@@ -52,6 +54,7 @@ export const UploadData: React.FC = () => {
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
 
+  const [createdOn, setCreatedOn] = useState("");
   const [progressBar, setProgressBar] = useState(0);
   const [manifestCid, setManifestCid] = useState(null);
   const [formData, setFormData] = useState({
@@ -97,6 +100,13 @@ export const UploadData: React.FC = () => {
       }
     }
   }, [manifestFile]);
+
+  //check the date format
+  useEffect(() => {
+    if (createdOn) {
+      setFormData((prev) => ({ ...prev, ["createdOn"]: createdOn }));
+    }
+  }, [createdOn]);
 
   // upload the songs and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -465,32 +475,24 @@ export const UploadData: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        <SelectionList items={[action, type, template, storage, decentralized]} />
-        <div className="z-[-1] relative w-full ">
-          <div className="absolute top-30 left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
-          <div className="absolute top-0 -left-4 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
-          <div className="absolute top-0 -right-4 w-72 h-96 bg-[#300171] rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-2000"></div>
-          <div className="absolute top-30 -left-20 w-96 h-72 bg-sky-500/70 rounded-full  mix-blend-multiply filter blur-2xl opacity-50  animate-blob animation-delay-4000"></div>
-          <div className="absolute top-20 -left-20 w-96 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob "></div>
-        </div>
-        {/** Refactor this into a Header component */}
-        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl bg-black/20">
-          <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
-            <div className="flex flex-row gap-8 items-center">
-              <h1 className="text-2xl font-bold mb-6">Header </h1>
+        {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
 
-              <div className="ml-auto flex flex-col">
-                <h3> {version && `Version:  ${version}`}</h3>
-                {/* <h4> {manifestFileName && `File Name: ${manifestFileName}`}</h4> */}
-                <label htmlFor="totalItems" className="block text-foreground ">
-                  Total Items: {numberOfSongs - 1}
-                </label>
-              </div>
-            </div>
+        {/** Refactor this into a Header component */}
+        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
+          <div className="flex flex-col mx-auto">
+            <h1 className="text-4xl text-accent font- pt-16 pb-8">{manifestCid ? "Update" : "Upload"} Data </h1>
+
+            {/* <div className="ml-auto flex flex-col">
+              <h3> {version && `Version:  ${version}`}</h3>
+              {/* <h4> {manifestFileName && `File Name: ${manifestFileName}`}</h4>
+              <label htmlFor="totalItems" className="block text-foreground ">
+                Total Items: {numberOfSongs - 1}
+              </label>
+            </div> */}
             <form className="flex gap-x-4">
               <div className="mb-4">
-                <label htmlFor="name" className="block text-foreground mb-2">
-                  Name:
+                <label htmlFor="name" className="block text-foreground font-thin mb-2">
+                  Name
                 </label>
                 <input
                   type="text"
@@ -498,7 +500,7 @@ export const UploadData: React.FC = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 bg-black/20 py-2 border-2 border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  className="w-full fill-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                   required={true}
                 />
               </div>
@@ -513,50 +515,43 @@ export const UploadData: React.FC = () => {
                   name="creator"
                   value={formData.creator}
                   onChange={handleChange}
-                  className="w-full bg-black/20 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                  className="w-full fill-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                   required={true}
                 />
               </div>
 
-              <div className="mb-4">
-                <label htmlFor="createdOn" className="block text-foreground mb-2">
-                  Created On:
-                </label>
-                <input
+              <div className="flex flex-col mb-4">
+                <label className="block text-foreground mb-2">Created On:</label>
+                {/* <input
                   type="date"
                   id="createdOn"
                   name="createdOn"
                   value={formData.createdOn}
                   onChange={handleChange}
-                  className="w-full px-3 bg-black/20 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 "
+                  className="w-full fill-accent text-accent/50 bg-background px-3 py-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                   required={true}
-                />
+                /> */}
+                <DatePicker setterFunction={setCreatedOn} />
               </div>
 
               <div className="mb-4">
                 <label htmlFor="modifiedOn" className="block text-foreground mb-2">
                   Modified On:
                 </label>
-                <input
-                  type="date"
-                  id="modifiedOn"
-                  name="modifiedOn"
-                  disabled={true}
-                  value={formData.modifiedOn}
-                  onChange={handleChange}
-                  className="w-full bg-black/20 px-3 py-2   rounded focus:outline-none focus:border-blue-500"
-                />
+                <div className="w-full text-center min-w-[10rem] text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent">
+                  {formData.modifiedOn}
+                </div>
               </div>
             </form>
           </div>
-          {currentManifestFileCID && <h3 className="mt-4"> Manifest CID - {currentManifestFileCID} </h3>}
+          {currentManifestFileCID && <h3 className="w-full p-4 mt-4 bg-muted"> Manifest CID - {currentManifestFileCID} </h3>}
           {folderCid && <h3 className="mt-4"> Folder CID - {folderCid} </h3>}
           {manifestFileName && <h3 className="mt-4"> Manifest Name - {manifestFileName} </h3>}
 
           <ErrorBoundary
             onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
             FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
-            <div className="mt-4 space-y-8 p-8 rounded-lg shadow-md   ">
+            <div className=" p-8 rounded-lg shadow-md w-[100%] bg-muted ">
               {Object.keys(songsData).map((index: any) => (
                 <MusicDataNftForm
                   key={index}
@@ -568,20 +563,24 @@ export const UploadData: React.FC = () => {
                   unsavedChanges={unsavedChanges[index]}
                   setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
               ))}
+              <div className="flex flex-col justify-center items-center">
+                <Button
+                  className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
+                  onClick={handleAddMoreSongs}>
+                  Add more songs
+                </Button>
+              </div>
             </div>
           </ErrorBoundary>
-
-          <Button className={"my-4 border border-sky-400 hover:shadow-inner hover:shadow-sky-400"} onClick={handleAddMoreSongs}>
-            Add more songs
-          </Button>
-        </div>
-        {!manifestCid ? (
           <button
             onClick={generateManifestFile}
             disabled={isUploadButtonDisabled}
-            className={"bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-blue-500/10"}>
-            Upload
+            className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
+            Upload Data to IPFS
           </button>
+        </div>
+        {!manifestCid ? (
+          <></>
         ) : (
           <div>
             <div className="flex flex-col items-center justify-center p-8">

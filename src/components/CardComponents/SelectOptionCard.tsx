@@ -1,4 +1,3 @@
-import { queries } from "@testing-library/react";
 import { XCircle } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -25,7 +24,7 @@ const SelectOptionCard: React.FC<SelectOptionCardProps> = (props) => {
         <div className="flex-grow flex justify-center items-center bg-muted rounded-tl-2xl text-accent text-3xl font-medium py-8">
           <p>{title}</p>
         </div>
-        <Link to={"/landing"} className=" bg-muted rounded-r-2xl  flex items-center pr-4">
+        <Link to={"/"} className=" bg-muted rounded-r-2xl  flex items-center pr-4">
           <XCircle className="w-6 h-6 text-foreground cursor-pointer" />
         </Link>
       </div>

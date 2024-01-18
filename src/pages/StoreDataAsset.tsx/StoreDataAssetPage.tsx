@@ -21,7 +21,6 @@ const StoreDataAsset: React.FC = () => {
   const [dynamicDataStream, setDynamicDataStream] = useState();
   const [storagePreference, setStoragePreference] = useState();
   const [storageOption, setStorageOption] = useState();
-  const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
   const navigate = useNavigate();
 
   const isNextButtonDissabled = () => {
@@ -39,7 +38,6 @@ const StoreDataAsset: React.FC = () => {
   const handleNext = () => {
     if (currentStep === 4) navigate("/upload");
     setCurrentStep(currentStep + 1);
-    setNextButtonDisabled(true);
   };
   console.log(currentStep, " ___ > ", storageType, " ___ > ", dynamicDataStream, " ___ > ", storagePreference, " ___ > ", storageOption);
   return (
@@ -108,13 +106,28 @@ const StoreDataAsset: React.FC = () => {
             {" "}
             Go Back
           </Button>
-          <Button
-            disabled={isNextButtonDissabled()}
-            className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground"
-            onClick={handleNext}>
-            {" "}
-            Next
-          </Button>
+
+          {currentStep === 4 ? (
+            <Link
+              to={"/upload"}
+              state={{
+                action: dataAssetAction,
+                type: storageType,
+                template: dynamicDataStream,
+                storage: storagePreference,
+                decentralized: storageOption,
+              }}
+              className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground">
+              Start uploading
+            </Link>
+          ) : (
+            <Button
+              disabled={isNextButtonDissabled()}
+              className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground"
+              onClick={handleNext}>
+              Next
+            </Button>
+          )}
         </div>
         <span className="text-xl flex items-center pb-4 text-foreground ">
           Made with <Heart className="mx-1 " color="white" /> by Zedge Horizon
