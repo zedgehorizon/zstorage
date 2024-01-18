@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
 import { DatePicker } from "../../libComponents/DatePicker";
 import { Input } from "../../libComponents/Input";
 import DragAndDropImageFiles from "../../pages/Upload/components/DragAndDropImageFiles";
+import toast from "react-hot-toast";
 
 // todo if the img is not loading it keeps the image of the song you are swaping with (maybe add a fallback image)
 // todo check why getting 502(The gateway is currently overloaded. Please wait a while and retry your request.
@@ -72,11 +73,17 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   console.log(props.index, audioFile);
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
-    setAudioFile(file);
-    const audioURL = URL.createObjectURL(event.target.files[0]);
-    form.setValue("file", audioURL);
-    setAudioURL(audioURL);
-    setwantToEditAudio(false);
+    if (file && file.type.startsWith("audio/")) {
+      setAudioFile(file);
+      const audioURL = URL.createObjectURL(event.target.files[0]);
+      form.setValue("file", audioURL);
+      setAudioURL(audioURL);
+      setwantToEditAudio(false);
+    } else {
+      toast("Please upload an audio file", {
+        icon: <Lightbulb color="yellow"></Lightbulb>,
+      });
+    }
   };
 
   // populate the form

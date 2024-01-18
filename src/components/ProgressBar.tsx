@@ -24,7 +24,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
           ) : (
             <div className="w-[11rem] flex justify-between bg-accent h-1 items-center relative">
               <div className="bg-accent h-6 w-6 rounded-full shadow flex items-center justify-center">
-                <Check className="scale-50" />
+                <Check className="scale-75 text-accent-foreground" />
               </div>
             </div>
           )}
@@ -33,16 +33,16 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
           {progress > 20 ? (
             <div className="w-[11rem]  flex justify-between bg-accent h-1 items-center relative">
               <div className="bg-accent h-6 w-6 rounded-full shadow flex items-center justify-center">
-                <Check className="scale-50" />
+                <Check className="scale-75  text-accent-foreground" />
               </div>
             </div>
           ) : (
             <>
               <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-                {progress == 20 && <Loader color={"blue"} className="absolute scale-75 animate-ping "></Loader>}
+                {progress == 20 && <Loader color={"black"} className="absolute scale-75 animate-ping "></Loader>}
 
                 <div className="bg-accent h-3 w-3 rounded-full shadow flex items-center justify-center">
-                  <div className="  relative bg-white  shadow-lg px-2 py-1 rounded mt-20  ">
+                  <div className="  relative bg-white text-center shadow-lg px-2 py-1 rounded mt-20  ">
                     <p tabIndex={0} className="focus:outline-none text-accent-foreground text-xs font-bold">
                       Uploading files
                     </p>
@@ -57,16 +57,16 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
             <div className="w-[11rem]  flex justify-between bg-accent h-1 items-center relative">
               <div className="bg-accent h-3 w-3 rounded-full shadow flex items-center justify-center">
                 <div className="bg-accent h-6 w-6 rounded-full shadow flex items-center justify-center">
-                  <Check className="scale-50" />
+                  <Check className="scale-75  text-accent-foreground" />
                 </div>
               </div>{" "}
             </div>
           ) : (
             <>
               <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
-                {progress == 60 && <Loader color={"blue"} className="absolute scale-75 animate-ping "></Loader>}
+                {progress == 60 && <Loader color={"black"} className="absolute scale-75 animate-ping "></Loader>}
                 <div className="bg-accent h-3 w-3 rounded-full shadow flex items-center justify-center">
-                  <div className="relative bg-white  shadow-lg px-2 py-1 rounded mt-20">
+                  <div className="relative bg-white text-center shadow-lg px-2 py-1 rounded mt-20">
                     <p tabIndex={0} className="focus:outline-none text-accent-foreground text-xs font-bold">
                       Uploading manifest
                     </p>
