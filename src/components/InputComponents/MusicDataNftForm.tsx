@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2 } from "lucide-react";
-import songFallbackImage from "../../assets/img/audio-player-image.png";
+import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music } from "lucide-react";
+import { DatePicker } from "../../libComponents/DatePicker";
+import { Input } from "../../libComponents/Input";
+import DragAndDropImageFiles from "../../pages/Upload/components/DragAndDropImageFiles";
 
 // todo if the img is not loading it keeps the image of the song you are swaping with (maybe add a fallback image)
 // todo check why getting 502(The gateway is currently overloaded. Please wait a while and retry your request.
@@ -55,10 +57,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageURL, setImageURL] = useState("");
   const [audioURL, setAudioURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
+  console.log(imageFile);
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-
   const handleImageFileChange = (event: any) => {
     const file = event.target.files[0];
     setImageFile(file);
@@ -67,7 +69,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     setImageURL(imageURL);
     setwantToEditImage(false);
   };
-
+  console.log(props.index, audioFile);
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
     setAudioFile(file);
@@ -104,6 +106,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     setAudioError(false);
   }, [props.song]);
 
+  useEffect(() => {
+    if (imageURL) form.setValue("cover_art_url", imageURL);
+  }, [imageURL]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     props.setterFunction(props.index, values, imageFile, audioFile);
     props.setUnsavedChanges(props.index, false);
@@ -124,17 +130,18 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }
 
   return (
-    <div className="z-2 p-4 flex flex-col bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl hover:shadow-sky-500/50 max-w mx-auto">
+    <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
+      <div className="text-2xl text-accent text-center p-3"> 0{props.index}</div>
       <div className="relative">
         <div className="absolute top-0 right-0">
           <div className="flex flex-col justify-between">
             {props.index != 1 && (
-              <Button tabIndex={-1} onClick={handleMoveUp} className="hover:shadow-inner hover:shadow-sky-500">
+              <Button tabIndex={-1} onClick={handleMoveUp} className=" text-accent hover:shadow-inner hover:shadow-accent">
                 <ArrowUp />
               </Button>
             )}
             {!props.lastItem && (
-              <Button tabIndex={-1} onClick={handleMoveDown} className="hover:shadow-inner hover:shadow-sky-500">
+              <Button tabIndex={-1} onClick={handleMoveDown} className="text-accent hover:shadow-inner hover:shadow-accent">
                 <ArrowDown></ArrowDown>
               </Button>
             )}
@@ -146,79 +153,102 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           props.setUnsavedChanges(props.index, true);
         }}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-row space-y-4 gap-4 ">
-        <div>
-          <div>
-            <label className="block text-foreground">Date</label>
-            <input type="date" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("date")} />
-            {form.formState.errors.date && <p className="text-red-500">{form.formState.errors.date.message}</p>}
-          </div>
+        className="flex flex-col space-y-4 gap-4 text-accent/50">
+        <div className="flex flex-row gap-6">
+          <div className="flex flex-col gap-6 w-[50%]">
+            <span className="text-foreground">
+              Update details <span className="text-accent">*</span>{" "}
+            </span>
 
-          <div>
-            <label className="block text-foreground">Category</label>
-            <input type="text" className=" bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("category")} />
-            {form.formState.errors.category && <p className="text-red-500">{form.formState.errors.category.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-foreground">Artist</label>
-            <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("artist")} />
-            {form.formState.errors.artist && <p className="text-red-500">{form.formState.errors.artist.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-foreground">Album</label>
-            <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("album")} />
-            {form.formState.errors.album && <p className="text-red-500">{form.formState.errors.album.message}</p>}
-          </div>
-
-          <div>
-            <label className="block text-foreground">Title</label>
-            <input type="text" className="bg-black/20 w-full p-2 border border-gray-300 rounded" {...form.register("title")} />
-            {form.formState.errors.title && <p className="text-red-500">{form.formState.errors.title.message}</p>}
-          </div>
-          {props.unsavedChanges != undefined && props.unsavedChanges === false && (
-            <div className="mt-2  flex flex-row gap-2 text-green-400">
-              Saved <CheckCircleIcon />
-            </div>
-          )}
-        </div>
-        <div className="gap-4 flex-col flex items-center justify-center ">
-          <Suspense fallback={<div>Loading image...</div>}>
-            <img
-              className="mx-auto w-32 h-32 border border-white"
-              src={imageURL || songFallbackImage}
-              onError={() => setImageURL(songFallbackImage)}
-              alt="Cover Image"
-            />
-          </Suspense>
-          <label className=" block text-foreground">Cover Art Image</label>
-          <div className="flex flex-col w-full justify-end">
-            {(imageFile || imageURL !== "") && !wantToEditImage ? (
-              <div className="flex flex-row">
-                <Button
-                  tabIndex={-1}
-                  className="scale-75 ml-auto justify-end hover:shadow-inner hover:shadow-sky-400 "
-                  onClick={() => setwantToEditImage(true)}>
-                  <Edit2 scale={0.5}></Edit2>
-                </Button>
-              </div>
-            ) : (
+            <div className=" hover:text-accent ">
               <input
-                type="file"
-                accept="image/*"
-                className="w-full p-2 border border-gray-300 rounded"
-                onChange={(e) => {
-                  if (e.target.files) handleImageFileChange(e);
-                }}
+                type="text"
+                placeholder="Artist Name"
+                className="-mt-4 w-full bg-background placeholder:text-accent  p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("artist")}
               />
-            )}
-            {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
-          </div>
-          <div>
-            <label className="block text-foreground">Track File (MP3)</label>
+              {form.formState.errors.artist && <p className="text-red-500 absolute">{form.formState.errors.artist.message}</p>}
+            </div>
 
-            {audioURL && !wantToEditAudio ? (
+            <div className=" hover:text-accent ">
+              <input
+                type="text"
+                placeholder="Album Name"
+                className="w-full  bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("album")}
+              />
+              {form.formState.errors.album && <p className="text-red-500 absolute ">{form.formState.errors.album.message}</p>}
+            </div>
+
+            <div className=" hover:text-accent ">
+              <input
+                type="text"
+                placeholder="Category"
+                className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("category")}
+              />
+              {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
+            </div>
+
+            <div className=" hover:text-accent ">
+              <input
+                type="text"
+                placeholder="Title"
+                className="w-full bg-background p-3 placeholder:text-accent border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("title")}
+              />
+              {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
+            </div>
+            <div>
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
+              {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
+            </div>
+          </div>
+          <div className="gap-4 flex-col flex-1 items-center justify-center ">
+            <span className="mb-6 text-foreground">Cover Art Image</span>
+            {/* <Suspense fallback={<div>Loading image...</div>}>
+              <img
+                className="mx-auto w-32 h-32 border border-white"
+                src={imageURL || songFallbackImage}
+                onError={() => setImageURL(songFallbackImage)}
+                alt="Cover Image"
+              />
+            </Suspense> */}
+            {/* <div className="flex flex-col justify-center items-center w-[80%] mb-4 mt-2 justify-start h-[65%] border-2 border-dashed border-accent/50">
+              <div className="bg-accent/20 p-3 rounded-full">
+                <ImagePlus className="w-8 h-8 text-accent" />
+              </div>
+
+              <p className="text-accent/70 mx-8">Drag & drop image here, or select from your computer.</p>
+            </div> */}
+            <DragAndDropImageFiles setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
+
+            {/* <div className="flex flex-col w-full justify-end">
+              {(imageFile || imageURL !== "") && !wantToEditImage ? (
+                <div className="flex flex-row">
+                  <Button
+                    tabIndex={-1}
+                    className="scale-75 ml-auto justify-end hover:shadow-inner hover:shadow-sky-400 "
+                    onClick={() => setwantToEditImage(true)}>
+                    <Edit2 scale={0.5}></Edit2>
+                  </Button>
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  onChange={(e) => {
+                    if (e.target.files) handleImageFileChange(e);
+                  }}
+                />
+              )}
+              {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
+            </div> */}
+            <div>
+              <label className="mb-4 text-foreground">Track File (mp3)</label>
+              {/* {audioURL && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
                   <audio
@@ -248,22 +278,53 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                   </>
                 )}
               </div>
-            ) : (
-              <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} />
-            )}
-            {form.formState.errors.file && <p className="text-red-500">{form.formState.errors.file.message?.toString()}</p>}
-          </div>
-          <div className="w-full flex flex-row ">
-            <div className="w-full flex flex-col justify-center items-center ">
-              <button type="submit" className=" self-center hover:shadow-inner hover:shadow-sky-400  text-foreground p-2 rounded  ">
-                Save
-              </button>
-              {props.unsavedChanges && <p className="text-sky-400 "> Unsaved changes, please save</p>}
+            ) : ( */}
+              {/* <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} /> */}
+              {audioURL && !wantToEditAudio ? (
+                <div className="mt-2 flex flex-row w-15 justify-center items-center  ">
+                  <audio
+                    tabIndex={-1}
+                    onLoadStart={() => setAudioFileIsLoading(true)}
+                    onError={() => {
+                      setAudioFileIsLoading(false);
+                      setAudioError(true);
+                    }}
+                    onLoadedData={() => setAudioFileIsLoading(false)}
+                    src={audioURL}
+                    className="  ml-[-33px] scale-75 "
+                    controls></audio>
+                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center -ml-8 mt-3  animate-spin" />}
+                  <Button tabIndex={-1} className="scale-75 " onClick={() => setwantToEditAudio(true)}>
+                    <div className="-mt-2 p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                      <Edit2 className="text-accent" />
+                    </div>
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-2 w-full flex-1 items-center ">
+                  <Input accept=".mp3" id="song" type="file" onChange={(e) => handleAudioFileChange(e)} />
+                  {imageURL ? <Music className="text-accent ml-[108px] mt-[-40px] " /> : <Upload className="text-accent ml-[108px] mt-[-40px] " />}
+                </div>
+              )}
+              {form.formState.errors.file && <p className="text-red-500 mt-3 absolute">{form.formState.errors.file.message?.toString()}</p>}
             </div>
-            <Button tabIndex={-1} onClick={deleteSong} className="ml-auto flex justify-end self-end hover:shadow-inner hover:shadow-red-400">
-              <Trash2 />
-            </Button>
           </div>
+        </div>
+        <div className="w-full flex flex-row ">
+          {props.unsavedChanges != undefined && props.unsavedChanges === false && (
+            <div className="mt-2  flex flex-row gap-2 text-accent">
+              Saved <CheckCircleIcon className="text-accent" />
+            </div>
+          )}
+          <div className="w-full flex flex-col justify-center items-center ">
+            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
+          </div>{" "}
+          <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 border border-accent">
+            Delete
+          </Button>
+          <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
+            Save
+          </button>
         </div>
       </form>
     </div>

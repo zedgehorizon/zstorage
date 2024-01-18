@@ -3,7 +3,7 @@ const { fontFamily } = require("tailwindcss/defaultTheme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: ["./src/**/*.{js,jsx,ts,tsx}", "app/**/*.{ts,tsx}", "components/**/*.{ts,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     container: {
       center: true,
@@ -56,6 +56,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
         syne: ["Syne", "sans-serif"],
+        spaceGrotesk: ["Space Grotesk", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -95,6 +96,7 @@ module.exports = {
       },
       backgroundImage: {
         "z-image": "url('../src/assets/img/z-image.png')",
+        "white-rectangle": "url('../src/assets/img/rec.png')",
       },
     },
   },
