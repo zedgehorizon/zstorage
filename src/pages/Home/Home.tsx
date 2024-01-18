@@ -27,7 +27,7 @@ export const Home: React.FC = () => {
           <div className="text-foreground text-center text-base py-6 ">What would you like to do today?</div>
           <div className="flex flex-col gap-4 pb-16 items-center justify-center">
             <Link
-              to={"/update"}
+              to={"/data-vault"}
               onClick={() => setDataAssetAction(`Update Data Asset`)}
               className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/5  rounded-lg border border-accent/25 items-center gap-4 inline-flex">
               <div className=" w-12 h-12 p-3 bg-foreground  rounded-2xl  justify-center items-center inline-flex">

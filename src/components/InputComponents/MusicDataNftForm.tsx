@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music } from "lucide-react";
 import { DatePicker } from "../../libComponents/DatePicker";
 import { Input } from "../../libComponents/Input";
 import DragAndDropImageFiles from "../../pages/Upload/components/DragAndDropImageFiles";
@@ -61,8 +61,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-  const [audioFile1, setAudioFile1] = useState<File>();
-
   const handleImageFileChange = (event: any) => {
     const file = event.target.files[0];
     setImageFile(file);
@@ -71,11 +69,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     setImageURL(imageURL);
     setwantToEditImage(false);
   };
-
+  console.log(props.index, audioFile);
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
     setAudioFile(file);
-    setAudioFile1(file);
     const audioURL = URL.createObjectURL(event.target.files[0]);
     form.setValue("file", audioURL);
     setAudioURL(audioURL);
@@ -156,10 +153,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           props.setUnsavedChanges(props.index, true);
         }}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col space-y-4 gap-4 text-accent/50  ">
+        className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
-          <div className="flex flex-col gap-6 w-[50%]   ">
-            <span className="text-foreground  ">
+          <div className="flex flex-col gap-6 w-[50%]">
+            <span className="text-foreground">
               Update details <span className="text-accent">*</span>{" "}
             </span>
 
@@ -187,7 +184,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               <input
                 type="text"
                 placeholder="Category"
-                className="  w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
+                className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("category")}
               />
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
@@ -203,7 +200,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} />
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
@@ -283,11 +280,32 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               </div>
             ) : ( */}
               {/* <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} /> */}
-              <div className="mt-2 w-full flex-1 items-center ">
-                <Input accept=".mp3" id="song" type="file" onChange={(e) => handleAudioFileChange(e)} />
-                <Upload className="text-accent ml-[105px] mt-[-36px] " />
-              </div>
-              {/* )} */}
+              {audioURL && !wantToEditAudio ? (
+                <div className="mt-2 flex flex-row w-15 justify-center items-center  ">
+                  <audio
+                    tabIndex={-1}
+                    onLoadStart={() => setAudioFileIsLoading(true)}
+                    onError={() => {
+                      setAudioFileIsLoading(false);
+                      setAudioError(true);
+                    }}
+                    onLoadedData={() => setAudioFileIsLoading(false)}
+                    src={audioURL}
+                    className="  ml-[-33px] scale-75 "
+                    controls></audio>
+                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center -ml-8 mt-3  animate-spin" />}
+                  <Button tabIndex={-1} className="scale-75 " onClick={() => setwantToEditAudio(true)}>
+                    <div className="-mt-2 p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                      <Edit2 className="text-accent" />
+                    </div>
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-2 w-full flex-1 items-center ">
+                  <Input accept=".mp3" id="song" type="file" onChange={(e) => handleAudioFileChange(e)} />
+                  {imageURL ? <Music className="text-accent ml-[108px] mt-[-40px] " /> : <Upload className="text-accent ml-[108px] mt-[-40px] " />}
+                </div>
+              )}
               {form.formState.errors.file && <p className="text-red-500 mt-3 absolute">{form.formState.errors.file.message?.toString()}</p>}
             </div>
           </div>

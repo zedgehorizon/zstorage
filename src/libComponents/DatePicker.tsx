@@ -11,10 +11,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
 interface DatePickerProps {
   setterFunction: (date: string) => void;
+  previousDate?: string;
 }
 
 export function DatePicker(props: DatePickerProps) {
-  const { setterFunction } = props;
+  const { setterFunction, previousDate } = props;
   const [date, setDate] = React.useState<Date>();
 
   React.useEffect(() => {
@@ -22,6 +23,12 @@ export function DatePicker(props: DatePickerProps) {
       setterFunction(format(date, "yyyy-MM-dd"));
     }
   }, [date]);
+
+  React.useEffect(() => {
+    if (previousDate) {
+      setDate(new Date(previousDate));
+    }
+  }, [previousDate]);
 
   return (
     <Popover>
@@ -37,7 +44,7 @@ export function DatePicker(props: DatePickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+        <Calendar mode="single" selected={date} onSelect={setDate} />
       </PopoverContent>
     </Popover>
   );

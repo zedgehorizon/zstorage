@@ -117,7 +117,7 @@ const StoreDataAsset: React.FC = () => {
                 storage: storagePreference,
                 decentralized: storageOption,
               }}
-              className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground">
+              className="font-normal text-base text-center px-8 flex justify-center items-center rounded-full bg-accent text-accent-foreground">
               Start uploading
             </Link>
           ) : (

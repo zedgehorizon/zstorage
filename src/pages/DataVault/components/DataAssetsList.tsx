@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_URL, API_VERSION } from "../../utils/constants";
-//import { theToken } from "../../utils/constants";
-import DataAssetCard from "../CardComponents/DataAssetCard";
+import { API_URL, API_VERSION } from "../../../utils/constants";
+// import { theToken } from "../../../utils/constants";
+import DataAssetCard from "../../../components/CardComponents/DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
 

@@ -12,6 +12,7 @@ import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
+import DataVault from "./pages/DataVault/DataVault";
 
 const routes = [
   {
@@ -26,12 +27,12 @@ const routes = [
     component: UploadData,
     authenticatedRoute: true,
   },
-  // {
-  //   path: "/update",
-  //   title: "Upload Files",
-  //   component: Update,
-  //   authenticatedRoute: true,
-  // },
+  {
+    path: "/data-vault",
+    title: "Data Vault",
+    component: DataVault,
+    authenticatedRoute: true,
+  },
   {
     path: "/unlock",
     title: "Unlock",
@@ -97,6 +98,7 @@ function App() {
                 <Route path="/start" element={<Home />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
+                <Route path="/data-vault" element={<DataVault />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
