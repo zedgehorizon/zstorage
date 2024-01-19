@@ -82,13 +82,6 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}>
-      <input
-        type="file"
-        accept="image/*"
-        className="cursor-pointer w-[15rem] h-[15rem] absolute inset-0 w-full h-full opacity-0 z-50"
-        ref={inputRef}
-        onChange={handleInputChange}
-      />
       <div className="text-center">
         {!previewSrc && (
           <>
@@ -106,16 +99,25 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
         )}
       </div>
       {previewSrc && (
-        <img src={previewSrc} className="z-0 absolute rounded-xl object-fill max-h-[15rem] max-w-[15rem] border-2 border-accent  " id="preview" alt="Preview" />
+        <img src={previewSrc} className="z-0 absolute rounded-xl max-h-[15rem] max-w-[15rem] border-[2px] border-accent  " id="preview" alt="Preview" />
       )}
-      {/* <div className="z-[50] w-full h-full absolute bg-background/40  opacity-0 hover:opacity-100">
-        <div className="mt-16 mx-auto p-3 w-12 h-12 bg-accent/20 flex   rounded-full  items-center justify-center">
-          <Edit2 className="text-accent  " />
+      {previewSrc && (
+        <div className="z-8 w-full h-full absolute bg-background/50  rounded-xl opacity-0 hover:opacity-100">
+          <div className="mt-16 mx-auto p-3 w-12 h-12 bg-accent/20 flex   rounded-full  items-center justify-center">
+            <Edit2 className="text-accent  " />
+          </div>
+          <div className="mt-6 mx-auto text-center text-accent">
+            <span className="select-none">Pick another image</span>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            className="  mx-auto w-full h-full rounded-xl cursor-pointer   absolute inset-0   opacity-0 z-50"
+            ref={inputRef}
+            onChange={handleInputChange}
+          />
         </div>
-        <div className="mt-6 mx-auto text-center">
-          <span>Pick another image</span>
-        </div>
-      </div> */}
+      )}
     </div>
   );
 };

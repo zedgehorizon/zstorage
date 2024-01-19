@@ -48,8 +48,6 @@ export const Unlock: React.FC = () => {
           <WalletConnectLoginButton
             className={buttonStyles}
             {...commonProps}
-            callbackRoute={"/"}
-            onLoginRedirect={() => navigate("/")}
             loginButtonText="xPortal App"
             {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
           />
@@ -59,7 +57,7 @@ export const Unlock: React.FC = () => {
             className={buttonStyles}
             loginButtonText={"Google (xAlias)"}
             buttonClassName="auth_button"
-            customWalletAddress="https://web2auth.com"
+            customWalletAddress="https://devnet.xalias.com"
             {...commonProps}></WebWalletLoginButton>
         </div>
       </div>

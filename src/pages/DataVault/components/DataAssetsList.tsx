@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL, API_VERSION } from "../../../utils/constants";
-// import { theToken } from "../../../utils/constants";
+import { theToken } from "../../../utils/constants";
 import DataAssetCard from "../../../components/CardComponents/DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
+import { set } from "date-fns";
 
 interface DataStream {
   name: string;
@@ -44,7 +45,7 @@ type DataAsset = {
 export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
+  //const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,6 +61,7 @@ export const DataAssetList: React.FC = () => {
       });
       console.log("Data assets fetched", response.data);
       setStoredDataAssets(response.data);
+      /// setIsLoading(false);
     } catch (error: any) {
       console.error("Eror fetching data assets", error);
       setIsLoading(false);
@@ -105,6 +107,7 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       /// think about is, what happens if the user has no data assets
+
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all data assets from Ipfs of your address...",
         success: <b>Fetched all data assets from Ipfs of your address!</b>,
@@ -112,6 +115,11 @@ export const DataAssetList: React.FC = () => {
       });
     }
   }, []);
+  // useEffect(() => {
+  //   if(isLoading) {
+  //      s
+  //   }
+  //  }, [storedDataAssets]);
 
   useEffect(() => {
     const downloadLatestVersionsManifestFiles = async () => {
@@ -127,11 +135,12 @@ export const DataAssetList: React.FC = () => {
       downloadLatestVersionsManifestFiles();
     }
   }, [storedDataAssets]);
+
   return (
     <div className="p-4 flex flex-col">
       {isLoading && (
         <div className="flex justify-center items-center -mt-4">
-          <Loader2 color="cyan" className="w-16 h-16 my-8 animate-spin "></Loader2>
+          <Loader2 className="w-16 h-16 my-8 animate-spin text-accent"></Loader2>
         </div>
       )}
       <div className="gap-4 grid grid-cols-3">

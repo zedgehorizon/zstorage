@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply font-[spaceGrotesk] !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 3%;

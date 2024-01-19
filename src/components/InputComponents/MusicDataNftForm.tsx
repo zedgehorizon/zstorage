@@ -1,17 +1,13 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../libComponents/Button";
-import { ArrowUp, ArrowDown, Trash2, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
+import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
 import { DatePicker } from "../../libComponents/DatePicker";
 import { Input } from "../../libComponents/Input";
 import DragAndDropImageFiles from "../../pages/Upload/components/DragAndDropImageFiles";
 import toast from "react-hot-toast";
-
-// todo if the img is not loading it keeps the image of the song you are swaping with (maybe add a fallback image)
-// todo check why getting 502(The gateway is currently overloaded. Please wait a while and retry your request.
-// todo when deleting a song the next one after gets required fields and saved
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -287,8 +283,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               </div>
             ) : ( */}
               {/* <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} /> */}
-              {audioURL && !wantToEditAudio ? (
-                <div className="mt-2 flex flex-row w-15 justify-center items-center  ">
+              {audioURL && !wantToEditAudio && !audioFile ? (
+                <div className="mt-2 flex flex-row justify-start items-center  ">
                   <audio
                     tabIndex={-1}
                     onLoadStart={() => setAudioFileIsLoading(true)}
@@ -298,11 +294,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                     }}
                     onLoadedData={() => setAudioFileIsLoading(false)}
                     src={audioURL}
-                    className="  ml-[-33px] scale-75 "
+                    className="-ml-6 scale-[0.8] "
                     controls></audio>
-                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center -ml-8 mt-3  animate-spin" />}
-                  <Button tabIndex={-1} className="scale-75 " onClick={() => setwantToEditAudio(true)}>
-                    <div className="-mt-2 p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center animate-spin" />}
+                  <Button tabIndex={-1} className="" onClick={() => setwantToEditAudio(true)}>
+                    <div className="p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
                       <Edit2 className="text-accent" />
                     </div>
                   </Button>
@@ -310,7 +306,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               ) : (
                 <div className="mt-2 w-full flex-1 items-center ">
                   <Input accept=".mp3" id="song" type="file" onChange={(e) => handleAudioFileChange(e)} />
-                  {imageURL ? <Music className="text-accent ml-[108px] mt-[-40px] " /> : <Upload className="text-accent ml-[108px] mt-[-40px] " />}
+                  {audioURL ? <Music className="text-accent ml-[100px] mt-[-40px] " /> : <Upload className="text-accent ml-[100px] mt-[-40px] " />}
                 </div>
               )}
               {form.formState.errors.file && <p className="text-red-500 mt-3 absolute">{form.formState.errors.file.message?.toString()}</p>}

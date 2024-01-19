@@ -15,12 +15,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, answer }) => {
         <h3 className="text-foreground">{question}</h3>
         {showAnswer ? (
           <Minus
+            className="cursor-pointer text-accent"
             onClick={() => {
               setShowAnswer(false);
             }}
           />
         ) : (
           <Plus
+            className="cursor-pointer text-accent"
             onClick={() => {
               setShowAnswer(true);
             }}
