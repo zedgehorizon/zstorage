@@ -59,7 +59,7 @@ export const Unlock: React.FC = () => {
             className={buttonStyles}
             loginButtonText={"Google (xAlias)"}
             buttonClassName="auth_button"
-            customWalletAddress="https://web2auth.com"
+            customWalletAddress="https://devnet.xalias.com"
             {...commonProps}></WebWalletLoginButton>
         </div>
       </div>
