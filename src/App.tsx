@@ -67,8 +67,8 @@ function App() {
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
-        <div className="backgroundCircle"></div>
-        <div className="backgroundCircle1"></div>
+        {/* <div className="backgroundCircle"></div>
+        <div className="backgroundCircle1"></div> */}
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Toaster
             position="top-right"

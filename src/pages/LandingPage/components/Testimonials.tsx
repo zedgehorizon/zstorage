@@ -38,7 +38,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
 
   function testimonialCard(testimonial: Testimonial) {
     return (
-      <div className="flex flex-col gap-4 items-center justify-center">
+      <div key={testimonial.userName} className="flex flex-col gap-4 items-center justify-center">
         {starRating(testimonial.rating)}
         <span className="text-foreground/50 max-w-[60%]">{testimonial.feedback}</span>
         <div className="flex flex-row gap-3  items-center justify-center">

@@ -48,8 +48,6 @@ export const Unlock: React.FC = () => {
           <WalletConnectLoginButton
             className={buttonStyles}
             {...commonProps}
-            callbackRoute={"/"}
-            onLoginRedirect={() => navigate("/")}
             loginButtonText="xPortal App"
             {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
           />

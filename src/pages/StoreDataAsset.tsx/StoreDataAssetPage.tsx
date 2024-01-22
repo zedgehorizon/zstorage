@@ -39,9 +39,8 @@ const StoreDataAsset: React.FC = () => {
     if (currentStep === 4) navigate("/upload");
     setCurrentStep(currentStep + 1);
   };
-  console.log(currentStep, " ___ > ", storageType, " ___ > ", dynamicDataStream, " ___ > ", storagePreference, " ___ > ", storageOption);
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full gap-4 bg-background z-[-2]">
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Store data asset</span>
