@@ -7,23 +7,30 @@ import { Navbar } from "./components/Layout/Navbar";
 import { Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home/Home";
 import { Content } from "./components/Layout/Content";
-import { Footer } from "./components/Layout/Footer";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
 import { Toaster } from "react-hot-toast";
-import LandingPage from "./pages/Home/LandingPage";
+import LandingPage from "./pages/LandingPage/LandingPage";
+import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
+import DataVault from "./pages/DataVault/DataVault";
 
 const routes = [
   {
     path: "/",
     title: "Home",
-    component: Home,
-    authenticatedRoute: true,
+    component: LandingPage,
+    authenticatedRoute: false,
   },
   {
     path: "/upload",
     title: "Upload Files",
     component: UploadData,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/data-vault",
+    title: "Data Vault",
+    component: DataVault,
     authenticatedRoute: true,
   },
   {
@@ -34,10 +41,16 @@ const routes = [
   },
 
   {
-    path: "/landing",
-    title: "Landing Page",
-    component: LandingPage,
-    authenticatedRoute: false,
+    path: "/start",
+    title: "Start",
+    component: Home,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/storage",
+    title: "Store Data Asset",
+    component: StoreDataAsset,
+    authenticatedRoute: true,
   },
 ];
 
@@ -54,8 +67,8 @@ function App() {
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
-        <div className="backgroundCircle"></div>
-        <div className="backgroundCircle1"></div>
+        {/* <div className="backgroundCircle"></div>
+        <div className="backgroundCircle1"></div> */}
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Toaster
             position="top-right"
@@ -81,15 +94,15 @@ function App() {
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
-                <Route path="/" element={<Home />}></Route>
-                <Route path="/landing" element={<LandingPage />}></Route>
-
+                <Route path="/" element={<LandingPage />}></Route>
+                <Route path="/start" element={<Home />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
+                <Route path="/data-vault" element={<DataVault />}></Route>
+                <Route path="/storage" element={<StoreDataAsset />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
-          <Footer />
         </div>
       </div>
     </DappProvider>

@@ -56,6 +56,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
         syne: ["Syne", "sans-serif"],
+        spaceGrotesk: ["Space Grotesk", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -95,6 +96,7 @@ module.exports = {
       },
       backgroundImage: {
         "z-image": "url('../src/assets/img/z-image.png')",
+        "white-rectangle": "url('../src/assets/img/rec.png')",
       },
     },
   },
