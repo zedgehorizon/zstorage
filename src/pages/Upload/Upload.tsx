@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MusicDataNftForm } from "../../components/InputComponents/MusicDataNftForm";
+import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import { DatePicker } from "../../libComponents/DatePicker";
@@ -12,7 +12,7 @@ import { CopyIcon, ExternalLink, Lightbulb, XCircle } from "lucide-react";
 import ProgressBar from "../../components/ProgressBar";
 import toast from "react-hot-toast";
 
-// import { theToken } from "../../utils/constants";
+import { theToken } from "../../utils/constants";
 import { generateRandomString } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
@@ -47,7 +47,7 @@ export const UploadData: React.FC = () => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
+  // const theToken = tokenLogin?.nativeAuthToken;
 
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
@@ -59,7 +59,7 @@ export const UploadData: React.FC = () => {
     name: "",
     creator: "",
     createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
-    modifiedOn: new Date().toISOString().split("T")[0],
+    modifiedOn: manifestFile && manifestFile.data_stream.last_modified_on ? manifestFile.data_stream.last_modified_on : new Date().toISOString().split("T")[0],
     totalItems: 0,
     stream: "true",
   });
@@ -106,7 +106,7 @@ export const UploadData: React.FC = () => {
     }
   }, [createdOn]);
 
-  // upload the songs and images of all the songs
+  // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
     const filesToUpload = new FormData();
     try {
@@ -117,15 +117,16 @@ export const UploadData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              (version ? version + 1 : "1") + ".-image." + songData.title + "_" + generateRandomString() + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() + "." + "image" + "_" + songData.title + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
-          if (filePairs[idx + 1]?.audio)
+          if (filePairs[idx + 1]?.audio) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              (version ? version + 1 : "1") + ".-audio." + songData.title + "_" + generateRandomString() + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              generateRandomString() + "." + "audio" + "_" + songData.title + "." + filePairs[idx + 1].audio.name.split(".")[1]
             );
+          }
         }
       });
     } catch (error: any) {
@@ -161,7 +162,6 @@ export const UploadData: React.FC = () => {
     } catch (error: any) {
       console.error("Error uploading files:", error);
       if (error?.response.data.statusCode === 403) {
-        /// forbidden  - token expired
         toast("Native auth token expired. Re-login and try again! ", {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
@@ -187,7 +187,6 @@ export const UploadData: React.FC = () => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
-
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -196,15 +195,11 @@ export const UploadData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-image.${songObj.title}`)
-              );
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${songObj.title}`));
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
-              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes((version ? version + 1 : "1") + `.-audio.${songObj.title}`)
-              );
+              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.audio_${songObj.title}`));
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
@@ -278,7 +273,7 @@ export const UploadData: React.FC = () => {
           "name": formData.name,
           "creator": formData.creator,
           "created_on": formData.createdOn,
-          "last_modified_on": version ? new Date().toISOString().split("T")[0] : formData.createdOn,
+          "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfSongs - 1,
             "nestedStream": formData.stream === "true" ? true : false,
@@ -286,7 +281,6 @@ export const UploadData: React.FC = () => {
         },
         "data": data,
       };
-
       const formDataFormat = new FormData();
       formDataFormat.append(
         "files",
@@ -466,7 +460,7 @@ export const UploadData: React.FC = () => {
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
   // console.log("formData: ", formData);
-  // console.log("totalItems: ", numberOfSongs);
+  // // console.log("totalItems: ", numberOfSongs);
   // console.log("manifestCid: ", manifestCid);
   // console.log("unsavedChanges: ", unsavedChanges);
 
@@ -532,9 +526,6 @@ export const UploadData: React.FC = () => {
             <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3 className="">Folder CID - {folderCid}</h3>
               <CopyIcon onClick={() => copyLink(folderCid)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-              <a href={IPFS_GATEWAY + "ipfs/" + folderCid} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
-                <ExternalLink className="text-accent" />
-              </a>
             </div>
           )}
           {currentManifestFileCID && (
@@ -545,9 +536,12 @@ export const UploadData: React.FC = () => {
           )}
 
           {manifestFileName && (
-            <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
+            <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3>Manifest File Name - {manifestFileName} </h3>{" "}
               <CopyIcon onClick={() => copyLink(manifestFileName)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+              <a href={IPFS_GATEWAY + "ipfs/" + folderCid + "/" + manifestFileName} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
+                <ExternalLink className="text-accent" />
+              </a>
             </div>
           )}
 
@@ -570,7 +564,7 @@ export const UploadData: React.FC = () => {
                 <Button
                   className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
                   onClick={handleAddMoreSongs}>
-                  Add more songs
+                  Add song
                 </Button>
               </div>
             </div>
@@ -579,7 +573,7 @@ export const UploadData: React.FC = () => {
             onClick={generateManifestFile}
             disabled={isUploadButtonDisabled || progressBar == 100}
             className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-            Upload Data to IPFS
+            Upload Data
           </button>
         </div>
         {!manifestCid ? (

@@ -1,6 +1,6 @@
 import React from "react";
-import storageIlustration from "../../assets/img/illustration-storage.png";
-import realWorldIlustration from "../../assets/img/ilustration-real-world.png";
+import storageIlustration from "../../../assets/img/illustration-storage.png";
+import realWorldIlustration from "../../../assets/img/ilustration-real-world.png";
 
 const UseCase: React.FC = () => {
   return (

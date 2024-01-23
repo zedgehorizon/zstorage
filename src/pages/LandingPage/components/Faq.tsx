@@ -1,5 +1,5 @@
 import React from "react";
-import QuestionCard from "../CardComponents/QuestionCard";
+import QuestionCard from "./QuestionCard";
 
 const Faq: React.FC = () => {
   const questions = [

@@ -3,11 +3,10 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_URL, API_VERSION } from "../../../utils/constants";
-// import { theToken } from "../../../utils/constants";
-import DataAssetCard from "../../../components/CardComponents/DataAssetCard";
+import { theToken } from "../../../utils/constants";
+import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
-import { set } from "date-fns";
 
 interface DataStream {
   name: string;
@@ -45,7 +44,7 @@ type DataAsset = {
 export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
+  // const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,9 +58,9 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("Data assets fetched", response.data);
+
       setStoredDataAssets(response.data);
-      /// setIsLoading(false);
+      if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
     } catch (error: any) {
       console.error("Eror fetching data assets", error);
       setIsLoading(false);
@@ -107,7 +106,6 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       /// think about is, what happens if the user has no data assets
-
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all data assets from Ipfs of your address...",
         success: <b>Fetched all data assets from Ipfs of your address!</b>,

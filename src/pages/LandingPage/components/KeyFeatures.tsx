@@ -1,13 +1,13 @@
 import React from "react";
-import FeatureCard from "../CardComponents/FeatureCard";
-import storeFile from "../../assets/img/store-file-key-features.png";
-import moveFile from "../../assets/img/move-file-key-features.png";
+import FeatureCard from "./FeatureCard";
+import storeFile from "../../../assets/img/store-file-key-features.png";
+import moveFile from "../../../assets/img/move-file-key-features.png";
 
-import portabilityLogo from "../../assets/logo/portability.png";
-import integrateLogo from "../../assets/logo/integrate.png";
+import portabilityLogo from "../../../assets/logo/portability.png";
+import integrateLogo from "../../../assets/logo/integrate.png";
 
-import decentralizedLogo from "../../assets/logo/decentralized.png";
-import abstractionLogo from "../../assets/logo/abstraction.png";
+import decentralizedLogo from "../../../assets/logo/decentralized.png";
+import abstractionLogo from "../../../assets/logo/abstraction.png";
 const KeyFeatues: React.FC = () => {
   return (
     <div className="gap-4 w-full h-full flex flex-col items-center justify-center py-8">

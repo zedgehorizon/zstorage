@@ -7,8 +7,7 @@ import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const Home: React.FC = () => {
-  const [dataAssetAction, setDataAssetAction] = useState(``);
+export const Start: React.FC = () => {
   return (
     <>
       <div className="flex flex-col items-center justify-center w-full h-screen bg-background z-[-2]">
@@ -28,7 +27,6 @@ export const Home: React.FC = () => {
           <div className="flex flex-col gap-4 pb-16 items-center justify-center">
             <Link
               to={"/data-vault"}
-              onClick={() => setDataAssetAction(`Update Data Asset`)}
               className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/5  rounded-lg border border-accent/25 items-center gap-4 inline-flex">
               <div className=" w-12 h-12 p-3 bg-foreground  rounded-2xl  justify-center items-center inline-flex">
                 <img src={updateIcon}></img>
@@ -37,7 +35,6 @@ export const Home: React.FC = () => {
             </Link>
             <Link
               to={"/storage"}
-              onClick={() => setDataAssetAction(`Create Data Asset`)}
               className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 items-center gap-4 inline-flex">
               <div className="w-12 h-12 p-3 bg-foreground  rounded-2xl justify-center items-center inline-flex">
                 <img src={storageIcon}></img>

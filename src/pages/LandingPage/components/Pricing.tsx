@@ -1,5 +1,5 @@
 import React from "react";
-import PriceCard from "../CardComponents/PriceCard";
+import PriceCard from "./PriceCard";
 
 const Pricing: React.FC = () => {
   return (

@@ -5,7 +5,7 @@ import { NotificationModal, SignTransactionsModals, TransactionsToastList } from
 import { apiTimeout, walletConnectV2ProjectId } from "./config";
 import { Navbar } from "./components/Layout/Navbar";
 import { Route, Routes } from "react-router-dom";
-import { Home } from "./pages/Home/Home";
+import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadData } from "./pages/Upload/Upload";
@@ -43,7 +43,7 @@ const routes = [
   {
     path: "/start",
     title: "Start",
-    component: Home,
+    component: Start,
     authenticatedRoute: true,
   },
   {
@@ -67,8 +67,6 @@ function App() {
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
-        {/* <div className="backgroundCircle"></div>
-        <div className="backgroundCircle1"></div> */}
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Toaster
             position="top-right"
@@ -95,7 +93,7 @@ function App() {
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
                 <Route path="/" element={<LandingPage />}></Route>
-                <Route path="/start" element={<Home />}></Route>
+                <Route path="/start" element={<Start />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload" element={<UploadData />}></Route>
                 <Route path="/data-vault" element={<DataVault />}></Route>

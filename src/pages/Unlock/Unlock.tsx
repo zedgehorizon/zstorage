@@ -23,6 +23,7 @@ export const Unlock: React.FC = () => {
   };
   const commonProps = {
     callbackRoute: "/",
+    onLoginRedirect: () => navigate("/"),
     nativeAuth: {
       ...nativeAuthProps,
     },
@@ -38,25 +39,18 @@ export const Unlock: React.FC = () => {
           </div>
           <div className="text-foreground/50 text-center text-sm py-1 ">Choose a wallet you want to connect to</div>
 
-          <ExtensionLoginButton
-            className={buttonStyles}
-            {...commonProps}
-            callbackRoute={"/"}
-            onLoginRedirect={() => navigate("/")}
-            loginButtonText={"Extension"}
-          />
+          <ExtensionLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Extension"} />
           <WalletConnectLoginButton
             className={buttonStyles}
             {...commonProps}
             loginButtonText="xPortal App"
             {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
           />
-          <WebWalletLoginButton className={buttonStyles} {...commonProps} callbackRoute={"/"} loginButtonText={"Web wallet"} />
+          <WebWalletLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Web wallet"} />
           <LedgerLoginButton className={buttonStyles} loginButtonText="Ledger" {...commonProps} />
           <WebWalletLoginButton
             className={buttonStyles}
             loginButtonText={"Google (xAlias)"}
-            buttonClassName="auth_button"
             customWalletAddress="https://devnet.xalias.com"
             {...commonProps}></WebWalletLoginButton>
         </div>

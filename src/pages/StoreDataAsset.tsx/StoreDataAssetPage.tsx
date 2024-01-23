@@ -7,7 +7,7 @@ import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
 import { Heart, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
-import { XStorageCheckBox } from "../../components/InputComponents/XStorageCheckBox";
+import { XStorageCheckBox } from "./components/XStorageCheckBox";
 import { Button } from "../../libComponents/Button";
 import { Footer } from "../../components/Layout/Footer";
 import { useNavigate } from "react-router-dom";
