@@ -138,13 +138,19 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div className="absolute top-0 right-0">
           <div className="flex flex-col justify-between">
             {props.index != 1 && (
-              <Button tabIndex={-1} onClick={handleMoveUp} className=" text-accent hover:shadow-inner hover:shadow-accent">
-                <ArrowUp />
+              <Button
+                tabIndex={-1}
+                onClick={handleMoveUp}
+                className="mb-2 border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                <ArrowUp className="text-accent" />
               </Button>
             )}
             {!props.lastItem && (
-              <Button tabIndex={-1} onClick={handleMoveDown} className="text-accent hover:shadow-inner hover:shadow-accent">
-                <ArrowDown></ArrowDown>
+              <Button
+                tabIndex={-1}
+                onClick={handleMoveDown}
+                className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                <ArrowDown className="text-accent" />
               </Button>
             )}
           </div>
@@ -249,7 +255,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
             </div> */}
             <div>
-              <label className="mb-4 text-foreground">Track File (mp3)</label>
+              <div className="flex gap-2 flex-row">
+                <label className="text-foreground">Track File (mp3)</label>
+                {audioFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
+              </div>
               {/* {audioURL && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
@@ -293,12 +302,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                     }}
                     onLoadedData={() => setAudioFileIsLoading(false)}
                     src={audioURL}
-                    className="-ml-6 scale-[0.8]"
-                    controls></audio>
-                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center animate-spin" />}
-                  <Button tabIndex={-1} className="" onClick={() => setwantToEditAudio(true)}>
-                    <div className="p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
-                      <Edit2 className="text-accent" />
+                    className="-ml-9 scale-[0.8]"
+                    controls
+                  />
+                  <Button
+                    tabIndex={-1}
+                    className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center"
+                    onClick={() => setwantToEditAudio(true)}>
+                    <div>
+                      <Edit2 className="text-accent  " />
                     </div>
                   </Button>
                 </div>
