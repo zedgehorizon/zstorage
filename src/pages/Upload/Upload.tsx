@@ -3,6 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import { DatePicker } from "../../libComponents/DatePicker";
+import { format } from "date-fns";
 
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
@@ -506,7 +507,7 @@ export const UploadData: React.FC = () => {
               </div>
 
               <div className="flex flex-col mb-4">
-                <label className="block text-foreground mb-2 ">Created On:</label>
+                <label className="text-foreground mb-2 ">Created On:</label>
 
                 <DatePicker setterFunction={setCreatedOn} previousDate={formData.createdOn} />
               </div>
@@ -516,7 +517,7 @@ export const UploadData: React.FC = () => {
                   Modified On:
                 </label>
                 <div className="w-full hover:text-accent text-center min-w-[10rem] text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent">
-                  {formData.modifiedOn}
+                  {format(formData.modifiedOn, "dd/MM/yyyy")}
                 </div>
               </div>
             </form>

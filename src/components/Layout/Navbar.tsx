@@ -5,6 +5,7 @@ import logo from "../../assets/logo/logo.png";
 import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 import { Button } from "../../libComponents/Button";
+import { Dot } from "lucide-react";
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const handleLogout = () => {
@@ -29,18 +30,30 @@ export const Navbar: React.FC = () => {
             <img className="h-4" src={logo}></img>
             <p className=" ">Storage</p>
           </Link>
-          <div className="flex flex-row gap-8 ">
-            <Link to={"/#features"} onClick={() => scrollToSection("features")}>
+          <div className="flex flex-row gap-8 mt-4 ">
+            <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
               <p className=" ">Features</p>
+              <div className="opacity-0 group-hover:opacity-100">
+                <Dot className="text-accent scale-[2] mx-auto "></Dot>
+              </div>
             </Link>
-            <Link to={"/#solution"} onClick={() => scrollToSection("solution")}>
+            <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
               <p className=" ">Solution</p>
+              <div className="opacity-0 group-hover:opacity-100">
+                <Dot className="text-accent scale-[2] mx-auto "></Dot>
+              </div>
             </Link>
-            <Link to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
+            <Link className=" cursor-pointer group " to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
               <p className=" ">Pricing</p>
+              <div className="opacity-0 group-hover:opacity-100">
+                <Dot className="text-accent scale-[2] mx-auto "></Dot>
+              </div>
             </Link>
-            <Link to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
+            <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
               <p className=" ">Testimonials</p>
+              <div className="opacity-0 group-hover:opacity-100">
+                <Dot className="text-accent scale-[2] mx-auto "></Dot>
+              </div>
             </Link>
           </div>
           <div className="border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
