@@ -35,10 +35,13 @@ export const Unlock: React.FC = () => {
       <div className="w-[30%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
         <div className="flex flex-col w-full gap-2">
           <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50 to-muted pb-[1px] -z-1">
-            <div className="w-full bg-muted flex justify-center  text-accent text-2xl font-medium p-3 z-3">Connect your wallet</div>
+            <div className="w-full bg-muted flex justify-center  text-accent text-2xl font-medium p-3 z-3">Create or Connect a Digital Wallet</div>
           </div>
-          <div className="text-foreground/50 text-center text-sm py-1 ">Choose a wallet you want to connect to</div>
-
+          <WebWalletLoginButton
+            className={buttonStyles}
+            loginButtonText={"Google (via xAlias)"}
+            customWalletAddress="https://devnet.xalias.com"
+            {...commonProps}></WebWalletLoginButton>
           <ExtensionLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Extension"} />
           <WalletConnectLoginButton
             className={buttonStyles}
@@ -48,11 +51,6 @@ export const Unlock: React.FC = () => {
           />
           <WebWalletLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Web wallet"} />
           <LedgerLoginButton className={buttonStyles} loginButtonText="Ledger" {...commonProps} />
-          <WebWalletLoginButton
-            className={buttonStyles}
-            loginButtonText={"Google (xAlias)"}
-            customWalletAddress="https://devnet.xalias.com"
-            {...commonProps}></WebWalletLoginButton>
         </div>
       </div>
     </div>
