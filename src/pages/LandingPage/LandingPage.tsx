@@ -11,6 +11,7 @@ import UseCase from "./components/UseCase";
 import Testimonials from "./components/Testimonials";
 import avatar from "../../assets/logo/Avatar.png";
 import companyLogo from "../../assets/logo/Black.png";
+import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 const testimonialsData = [
   {
@@ -39,16 +40,27 @@ const testimonialsData = [
   //   feedback: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   // },
 ];
+
 const LandingPage: React.FC = () => {
+  const isLoggedIn = useGetIsLoggedIn();
+
   return (
     <div className="top-0 w-full  h-full bg-background flex flex-grow flex-col items-center justify-start  ">
       <div className="min-w-[60%] min-h-[25rem] bg-z-image bg-no-repeat bg-center bg-contain flex flex-col items-center justify-center">
         <div className="h-[60%]  flex flex-col justify-center items-center">
-          <span className="text-[3rem] 2xl:text-[4rem] text-accent">Storage Solution</span>
-          <span className="text-[3rem] 2xl:text-[4rem] ">Built for Data Ownership</span>
-          <span className="text-sm w-[65%] text-center text-foreground/50 ">
-            Allows seamless storage solutions that integrate directly with the Itheum data brokerage protocol.
-          </span>
+          <span className="text-[2.5rem] 2xl:text-[3.5rem] text-accent uppercase">Digital Storage Bunkers</span>
+          <span className="text-[2rem] 2xl:text-[3rem] ">For your most vital data</span>
+          <div className="mt-3">
+            {(isLoggedIn && (
+              <Link to={"/start"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">
+                Manage Data Assets
+              </Link>
+            )) || (
+              <Link to={"/unlock"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">
+                <p className="">Get Started</p>{" "}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
       <div className="-mt-12 z-2  ">
@@ -56,16 +68,29 @@ const LandingPage: React.FC = () => {
       </div>
       <div id="solution" className="p-32 w-full flex items-center justify-center">
         <div className="w-[60%] max-w-[40rem] px-8 flex flex-col allign-left gap-3">
-          <span className="text-foreground/75">ZSTORAGE SOLUTION </span>
-          <span className="text-2xl">Empowering users with true ownership of their data through storage</span>
+          <span className="text-foreground/75 uppercase">ZStorage Solution</span>
+          <span className="text-2xl">Your 'Plan Z' for Data Storage</span>
           <span className="text-sm text-foreground/75">
-            Itheum protocol is providing a seamless and secure way to self host data and for generating a Data Stream that can be used in Data NFT minting.{" "}
+            You may have a plan A, B, C... to protect our most vital data, but the attack and censorship vectors for all these plans are the same.
           </span>
-          <Link
-            to={"/start"}
-            className="w-[50%] max-w-[10rem] font-bold text-accent-foreground bg-accent rounded-full px-4 py-2 flex items-center justify-center">
-            Get Started
-          </Link>
+          <span className="text-sm text-foreground/75">
+            Safeguarding your vital data requires a "new strategy." ZStorage offers a "Plan Z" solution that works alongside your existing storage plans. A
+            seamless interface allows you to access distributed storage while ensuring sovereign encryption, creating digital data bunkers as your last line of
+            defense.
+          </span>
+          <div>
+            {(isLoggedIn && (
+              <Link to={"/start"} className=" max-w-[15rem] font-bold text-accent-foreground bg-accent rounded-full px-4 py-2 flex items-center justify-center">
+                Manage Data Assets
+              </Link>
+            )) || (
+              <Link
+                to={"/unlock"}
+                className="w-[50%] max-w-[10rem] font-bold text-accent-foreground bg-accent rounded-full px-4 py-2 flex items-center justify-center">
+                <p className="">Get Started</p>{" "}
+              </Link>
+            )}
+          </div>
         </div>
         <div>
           <img src={hands}></img>

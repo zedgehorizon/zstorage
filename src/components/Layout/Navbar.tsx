@@ -65,7 +65,7 @@ export const Navbar: React.FC = () => {
               </Link>
             ) : (
               <Link to={"/unlock"}>
-                <p className="">Connect wallet</p>{" "}
+                <p className="">Get Started</p>{" "}
               </Link>
             )}
           </div>
