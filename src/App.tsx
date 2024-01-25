@@ -8,11 +8,12 @@ import { Route, Routes } from "react-router-dom";
 import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
-import { UploadData } from "./pages/Upload/Upload";
+import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataVault from "./pages/DataVault/DataVault";
+import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 
 const routes = [
   {
@@ -24,7 +25,13 @@ const routes = [
   {
     path: "/upload",
     title: "Upload Files",
-    component: UploadData,
+    component: UploadAnyFiles,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/upload-music",
+    title: "Upload Files",
+    component: UploadMusicData,
     authenticatedRoute: true,
   },
   {
@@ -95,7 +102,8 @@ function App() {
                 <Route path="/" element={<LandingPage />}></Route>
                 <Route path="/start" element={<Start />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
-                <Route path="/upload" element={<UploadData />}></Route>
+                <Route path="/upload-music" element={<UploadMusicData />}></Route>
+                <Route path="/upload" element={<UploadAnyFiles />}></Route>
                 <Route path="/data-vault" element={<DataVault />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>
               </Routes>

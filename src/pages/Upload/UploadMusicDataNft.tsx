@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "./components/MusicDataNftForm";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
-import { DatePicker } from "../../libComponents/DatePicker";
-import { format } from "date-fns";
 
-import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_URL, API_VERSION, IPFS_GATEWAY } from "../../utils/constants";
+import { IPFS_GATEWAY } from "../../utils/constants";
 import { ToolTip } from "../../libComponents/Tooltip";
-import { CopyIcon, ExternalLink, Lightbulb, XCircle } from "lucide-react";
-import ProgressBar from "../../components/ProgressBar";
+import { CopyIcon, Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { theToken } from "../../utils/constants";
-import { generateRandomString } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-
-// todo when reloading after uploading a manifest file, make it to show the new manifest file not the old one
-//todo add a modal after the upload with whats next
-///remove save button
-// if you want to update only the header should he be able to upload only that?
+import { Modal } from "../../components/Modal";
+import { Progress } from "../../libComponents/Progress";
+import UploadHeader from "./components/UploadHeader";
 
 type SongData = {
   date: string;
@@ -38,7 +32,7 @@ type FilePair = {
   audio: File;
 };
 
-export const UploadData: React.FC = () => {
+export const UploadMusicData: React.FC = () => {
   const location = useLocation();
 
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
@@ -53,31 +47,22 @@ export const UploadData: React.FC = () => {
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [isUploadingManifest, setIsUploadingManifest] = useState(false);
 
+  const [name, setName] = useState("");
+  const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
+  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    creator: "",
-    createdOn: manifestFile && manifestFile.data_stream.created_on ? manifestFile.data_stream.created_on : new Date().toISOString().split("T")[0],
-    modifiedOn: manifestFile && manifestFile.data_stream.last_modified_on ? manifestFile.data_stream.last_modified_on : new Date().toISOString().split("T")[0],
-    totalItems: 0,
-    stream: "true",
-  });
 
+  const [manifestCid, setManifestCid] = useState(null);
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;
-        setFormData({
-          ["name"]: dataStream.name,
-          ["creator"]: dataStream.creator,
-          ["createdOn"]: dataStream.created_on,
-          ["modifiedOn"]: new Date(dataStream.last_modified_on).toISOString().split("T")[0],
-          ["stream"]: dataStream.marshalManifest.nestedStream === true ? "true" : "false",
-          ["totalItems"]: dataStream.marshalManifest.totalItems,
-        });
-        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setName(dataStream.name);
+        setCreator(dataStream.creator);
+        setCreatedOn(dataStream.created_on);
+        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        setNumberOfSongs(dataStream.marshalManifest.totalItems);
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
             if (song) acc[song.idx] = song;
@@ -87,8 +72,7 @@ export const UploadData: React.FC = () => {
         );
         setSongsData(songsDataMap);
       } catch (err: any) {
-        console.log("ERROR parsing manifest file : ", err);
-
+        console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -100,12 +84,27 @@ export const UploadData: React.FC = () => {
     }
   }, [manifestFile]);
 
-  //check the date format
+  /**
+   * useEffect hook to load the progress bar smoothly to 100 in 10 seconds
+   */
   useEffect(() => {
-    if (createdOn) {
-      setFormData((prev) => ({ ...prev, ["createdOn"]: createdOn }));
+    if (progressBar > 0 && progressBar < 99) {
+      const interval = 100; // Time interval in milliseconds
+      const totalTime = 10000; // Total time for the progress to reach 100 (in milliseconds)
+      const steps = 100 / (totalTime / interval);
+
+      const updateProgress = () => {
+        setProgressBar((prevProgress) => {
+          const newProgress = prevProgress + steps;
+          return newProgress <= 99 ? newProgress : 99;
+        });
+      };
+
+      const progressInterval = setInterval(updateProgress, interval);
+
+      return () => clearInterval(progressInterval);
     }
-  }, [createdOn]);
+  }, [progressBar]);
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -131,7 +130,7 @@ export const UploadData: React.FC = () => {
         }
       });
     } catch (error: any) {
-      console.log("ERROR iterating through songs Data : ", error);
+      console.error("ERROR iterating through songs Data : ", error);
       toast.error(
         "Error iterating through songs Data : " +
           `${error ? error.message + ". " + error?.response?.data.message : ""}` +
@@ -147,35 +146,36 @@ export const UploadData: React.FC = () => {
     }
 
     if (filesToUpload.getAll("files").length === 0) return [];
-    const response = await uploadFilesRequest(filesToUpload);
+
+    const response = await uploadFilesRequest(filesToUpload, theToken);
     return response;
   }
 
-  async function uploadFilesRequest(filesToUpload: FormData) {
-    try {
-      const response = await axios.post(`${API_URL}/upload${API_VERSION}`, filesToUpload, {
-        headers: {
-          "authorization": `Bearer ${theToken}`,
-        },
-      });
+  // async function uploadFilesRequest(filesToUpload: FormData) {
+  //   try {
+  //     const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
+  //       headers: {
+  //         "authorization": `Bearer ${theToken}`,
+  //       },
+  //     });
 
-      return response.data;
-    } catch (error: any) {
-      console.error("Error uploading files:", error);
-      if (error?.response.data.statusCode === 403) {
-        toast("Native auth token expired. Re-login and try again! ", {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
-        });
-      }
-      toast.error("Error uploading files to Ipfs: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-    }
-  }
+  //     return response.data;
+  //   } catch (error: any) {
+  //     console.error("Error uploading files:", error);
+  //     if (error?.response.data.statusCode === 403) {
+  //       toast("Native auth token expired. Re-login and try again! ", {
+  //         icon: <Lightbulb color="yellow"></Lightbulb>,
+  //       });
+  //     }
+  //     toast.error("Error uploading files to Ipfs: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
+  //       icon: (
+  //         <button onClick={() => toast.dismiss()}>
+  //           <XCircle color="red" />
+  //         </button>
+  //       ),
+  //     });
+  //   }
+  // }
 
   /**
    * Get all songs data into the right format for manifest file
@@ -184,9 +184,9 @@ export const UploadData: React.FC = () => {
    * @throws {Error} If the upload songs import.meta did not work correctly or if the data has not been uploaded correctly.
    */
   async function transformSongsData() {
-    setProgressBar(20);
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
+      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
@@ -227,19 +227,19 @@ export const UploadData: React.FC = () => {
           </button>
         ),
       });
-      console.log("ERROR transforming the data: ", error);
+      console.error("ERROR transforming the data: ", error);
     }
   }
 
   function verifyHeaderFields() {
-    if (!formData.name || !formData.creator || !formData.createdOn || !songsData) {
-      toast.error("Please fill all the fields from the header section", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
+    if (!name || !creator || !createdOn || !songsData) {
+      // toast.error("Please fill all the fields from the header section", {
+      //   icon: (
+      //     <button onClick={() => toast.dismiss()}>
+      //       <Lightbulb color="yellow" />
+      //     </button>
+      //   ),
+      // });
       return false;
     }
     return true;
@@ -255,6 +255,7 @@ export const UploadData: React.FC = () => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
+    setProgressBar(12);
     if (!verifyHeaderFields()) {
       return;
     }
@@ -266,18 +267,16 @@ export const UploadData: React.FC = () => {
         setIsUploadingManifest(false);
         return;
       }
-
-      setProgressBar(60);
-
+      if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
-          "name": formData.name,
-          "creator": formData.creator,
-          "created_on": formData.createdOn,
+          "name": name,
+          "creator": creator,
+          "created_on": createdOn,
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfSongs - 1,
-            "nestedStream": formData.stream === "true" ? true : false,
+            "nestedStream": "true", // set to true for MUSIC DATA NFTs
           },
         },
         "data": data,
@@ -286,9 +285,9 @@ export const UploadData: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : "manifest-" + formData.name + "_" + generateRandomString() + ".json"
+        manifestFileName ? manifestFileName : "manifest" + generateRandomString() + "_" + name + ".json"
       );
-      const response = await uploadFilesRequest(formDataFormat);
+      const response = await uploadFilesRequest(formDataFormat, theToken);
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(ipfs);
@@ -313,7 +312,7 @@ export const UploadData: React.FC = () => {
       });
 
       setIsUploadingManifest(false);
-      console.log("Error generating the manifest file:", error);
+      console.error("Error generating the manifest file:", error);
     }
     setIsUploadingManifest(false);
     setProgressBar(100);
@@ -323,14 +322,6 @@ export const UploadData: React.FC = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
     setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
-  };
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
   };
 
   function deleteSong(index: number) {
@@ -354,29 +345,22 @@ export const UploadData: React.FC = () => {
     setNumberOfSongs((prev) => prev - 1);
   }
 
-  // ask Mark if there should not be a better way like to only show errrs to the user when trying to upload the manifest file
   useEffect(() => {
-    let errorMessage = "";
+    let hasUnsavedChanges = false;
+
     if (numberOfSongs > 1 && songsData[1].title) {
-      let hasUnsavedChanges = false;
       if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
         }
       });
-      if (hasUnsavedChanges) {
-        errorMessage = "Please save all the changes before uploading the data";
-      }
     } else {
-      errorMessage = "Please fill all the fields from the songs section";
+      hasUnsavedChanges = true;
     }
-    if (errorMessage !== "") {
-      setIsUploadButtonDisabled(true);
-    } else {
-      setIsUploadButtonDisabled(false);
-    }
-  }, [songsData, unsavedChanges]);
+    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
+    setIsUploadButtonDisabled(hasUnsavedChanges);
+  }, [songsData, unsavedChanges, name, creator, createdOn]);
 
   /**
    * Swaps the songs at the given indices in the songsData and filePairs state.
@@ -470,81 +454,20 @@ export const UploadData: React.FC = () => {
       <div className="p-4 flex flex-col">
         {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
 
-        {/** Refactor this into a Header component */}
         <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
-          <div className="flex flex-col mx-auto">
-            <h1 className="text-4xl text-accent font- pt-16 pb-8">{manifestCid ? "Update" : "Upload"} Data </h1>
-
-            <form className="flex gap-x-4">
-              <div className="mb-4  ">
-                <label htmlFor="name" className="block text-foreground font-thin mb-2">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                  required={true}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="creator" className="block text-foreground mb-2">
-                  Creator:
-                </label>
-                <input
-                  type="text"
-                  id="creator"
-                  name="creator"
-                  value={formData.creator}
-                  onChange={handleChange}
-                  className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                  required={true}
-                />
-              </div>
-
-              <div className="flex flex-col mb-4">
-                <label className="text-foreground mb-2 ">Created On:</label>
-
-                <DatePicker setterFunction={setCreatedOn} previousDate={formData.createdOn} />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="modifiedOn" className="block text-foreground mb-2">
-                  Modified On:
-                </label>
-                <div className="w-full hover:text-accent text-center min-w-[10rem] text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent">
-                  {format(formData.modifiedOn, "dd/MM/yyyy")}
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {folderCid && (
-            <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-              <h3 className="">Folder CID - {folderCid}</h3>
-              <CopyIcon onClick={() => copyLink(folderCid)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-            </div>
-          )}
-          {currentManifestFileCID && (
-            <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-              <h3>Manifest CID - {currentManifestFileCID} </h3>
-              <CopyIcon onClick={() => copyLink(currentManifestFileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-            </div>
-          )}
-
-          {manifestFileName && (
-            <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-              <h3>Manifest File Name - {manifestFileName} </h3>{" "}
-              <CopyIcon onClick={() => copyLink(manifestFileName)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-              <a href={IPFS_GATEWAY + "ipfs/" + folderCid + "/" + manifestFileName} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
-                <ExternalLink className="text-accent" />
-              </a>
-            </div>
-          )}
+          <UploadHeader
+            title={(manifestFile ? "Update" : "Upload") + " Music Data"}
+            name={name}
+            creator={creator}
+            createdOn={createdOn}
+            modifiedOn={modifiedOn}
+            setName={setName}
+            setCreator={setCreator}
+            setCreatedOn={setCreatedOn}
+            folderCid={folderCid}
+            manifestFileName={manifestFileName}
+            currentManifestFileCID={currentManifestFileCID}
+          />
 
           <ErrorBoundary
             onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
@@ -570,47 +493,62 @@ export const UploadData: React.FC = () => {
               </div>
             </div>
           </ErrorBoundary>
-          <button
-            onClick={generateManifestFile}
-            disabled={isUploadButtonDisabled || progressBar == 100}
-            className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-            Upload Data
-          </button>
-        </div>
-        {!manifestCid ? (
-          <></>
-        ) : (
-          <div>
-            <div className="flex flex-col items-center justify-center p-8">
-              <div className="flex flex-col justify-center items-center gap-4">
-                <div className="text-green-400 flex flex-row gap-4">
-                  Success:
-                  <a href={IPFS_GATEWAY + manifestCid} target="_blank" className="font-semibold underline text-blue-500">
-                    Click here to open manifest file
-                  </a>
-                  <CopyIcon onClick={() => copyLink(IPFS_GATEWAY + manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                </div>{" "}
-                <ToolTip tooltip="It might take some time for the files to get pinned and to be visible">
-                  <div className="text-green-400 flex flex-row gap-4">
-                    {manifestCid}
-                    <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-blue-500"></CopyIcon>
-                  </div>{" "}
-                </ToolTip>
-              </div>
 
-              {/* <div className="mt-4 mx-auto">
-                <ToolTip tooltip="" tooltipBox={<NextSteptsList />}>
-                  <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
-                  <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
-                    What's next ? <InfoIcon className=" scale-75"></InfoIcon>
+          <Modal
+            openTrigger={
+              <button
+                onClick={generateManifestFile}
+                disabled={isUploadButtonDisabled || progressBar === 100}
+                className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
+                Upload Data
+              </button>
+            }
+            modalClassName={"bg-background bg-muted !w-[40rem] items-center justify-center"}
+            closeOnOverlayClick={false}>
+            {
+              <div className="flex flex-col gap-4 w-[40rem] text-foreground items-center justify-center">
+                <span className="text-3xl">{progressBar}%</span>
+                <Progress className="bg-background w-[60%] " value={progressBar}></Progress>
+                <span className="">{progressBar > 60 ? (progressBar === 100 ? "Upload completed" : "Amost there") : "Uploading files to IPFS..."}</span>
+                {manifestCid && (
+                  <div className="flex flex-col items-center justify-center p-8">
+                    {progressBar === 100 && (
+                      <div className="flex flex-col justify-center items-center gap-4">
+                        <a href={IPFS_GATEWAY + manifestCid} target="_blank" className="text-lg font-light underline text-accent">
+                          Click here to open manifest file
+                        </a>
+
+                        <ToolTip tooltip="It might take some time for the files to get pinned and to be visible on public gateways">
+                          <div className="text-accent flex flex-row items-center justify-center gap-4">
+                            <span className="max-w-[60%] overflow-hidden overflow-ellipsis">{manifestCid}</span>
+                            <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+                          </div>
+                        </ToolTip>
+                        <Link
+                          to={"/data-vault"}
+                          className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                          View stored files
+                        </Link>
+                      </div>
+                    )}
+
+                    {/* <div className="mt-4 mx-auto">
+                     <ToolTip tooltip="" tooltipBox={<NextSteptsList />}>
+                       <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
+                       <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
+                         What's next ? <InfoIcon className=" scale-75"></InfoIcon>
+                       </div>
+                     </ToolTip>
+                   </div> */}
                   </div>
-                </ToolTip>
-              </div> */}
-            </div>
-          </div>
-        )}
-        {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>}
-        {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />}
+                )}
+              </div>
+            }
+          </Modal>
+        </div>
+
+        {/* {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>} */}
+        {/* {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />} */}
       </div>
     </ErrorBoundary>
   );

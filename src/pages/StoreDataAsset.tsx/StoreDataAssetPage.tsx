@@ -36,7 +36,7 @@ const StoreDataAsset: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentStep === 4) navigate("/upload");
+    if (currentStep === 4) navigate("/upload-music");
     setCurrentStep(currentStep + 1);
   };
   return (

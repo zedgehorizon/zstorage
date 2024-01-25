@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_URL, API_VERSION } from "../../../utils/constants";
+import { API_VERSION } from "../../../utils/constants";
 import { theToken } from "../../../utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
@@ -50,7 +50,7 @@ export const DataAssetList: React.FC = () => {
 
   // fetch all data assets of an address
   async function fetchAllDataAssetsOfAnAddress() {
-    const apiUrlGet = `${API_URL}/files${API_VERSION}?manifest=true`;
+    const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
@@ -79,7 +79,7 @@ export const DataAssetList: React.FC = () => {
 
   // download the manifest file for the coresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
-    const apiUrlDownloadFile = `${API_URL}/file${API_VERSION}/` + manifest;
+    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
 
     try {
       const response = await axios.get(apiUrlDownloadFile, {
@@ -141,7 +141,7 @@ export const DataAssetList: React.FC = () => {
           manifestFiles.map((manifest: ManifestFile, index) => (
             <Link
               key={index}
-              to={"/upload"}
+              to={"/upload-music"}
               state={{
                 manifestFile: manifestFiles[index],
                 action: "Update Data Asset",
