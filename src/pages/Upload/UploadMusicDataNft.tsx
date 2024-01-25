@@ -5,17 +5,16 @@ import { Button } from "../../libComponents/Button";
 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { IPFS_GATEWAY } from "../../utils/constants";
-import { ToolTip } from "../../libComponents/Tooltip";
-import { CopyIcon, Lightbulb, XCircle } from "lucide-react";
+import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { theToken } from "../../utils/constants";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-import { Modal } from "../../components/Modal";
-import { Progress } from "../../libComponents/Progress";
+
 import UploadHeader from "./components/UploadHeader";
+import DataObjectsList from "./components/DataObjectsList";
 
 type SongData = {
   date: string;
@@ -62,7 +61,7 @@ export const UploadMusicData: React.FC = () => {
         setCreator(dataStream.creator);
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        setNumberOfSongs(dataStream.marshalManifest.totalItems);
+        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
             if (song) acc[song.idx] = song;
@@ -83,28 +82,6 @@ export const UploadMusicData: React.FC = () => {
       }
     }
   }, [manifestFile]);
-
-  /**
-   * useEffect hook to load the progress bar smoothly to 100 in 10 seconds
-   */
-  useEffect(() => {
-    if (progressBar > 0 && progressBar < 99) {
-      const interval = 100; // Time interval in milliseconds
-      const totalTime = 10000; // Total time for the progress to reach 100 (in milliseconds)
-      const steps = 100 / (totalTime / interval);
-
-      const updateProgress = () => {
-        setProgressBar((prevProgress) => {
-          const newProgress = prevProgress + steps;
-          return newProgress <= 99 ? newProgress : 99;
-        });
-      };
-
-      const progressInterval = setInterval(updateProgress, interval);
-
-      return () => clearInterval(progressInterval);
-    }
-  }, [progressBar]);
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -345,6 +322,7 @@ export const UploadMusicData: React.FC = () => {
     setNumberOfSongs((prev) => prev - 1);
   }
 
+  // check whether the upload button should be disabled or not
   useEffect(() => {
     let hasUnsavedChanges = false;
 
@@ -428,19 +406,6 @@ export const UploadMusicData: React.FC = () => {
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
 
-  /// copy the link to clipboard
-  function copyLink(text: string): void {
-    if (text) navigator.clipboard.writeText(text);
-    else
-      toast.error("Error copying the link to clipboard. Link is empty.", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-  }
-
   // console.log("songsData: ", songsData);
   // console.log("filePairs: ", filePairs);
   // console.log("manifestFile: ", manifestFile);
@@ -468,22 +433,19 @@ export const UploadMusicData: React.FC = () => {
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
           />
-
-          <ErrorBoundary
-            onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
-            FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
-            <div className="mt-8 p-8 rounded-lg shadow-md w-[100%] bg-muted ">
-              {Object.keys(songsData).map((index: any) => (
-                <MusicDataNftForm
-                  key={index}
-                  index={index}
-                  lastItem={Number(index) === numberOfSongs - 1}
-                  song={songsData[index]}
-                  setterFunction={handleFilesSelected}
-                  swapFunction={swapSongs}
-                  unsavedChanges={unsavedChanges[index]}
-                  setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
-              ))}
+          <DataObjectsList
+            DataObjectsComponents={Object.keys(songsData).map((index: any) => (
+              <MusicDataNftForm
+                key={index}
+                index={index}
+                lastItem={Number(index) === numberOfSongs - 1}
+                song={songsData[index]}
+                setterFunction={handleFilesSelected}
+                swapFunction={swapSongs}
+                unsavedChanges={unsavedChanges[index]}
+                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
+            ))}
+            addButton={
               <div className="flex flex-col justify-center items-center">
                 <Button
                   className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
@@ -491,64 +453,13 @@ export const UploadMusicData: React.FC = () => {
                   Add song
                 </Button>
               </div>
-            </div>
-          </ErrorBoundary>
-
-          <Modal
-            openTrigger={
-              <button
-                onClick={generateManifestFile}
-                disabled={isUploadButtonDisabled || progressBar === 100}
-                className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-                Upload Data
-              </button>
             }
-            modalClassName={"bg-background bg-muted !w-[40rem] items-center justify-center"}
-            closeOnOverlayClick={false}>
-            {
-              <div className="flex flex-col gap-4 w-[40rem] text-foreground items-center justify-center">
-                <span className="text-3xl">{progressBar}%</span>
-                <Progress className="bg-background w-[60%] " value={progressBar}></Progress>
-                <span className="">{progressBar > 60 ? (progressBar === 100 ? "Upload completed" : "Amost there") : "Uploading files to IPFS..."}</span>
-                {manifestCid && (
-                  <div className="flex flex-col items-center justify-center p-8">
-                    {progressBar === 100 && (
-                      <div className="flex flex-col justify-center items-center gap-4">
-                        <a href={IPFS_GATEWAY + manifestCid} target="_blank" className="text-lg font-light underline text-accent">
-                          Click here to open manifest file
-                        </a>
-
-                        <ToolTip tooltip="It might take some time for the files to get pinned and to be visible on public gateways">
-                          <div className="text-accent flex flex-row items-center justify-center gap-4">
-                            <span className="max-w-[60%] overflow-hidden overflow-ellipsis">{manifestCid}</span>
-                            <CopyIcon onClick={() => copyLink(manifestCid)} className="h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-                          </div>
-                        </ToolTip>
-                        <Link
-                          to={"/data-vault"}
-                          className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                          View stored files
-                        </Link>
-                      </div>
-                    )}
-
-                    {/* <div className="mt-4 mx-auto">
-                     <ToolTip tooltip="" tooltipBox={<NextSteptsList />}>
-                       <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
-                       <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
-                         What's next ? <InfoIcon className=" scale-75"></InfoIcon>
-                       </div>
-                     </ToolTip>
-                   </div> */}
-                  </div>
-                )}
-              </div>
-            }
-          </Modal>
+            isUploadButtonDisabled={isUploadButtonDisabled}
+            progressBar={progressBar}
+            generateManifestFile={generateManifestFile}
+            manifestCid={manifestCid}
+          />
         </div>
-
-        {/* {isUploadingManifest && progressBar < 100 && <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-5 "></div>} */}
-        {/* {isUploadingManifest && progressBar < 100 && <ProgressBar progress={progressBar} />} */}
       </div>
     </ErrorBoundary>
   );

@@ -3,6 +3,7 @@ import UploadHeader from "./components/UploadHeader";
 import { useLocation } from "react-router-dom";
 import DragAndDropImageFiles from "./components/DragAndDropImageFiles";
 import FileCard from "./components/FileCard";
+import DataObjectsList from "./components/DataObjectsList";
 
 const UploadAnyFiles: React.FC = () => {
   const location = useLocation();
@@ -30,7 +31,18 @@ const UploadAnyFiles: React.FC = () => {
         setCreatedOn={setCreatedOn}
       />
       <DragAndDropImageFiles setFile={setFile} setImagePreview={setImagePreview} />
-      <FileCard index={1} fileName={"IMG_3892.jpg"} fileSize={1233500} />
+
+      <DataObjectsList
+        DataObjectsComponents={[
+          <FileCard index={1} fileName={"IMG_3892.jpg"} fileSize={1233500} />,
+          <FileCard index={1} fileName={"IMG_3892.jpg"} fileSize={1233500} />,
+          <FileCard index={1} fileName={"IMG_3892.jpg"} fileSize={1233500} />,
+        ]}
+        isUploadButtonDisabled={false}
+        progressBar={progressBar}
+        generateManifestFile={() => {}}
+        manifestCid={manifestCid}
+      />
     </div>
   );
 };
