@@ -18,6 +18,7 @@ const UploadAnyFiles: React.FC = () => {
   const [manifestCid, setManifestCid] = useState(null);
   const [file, setFile] = useState<File>();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  console.log(file);
   return (
     <div className="flex flex-col">
       <UploadHeader
@@ -30,7 +31,7 @@ const UploadAnyFiles: React.FC = () => {
         setCreator={setCreator}
         setCreatedOn={setCreatedOn}
       />
-      <DragAndDropImageFiles setFile={setFile} setImagePreview={setImagePreview} />
+      <DragAndDropImageFiles setFile={setFile} />
 
       <DataObjectsList
         DataObjectsComponents={[

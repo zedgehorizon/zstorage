@@ -1,10 +1,10 @@
-import { Edit2, ImagePlus, Lightbulb } from "lucide-react";
+import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 interface DragAndDropImageFilesProps {
   setFile: (file: File) => void;
-  setImagePreview: (previewSrc: string) => void;
+  setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with ImageFiles
   imagePreview?: string;
 }
 
@@ -47,9 +47,13 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       setFile(file);
       displayPreview(file);
     } else {
-      toast("Please upload an image file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
-      });
+      if (setImagePreview) {
+        toast("Please upload an image file", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      } else {
+        setFile(file);
+      }
     }
   };
 
@@ -59,9 +63,13 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       displayPreview(file);
       setFile(file);
     } else {
-      toast("Please upload an image file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
-      });
+      if (setImagePreview !== undefined) {
+        toast("Please upload an image file", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      } else {
+        setFile(file);
+      }
     }
   };
 
@@ -70,7 +78,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
     reader.readAsDataURL(file);
     reader.onload = () => {
       setPreviewSrc(reader.result as string);
-      setImagePreview(reader.result as string);
+      setImagePreview ? setImagePreview(reader.result as string) : null;
     };
   };
 
@@ -86,14 +94,14 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
         {!previewSrc && (
           <>
             <div className=" flex items-center justify-center mt-12 mx-auto  bg-accent/20 p-3 w-16 h-16  rounded-full">
-              <ImagePlus className="w-8 h-8 text-accent" />
+              {setImagePreview ? <ImagePlus className="w-8 h-8 text-accent" /> : <File className="w-8 h-8 text-accent" />}
             </div>
 
             <label htmlFor="file-upload" className="relative text-accent/70 mx-2 text-center   cursor-pointer">
-              Drag & drop image here, or
+              Drag & drop file here, or
               <span className=" mx-2 text-accent text-center underline ">select </span>
               from your computer.
-              <input accept="image/*" id="file-upload" name="file-upload" type="file" className="sr-only " ref={inputRef} onChange={handleInputChange} />
+              <input id="file-upload" name="file-upload" type="file" className="sr-only " ref={inputRef} onChange={handleInputChange} />
             </label>
           </>
         )}
@@ -111,8 +119,8 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
           </div>
           <input
             type="file"
-            accept="image/*"
-            className="  mx-auto w-full h-full rounded-xl cursor-pointer   absolute inset-0   opacity-0 z-50"
+            // accept="image/*"
+            className="mx-auto w-full h-full rounded-xl cursor-pointer   absolute inset-0   opacity-0 z-50"
             ref={inputRef}
             onChange={handleInputChange}
           />
