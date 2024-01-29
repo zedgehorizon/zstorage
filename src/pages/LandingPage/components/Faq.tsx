@@ -4,28 +4,28 @@ import QuestionCard from "./QuestionCard";
 const Faq: React.FC = () => {
   const questions = [
     {
-      question: "What is zStorage?",
+      question: "What is zEdgeStorage?",
       answer:
-        "zStorage is a digital data bunker platform for your most vital data assets. It's your 'plan Z' system to protect your most vital data from the risks associated with mainstream, centralized storage systems. These risks include hacks, breaches, ransomware, censorship, privacy breaches and platform lock-in.",
+        "zEdgeStorage is a digital data bunker platform for your most vital data assets. It's your 'plan Z' system to protect your most vital data from the risks associated with mainstream, centralized storage systems. These risks include hacks, breaches, ransomware, censorship, privacy breaches and platform lock-in.",
     },
     {
-      question: "Does zStorage store data on the blockchain?",
+      question: "Does zEdgeStorage store data on the blockchain?",
       answer:
-        "zStorage does NOT store data on the blockchain; it uses multiple underlying distributed data storage systems and abstracts them so that you only interact with zStorage's user interface. zStorage does integrate with the Itheum protocol, which provides blockchain-powered data licensing technology called Data NFTs, which uses the transparency and immutability features of a blockchain to implement a decentralized 'access control' layer for your data.",
+        "zEdgeStorage does NOT store data on the blockchain; it uses multiple underlying distributed data storage systems and abstracts them so that you only interact with zEdgeStorage's user interface. zEdgeStorage does integrate with the Itheum protocol, which provides blockchain-powered data licensing technology called Data NFTs, which uses the transparency and immutability features of a blockchain to implement a decentralized 'access control' layer for your data.",
     },
     {
-      question: "How is zStorage different to platforms like IPFS, FileCoin and Arweave?",
+      question: "How is zEdgeStorage different to platforms like IPFS and Arweave?",
       answer:
-        "zStorage abstracts all these distributed data storage systems 'under the hood' and provides 'data portability' between this system and centralized systems like AWS and Google Drive. For example, you can upload some vital data to AWS and then move it to IPFS during an emergency (like a cloud outage event or active hack phase) and then move it back to AWS if you want.",
+        "zEdgeStorage abstracts all these distributed data storage systems 'under the hood' and provides 'data portability' between this system and centralized systems like AWS and Google Drive. For example, you can upload some vital data to AWS and then move it to IPFS during an emergency (like a cloud outage event or active hack phase) and then move it back to AWS if you want.",
     },
     {
-      question: "What is zStorage in relation to Itheum Data NFTs?",
+      question: "What is zEdgeStorage in relation to Itheum Data NFTs?",
       answer:
-        "Itheum's Data NFTs are a revolutionary product that enables anyone to convert their data to Data NFTs (non-fungible tokens). This blockchain-powered data licensing technology uses a blockchain's transparency and immutability features to implement a decentralized 'access control' layer for your data. zStorage provides seamless integration with Itheum's Data NFTs; for example, if you are a musician and you want to mint your music playlist as a dynamic Music Data NFT, control its royalties and distribution, and activate a direct relationship with your fan base. In that case, you can use zStorage's built-in UI to manage your Music Data NFT assets like sound files, album art, and metadata. Your Music Data NFTs can then be traded or accessed anywhere NFTs are available, and you can update your music data at any time using storage.",
+        "Itheum's Data NFTs are a revolutionary product that enables anyone to convert their data to Data NFTs (non-fungible tokens). This blockchain-powered data licensing technology uses a blockchain's transparency and immutability features to implement a decentralized 'access control' layer for your data. zEdgeStorage provides seamless integration with Itheum's Data NFTs; for example, if you are a musician and you want to mint your music playlist as a dynamic Music Data NFT, control its royalties and distribution, and activate a direct relationship with your fan base. In that case, you can use zEdgeStorage's built-in UI to manage your Music Data NFT assets like sound files, album art, and metadata. Your Music Data NFTs can then be traded or accessed anywhere NFTs are available, and you can update your music data at any time using storage.",
     },
     {
-      question: "Is zStorage free to use",
-      answer: "zStorage currently has a free tier that is enough to get you started. You can upgrade anytime you need.",
+      question: "Is zEdgeStorage free to use",
+      answer: "zEdgeStorage currently has a free tier that is enough to get you started. You can upgrade anytime you need.",
     },
   ];
   return (

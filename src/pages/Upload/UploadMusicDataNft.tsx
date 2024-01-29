@@ -533,7 +533,7 @@ export const UploadMusicData: React.FC = () => {
                     )}
 
                     {/* <div className="mt-4 mx-auto">
-                     <ToolTip tooltip="" tooltipBox={<NextSteptsList />}>
+                     <ToolTip tooltip="" tooltipBox={<NextStepsList />}>
                        <div className="bg-sky-500 w-34 h-12  rounded-full  blur-xl opacity-50"> </div>
                        <div className="z-10 text-xl flex flex-row items-center justify-center -mt-8 ">
                          What's next ? <InfoIcon className=" scale-75"></InfoIcon>
