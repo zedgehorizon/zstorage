@@ -3,7 +3,7 @@ import vault from "../../assets/img/illustration-vault.png";
 import hands from "../../assets/img/hands.png";
 import folders from "../../assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
-import KeyFeatues from "./components/KeyFeatures";
+import KeyFeatures from "./components/KeyFeatures";
 import { Footer } from "../../components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
@@ -98,7 +98,7 @@ const LandingPage: React.FC = () => {
       </div>
       <UseCase />
       <div id="features"></div>
-      <KeyFeatues />
+      <KeyFeatures />
       <div className="w-full h-full bg-background flex flex-col items-center pb-16">
         <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
           <img className="scale-75 lg:scale-100" src={folders}></img>
@@ -114,7 +114,7 @@ const LandingPage: React.FC = () => {
       <div id="pricing"></div>
       <Pricing />
       <div id="testimonials"></div>
-      <Testimonials testimonials={testimonialsData} />
+      {/* <Testimonials testimonials={testimonialsData} /> */}
       <Faq />
       <Footer />
     </div>

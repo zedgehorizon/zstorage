@@ -49,12 +49,12 @@ export const Navbar: React.FC = () => {
                 <Dot className="text-accent scale-[2] mx-auto "></Dot>
               </div>
             </Link>
-            <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
+            {/* <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
               <p className=" ">Testimonials</p>
               <div className="opacity-0 group-hover:opacity-100">
                 <Dot className="text-accent scale-[2] mx-auto "></Dot>
               </div>
-            </Link>
+            </Link> */}
           </div>
           <div className="border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
             {isLoggedIn ? (
