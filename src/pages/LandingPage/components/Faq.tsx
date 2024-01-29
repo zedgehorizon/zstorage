@@ -6,36 +6,33 @@ const Faq: React.FC = () => {
     {
       question: "What is zStorage?",
       answer:
-        "zStorage is a decentralized storage solution that allows you to store data on IPFS, Arweave or centralised storage like AWS. It also allows you to upgrade your data at any time.",
+        "zStorage is a digital data bunker platform for your most vital data assets. It's your 'plan Z' system to protect your most vital data from the risks associated with mainstream, centralized storage systems. These risks include hacks, breaches, ransomware, censorship, privacy breaches and platform lock-in.",
     },
     {
-      question: "What is zStorage?",
+      question: "Does zStorage store data on the blockchain?",
       answer:
-        "zStorage is a decentralized storage solution that allows you to store data on IPFS, Arweave or centralised storage like AWS. It also allows you to upgrade your data at any time.",
+        "zStorage does NOT store data on the blockchain; it uses multiple underlying distributed data storage systems and abstracts them so that you only interact with zStorage's user interface. zStorage does integrate with the Itheum protocol, which provides blockchain-powered data licensing technology called Data NFTs, which uses the transparency and immutability features of a blockchain to implement a decentralized 'access control' layer for your data.",
     },
     {
-      question: "What is zStorage?",
+      question: "How is zStorage different to platforms like IPFS, FileCoin and Arweave?",
       answer:
-        "zStorage is a decentralized storage solution that allows you to store data on IPFS, Arweave or centralised storage like AWS. It also allows you to upgrade your data at any time.",
+        "zStorage abstracts all these distributed data storage systems 'under the hood' and provides 'data portability' between this system and centralized systems like AWS and Google Drive. For example, you can upload some vital data to AWS and then move it to IPFS during an emergency (like a cloud outage event or active hack phase) and then move it back to AWS if you want.",
     },
     {
-      question: "What is zStorage?",
+      question: "What is zStorage in relation to Itheum Data NFTs?",
       answer:
-        "zStorage is a decentralized storage solution that allows you to store data on IPFS, Arweave or centralised storage like AWS. It also allows you to upgrade your data at any time.",
+        "Itheum's Data NFTs are a revolutionary product that enables anyone to convert their data to Data NFTs (non-fungible tokens). This blockchain-powered data licensing technology uses a blockchain's transparency and immutability features to implement a decentralized 'access control' layer for your data. zStorage provides seamless integration with Itheum's Data NFTs; for example, if you are a musician and you want to mint your music playlist as a dynamic Music Data NFT, control its royalties and distribution, and activate a direct relationship with your fan base. In that case, you can use zStorage's built-in UI to manage your Music Data NFT assets like sound files, album art, and metadata. Your Music Data NFTs can then be traded or accessed anywhere NFTs are available, and you can update your music data at any time using storage.",
     },
     {
-      question: "What is zStorage?",
-      answer:
-        "zStorage is a decentralized storage solution that allows you to store data on IPFS, Arweave or centralised storage like AWS. It also allows you to upgrade your data at any time.",
+      question: "Is zStorage free to use",
+      answer: "zStorage currently has a free tier that is enough to get you started. You can upgrade anytime you need.",
     },
   ];
   return (
     <div className="flex justify-between py-16">
       <div className="flex flex-col px-16">
         <span className="text-foreground text-4xl mb-4">FAQs</span>
-        <span className="text-base text-foreground/50 max-w-[20rem]">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.
-        </span>
+        <span className="text-base text-foreground/50 max-w-[20rem]">Explore our frequently asked questions and answers.</span>
       </div>
       <div className="flex flex-col gap-4">
         {questions.map((pair, index) => (
