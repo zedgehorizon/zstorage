@@ -103,11 +103,11 @@ const LandingPage: React.FC = () => {
         <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
           <img className="scale-75 lg:scale-100" src={folders}></img>
           <span className=" text-muted text-5xl w-[60%] mx-auto text-center">
-            Automative Toolkit
-            <br /> for your Data Storage
+            Complete Toolkit
+            <br /> for your Digital Data Bunker
           </span>
           <span className="text-base text-muted w-[50%] mx-auto text-center">
-            Itheum protocol is providing a seamless and secure way to self host data and for generating a Data Stream that can be.
+            Providing you with all the tools your need to upload, update, manage and control your most vital data assets.
           </span>{" "}
         </div>
       </div>
