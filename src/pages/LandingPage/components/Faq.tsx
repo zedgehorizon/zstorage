@@ -6,7 +6,7 @@ const Faq: React.FC = () => {
     {
       question: "What is zEdgeStorage?",
       answer:
-        "zEdgeStorage is a digital data bunker platform for your most vital data assets. It's your 'plan Z' system to protect your most vital data from the risks associated with mainstream, centralized storage systems. These risks include hacks, breaches, ransomware, censorship, privacy breaches and platform lock-in.",
+        "zEdgeStorage is a digital data bunker platform for your most vital data assets. It's your 'plan Z' system to protect your most vital data from the risks associated with mainstream, centralized storage systems. These risks include hacks, data breaches, ransomware, censorship, privacy snooping, and data platform lock-in/lock-out. zEdgeStorage does not compete with other storage platforms like AWS, DropBox, or Google Drive. Instead, it compliments and de-risks these platforms to help you minimize your dependency on them.",
     },
     {
       question: "Does zEdgeStorage store data on the blockchain?",
