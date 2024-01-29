@@ -16,7 +16,7 @@ export const Start: React.FC = () => {
         <div className="flex flex-col z-2 w-[80%]   md:w-[55%] xl:w-[45%]  bg-muted rounded-2xl border border-accent/25  ">
           <div className="flex flex-row w-full rounded-2xl bg-gradient-to-r from-muted via-accent/50 to-muted pb-[1px]">
             <div className="flex-grow flex justify-center items-center bg-muted rounded-tl-2xl text-accent text-3xl font-medium py-8">
-              <p>Get Started with zStorage</p>
+              <p>Get Started with zEdgeStorage</p>
             </div>
             <Link to={"/"} className=" bg-muted rounded-r-2xl  flex items-center pr-4">
               <XCircle className="w-6 h-6 text-foreground cursor-pointer" />

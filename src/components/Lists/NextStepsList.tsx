@@ -1,10 +1,10 @@
 import React from "react";
 
-const NextSteptsList: React.FC = () => {
+const NextStepsList: React.FC = () => {
   return (
     <div className="w-[400px] relative z-10 p-4 text-sm leading-relaxed text-white bg-gradient-to-b from-sky-500/20 via-[#300171]/20 to-black/20 rounded-3xl shadow-xl">
       <ol className="list-decimal ml-4">
-        <p>To point a subdomain to your IPFS file after generating its hash via zStorage, follow these refined steps:</p>
+        <p>To point a subdomain to your IPFS file after generating its hash via zEdgeStorage, follow these refined steps:</p>
         <li>
           <p>Access Domain Controller: Open the control panel of your domain provider.</p>
         </li>
@@ -15,7 +15,7 @@ const NextSteptsList: React.FC = () => {
           </p>
         </li>
         <li>
-          <p>Obtain IPFS Manifest Hash: Retrieve the IPFS manifest hash from your zStorage.</p>
+          <p>Obtain IPFS Manifest Hash: Retrieve the IPFS manifest hash from your zEdgeStorage.</p>
         </li>
         <li>
           <p>DNSLink TXT Record: Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to dnslink=/ipfs/"IPFS manifest file hash."</p>
@@ -29,4 +29,4 @@ const NextSteptsList: React.FC = () => {
   );
 };
 
-export default NextSteptsList;
+export default NextStepsList;

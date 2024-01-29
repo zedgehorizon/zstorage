@@ -3,7 +3,7 @@ import vault from "../../assets/img/illustration-vault.png";
 import hands from "../../assets/img/hands.png";
 import folders from "../../assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
-import KeyFeatues from "./components/KeyFeatures";
+import KeyFeatures from "./components/KeyFeatures";
 import { Footer } from "../../components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
@@ -68,13 +68,13 @@ const LandingPage: React.FC = () => {
       </div>
       <div id="solution" className="p-32 w-full flex items-center justify-center">
         <div className="w-[60%] max-w-[40rem] px-8 flex flex-col allign-left gap-3">
-          <span className="text-foreground/75 uppercase">ZStorage Solution</span>
+          <span className="text-foreground/75">The zEdgeStorage Solution</span>
           <span className="text-2xl">Your 'Plan Z' for Data Storage</span>
           <span className="text-sm text-foreground/75">
             You may have a plan A, B, C... to protect our most vital data, but the attack and censorship vectors for all these plans are the same.
           </span>
           <span className="text-sm text-foreground/75">
-            Safeguarding your vital data requires a "new strategy." ZStorage offers a "Plan Z" solution that works alongside your existing storage plans. A
+            Safeguarding your vital data requires a "new strategy." zEdgeStorage offers a "Plan Z" solution that works alongside your existing storage plans. A
             seamless interface allows you to access distributed storage while ensuring sovereign encryption, creating digital data bunkers as your last line of
             defense.
           </span>
@@ -98,23 +98,23 @@ const LandingPage: React.FC = () => {
       </div>
       <UseCase />
       <div id="features"></div>
-      <KeyFeatues />
+      <KeyFeatures />
       <div className="w-full h-full bg-background flex flex-col items-center pb-16">
         <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
           <img className="scale-75 lg:scale-100" src={folders}></img>
           <span className=" text-muted text-5xl w-[60%] mx-auto text-center">
-            Automative Toolkit
-            <br /> for your Data Storage
+            Complete Toolkit
+            <br /> for your Digital Data Bunker
           </span>
           <span className="text-base text-muted w-[50%] mx-auto text-center">
-            Itheum protocol is providing a seamless and secure way to self host data and for generating a Data Stream that can be.
+            Providing you with all the tools your need to upload, update, manage and control your most vital data assets.
           </span>{" "}
         </div>
       </div>
       <div id="pricing"></div>
       <Pricing />
       <div id="testimonials"></div>
-      <Testimonials testimonials={testimonialsData} />
+      {/* <Testimonials testimonials={testimonialsData} /> */}
       <Faq />
       <Footer />
     </div>

@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
         <div className="bg-background  flex flex-row justify-left px-24 items-center h-20 justify-between">
           <Link to={"/"} className="flex flex-row justify-center items-center text-2xl gap-1">
             <img className="h-4" src={logo}></img>
-            <p className=" ">Storage</p>
+            <p className=" ">EdgeStorage</p>
           </Link>
           <div className="flex flex-row gap-8 mt-4 ">
             <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
@@ -49,12 +49,12 @@ export const Navbar: React.FC = () => {
                 <Dot className="text-accent scale-[2] mx-auto "></Dot>
               </div>
             </Link>
-            <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
+            {/* <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
               <p className=" ">Testimonials</p>
               <div className="opacity-0 group-hover:opacity-100">
                 <Dot className="text-accent scale-[2] mx-auto "></Dot>
               </div>
-            </Link>
+            </Link> */}
           </div>
           <div className="border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
             {isLoggedIn ? (
