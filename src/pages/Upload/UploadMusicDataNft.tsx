@@ -525,7 +525,7 @@ export const UploadMusicData: React.FC = () => {
                           </div>
                         </ToolTip>
                         <Link
-                          to={"/data-vault"}
+                          to={"/data-bunker"}
                           className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                           View stored files
                         </Link>

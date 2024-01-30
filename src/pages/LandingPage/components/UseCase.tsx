@@ -1,6 +1,6 @@
 import React from "react";
-import storageIlustration from "../../../assets/img/illustration-storage.png";
-import realWorldIlustration from "../../../assets/img/ilustration-real-world.png";
+import storageIllustration from "../../../assets/img/illustration-storage.png";
+import realWorldIllustration from "../../../assets/img/illustration-real-world.png";
 
 const UseCase: React.FC = () => {
   return (
@@ -9,7 +9,7 @@ const UseCase: React.FC = () => {
       <div className=" flex flex-row gap-4">
         <div className=" w-[28rem] h-[32rem] flex flex-col">
           <div className="h-[80%] flex rounded-t-3xl bg-muted items-center justify-center">
-            <img className=" " src={storageIlustration} alt="Storage Ilustration" />
+            <img className=" " src={storageIllustration} alt="Storage Illustration" />
           </div>
           <div className="bg-foreground flex items-center justify-center rounded-b-3xl">
             <span className="  font-semibold text-center p-8 text-xl text-accent-foreground">Robust Dynamic Image, Metadata and Data Storage for NFTs</span>
@@ -17,7 +17,7 @@ const UseCase: React.FC = () => {
         </div>
         <div className=" w-[28rem] h-[32rem] flex flex-col">
           <div className="h-[80%] flex rounded-t-3xl h-full bg-muted items-center justify-center">
-            <img className="" src={realWorldIlustration} alt="Real World Ilustration" />
+            <img className="" src={realWorldIllustration} alt="Real World Illustration" />
           </div>
           <div className="bg-foreground flex items-center justify-center rounded-b-3xl">
             <span className="font-semibold text-center p-8 text-xl text-accent-foreground">Digital Data Bunkers for Critical File Redundancy</span>

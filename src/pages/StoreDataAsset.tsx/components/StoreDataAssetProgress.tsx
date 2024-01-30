@@ -19,7 +19,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
           )}>
           1
         </span>
-        <label className="text-foreground/80  z-2"> Storage type</label>
+        <label className="text-foreground/80  z-2"> Storage Type</label>
       </div>
       <img className="-mt-16 " src={arrowRight}></img>
       <div className="flex flex-col justify-center items-center gap-4">
@@ -30,7 +30,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
           )}>
           2
         </span>
-        <label className="text-foreground/80 text-center"> Data Asset type</label>
+        <label className="text-foreground/80 text-center"> Data Asset Type</label>
       </div>
       <img className="mt-8" src={arrowDownRight}></img>
       <div className="flex flex-col justify-center items-center gap-4">
@@ -41,7 +41,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
           )}>
           3
         </span>
-        <label className=" text-foreground/80 text-center"> Storage preference</label>
+        <label className=" text-foreground/80 text-center"> Storage Preference</label>
       </div>
       <img className="-mt-16 " src={arrowRight}></img>
       <div className=" flex flex-col justify-center items-center gap-4">
@@ -52,7 +52,7 @@ const StoreDataAssetProgress: React.FC<IStoreDataAssetProgressProps> = (props) =
           )}>
           4
         </span>
-        <span className=" text-foreground/80 max-w-[8rem] text-center"> Storage option</span>
+        <span className=" text-foreground/80 max-w-[8rem] text-center"> Storage Option</span>
       </div>
     </div>
   );
