@@ -53,7 +53,7 @@ const LandingPage: React.FC = () => {
           <div className="mt-3">
             {(isLoggedIn && (
               <Link to={"/start"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">
-                Manage Data Assets
+                Access Your Data Bunker
               </Link>
             )) || (
               <Link to={"/unlock"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">

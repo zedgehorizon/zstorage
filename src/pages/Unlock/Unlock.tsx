@@ -22,8 +22,8 @@ export const Unlock: React.FC = () => {
     expirySeconds: 3000,
   };
   const commonProps = {
-    callbackRoute: "/",
-    onLoginRedirect: () => navigate("/"),
+    callbackRoute: "/start",
+    onLoginRedirect: () => navigate("/start"),
     nativeAuth: {
       ...nativeAuthProps,
     },
