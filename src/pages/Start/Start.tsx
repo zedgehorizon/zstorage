@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-
 import zImageHalf from "../../assets/img/z-image-half.png";
 import storageIcon from "../../assets/logo/ic_baseline-updatestore.png";
 import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
-
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 

@@ -32,11 +32,11 @@ const FileCard: React.FC<FileCardProps> = (props) => {
           <p>{progressBar}%</p>
         </div>
       </div>
-      <Button className="border border-accent   p-2 hover:bg-accent/50 bg-accent/10 rounded-full flex items-center justify-center" onClick={handleDeleteButton}>
+      <Button className="border border-accent p-2 hover:bg-accent/50 bg-accent/10 rounded-full flex items-center justify-center" onClick={handleDeleteButton}>
         <Trash2 className=" text-accent  " />
       </Button>
       <Button
-        className="border border-accent   p-2 hover:bg-accent/50 bg-accent/10 rounded-full flex items-center justify-center"
+        className="border border-accent p-2 hover:bg-accent/50 bg-accent/10 rounded-full flex items-center justify-center"
         onClick={() => console.log("edit")}>
         <Edit2 className="text-accent  " />
       </Button>

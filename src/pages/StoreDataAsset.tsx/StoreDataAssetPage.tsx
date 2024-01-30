@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-
 import zImageHalf from "../../assets/img/z-image-half.png";
-import storageIcon from "../../assets/logo/ic_baseline-updatestore.png";
-import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
-
 import { Heart, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
@@ -23,7 +19,7 @@ const StoreDataAsset: React.FC = () => {
   const [storageOption, setStorageOption] = useState();
   const navigate = useNavigate();
 
-  const isNextButtonDissabled = () => {
+  const isNextButtonDisabled = () => {
     if (currentStep === 1 && storageType) return false;
     if (currentStep === 2 && dynamicDataStream) return false;
     if (currentStep === 3 && storagePreference) return false;
@@ -44,7 +40,7 @@ const StoreDataAsset: React.FC = () => {
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
-      <div className="gap-4 flex flex-col w-[80%] items-center jusitfy-center">
+      <div className="gap-4 flex flex-col w-[80%] items-center justify-center">
         <StoreDataAssetProgress currentStep={currentStep} />
         {currentStep === 1 && (
           <XStorageCheckBox
@@ -121,7 +117,7 @@ const StoreDataAsset: React.FC = () => {
             </Link>
           ) : (
             <Button
-              disabled={isNextButtonDissabled()}
+              disabled={isNextButtonDisabled()}
               className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground"
               onClick={handleNext}>
               Next

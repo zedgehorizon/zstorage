@@ -61,13 +61,13 @@ export const Navbar: React.FC = () => {
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
                 <Link className="cursor-pointer group " to={"/start"}>
-                  <p className=" ">Store New Data Asset</p>
+                  <p className=" ">New Data Asset</p>
                   <div className="opacity-0 group-hover:opacity-100">
                     <Dot className="text-accent scale-[2] mx-auto "></Dot>
                   </div>
                 </Link>
                 <Link className=" cursor-pointer group " to={"/data-bunker"}>
-                  <p className=" ">Data Bunker</p>
+                  <p className=" ">My Data Bunker</p>
                   <div className="opacity-0 group-hover:opacity-100">
                     <Dot className="text-accent scale-[2] mx-auto "></Dot>
                   </div>

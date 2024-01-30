@@ -67,7 +67,7 @@ const LandingPage: React.FC = () => {
         <img src={vault}></img>
       </div>
       <div id="solution" className="p-32 w-full flex items-center justify-center">
-        <div className="w-[60%] max-w-[40rem] px-8 flex flex-col allign-left gap-3">
+        <div className="w-[60%] max-w-[40rem] px-8 flex flex-col align-left gap-3">
           <span className="text-foreground/75">The zEdgeStorage Solution</span>
           <span className="text-2xl">Your 'Plan Z' for Data Storage</span>
           <span className="text-sm text-foreground/75">

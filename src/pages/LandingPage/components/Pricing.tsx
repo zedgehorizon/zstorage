@@ -4,7 +4,6 @@ import PriceCard from "./PriceCard";
 const Pricing: React.FC = () => {
   return (
     <div className="flex flex-col justify-center items-center pb-24 pt-24">
-      {/* <span className="text-foreground/75">zEdgeStorage PRICING</span> */}
       <div className="w-[60%] flex flex-col gap-4 mb-24">
         <span className="text-4xl text-center">Get started for Free</span>
         <span className="text-sm text-foreground/75 text-center">
