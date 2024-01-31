@@ -35,6 +35,7 @@ const StoreDataAsset: React.FC = () => {
     if (currentStep === 4) navigate("/upload-music");
     setCurrentStep(currentStep + 1);
   };
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
@@ -42,6 +43,7 @@ const StoreDataAsset: React.FC = () => {
       <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
       <div className="gap-4 flex flex-col w-[80%] items-center justify-center">
         <StoreDataAssetProgress currentStep={currentStep} />
+
         {currentStep === 1 && (
           <XStorageCheckBox
             title="Select your Data Asset Type"
@@ -55,6 +57,7 @@ const StoreDataAsset: React.FC = () => {
             disabled={[true, false]}
           />
         )}
+
         {currentStep === 2 && (
           <XStorageCheckBox
             title="What type of data asset would you like to store?"
@@ -70,6 +73,7 @@ const StoreDataAsset: React.FC = () => {
             disabled={[true, false, true]}
           />
         )}
+
         {currentStep === 3 && (
           <XStorageCheckBox
             title="How would you like your data asset to be stored?"
@@ -83,6 +87,7 @@ const StoreDataAsset: React.FC = () => {
             disabled={[true, false]}
           />
         )}
+
         {currentStep === 4 && (
           <XStorageCheckBox
             title="Do you have a preferred storage platform and architecture?"
@@ -124,9 +129,6 @@ const StoreDataAsset: React.FC = () => {
             </Button>
           )}
         </div>
-        <span className="text-xl flex items-center pb-4 text-foreground ">
-          Made with <Heart className="mx-1 " color="white" /> by Zedge Horizon
-        </span>
       </div>
     </div>
   );

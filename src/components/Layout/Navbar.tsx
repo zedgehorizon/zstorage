@@ -51,6 +51,12 @@ export const Navbar: React.FC = () => {
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
+              <Link className="cursor-pointer group " to={"/itheum-music-data-nft"}>
+                <p className=" ">Music Data NFT Storage</p>
+                <div className="opacity-0 group-hover:opacity-100">
+                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
+                </div>
+              </Link>
               {/* <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
               <p className=" ">Testimonials</p>
               <div className="opacity-0 group-hover:opacity-100">
