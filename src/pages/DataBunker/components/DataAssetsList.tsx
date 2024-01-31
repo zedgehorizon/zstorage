@@ -62,7 +62,7 @@ export const DataAssetList: React.FC = () => {
       setStoredDataAssets(response.data);
       if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
     } catch (error: any) {
-      console.error("Eror fetching data assets", error);
+      console.error("Error fetching data assets", error);
       setIsLoading(false);
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
@@ -73,11 +73,11 @@ export const DataAssetList: React.FC = () => {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       }
-      throw error; // error to be catched by toast.promise
+      throw error; // error to be caught by toast.promise
     }
   }
 
-  // download the manifest file for the coresponding CID
+  // download the manifest file for the corresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
     const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
 
@@ -107,9 +107,9 @@ export const DataAssetList: React.FC = () => {
     if (storedDataAssets.length === 0) {
       /// think about is, what happens if the user has no data assets
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
-        loading: "Fetching all data assets from Ipfs of your address...",
-        success: <b>Fetched all data assets from Ipfs of your address!</b>,
-        error: <b>The data assests could not be fetched. </b>,
+        loading: "Fetching all data assets from IPFS for your wallet...",
+        success: <b>Fetched all data assets from IPFS for your wallet!</b>,
+        error: <b>The data assets could not be fetched. </b>,
       });
     }
   }, []);

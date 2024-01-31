@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-
 import zImageHalf from "../../assets/img/z-image-half.png";
-import storageIcon from "../../assets/logo/ic_baseline-updatestore.png";
-import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
-
 import { Heart, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
@@ -23,7 +19,7 @@ const StoreDataAsset: React.FC = () => {
   const [storageOption, setStorageOption] = useState();
   const navigate = useNavigate();
 
-  const isNextButtonDissabled = () => {
+  const isNextButtonDisabled = () => {
     if (currentStep === 1 && storageType) return false;
     if (currentStep === 2 && dynamicDataStream) return false;
     if (currentStep === 3 && storagePreference) return false;
@@ -43,12 +39,12 @@ const StoreDataAsset: React.FC = () => {
     <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
 
-      <span className="text-5xl p-8 text-accent text-center text-bold">Store data asset</span>
-      <div className="gap-4 flex flex-col w-[80%] items-center jusitfy-center">
+      <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
+      <div className="gap-4 flex flex-col w-[80%] items-center justify-center">
         <StoreDataAssetProgress currentStep={currentStep} />
         {currentStep === 1 && (
           <XStorageCheckBox
-            title="Select the type of storage for your data asset."
+            title="Select your Data Asset Type"
             options={["Static Data storage", "Dynamic Data storage"]}
             currentOption={storageType}
             descriptions={[
@@ -61,14 +57,14 @@ const StoreDataAsset: React.FC = () => {
         )}
         {currentStep === 2 && (
           <XStorageCheckBox
-            title="Data Asset type"
-            description="OR choose any specific Itheum Data Stream template that you would like to use"
-            options={["Create my own", "Music data NFT", "Trailblazer data NFT"]}
+            title="What type of data asset would you like to store?"
+            // description="OR choose any specific Itheum Data Stream template that you would like to use"
+            options={["Upload my own files", "Music Data NFT", "Trailblazer data NFT"]}
             currentOption={dynamicDataStream}
             descriptions={[
-              "This is a type of storage for your static data assets (i.e non-changing or infrequently",
-              "Set up a dynamic storage for your music data NFT.",
-              "Set up a dynamic storage for your trailblazer data NFT.",
+              "Store your own static or dynamic file",
+              "Set up dynamic storage for your Itheum Music Data NFT.",
+              "Set up dynamic storage for your Trailblazer Data NFT.",
             ]}
             setterFunction={setDynamicDataStream}
             disabled={[true, false, true]}
@@ -76,12 +72,12 @@ const StoreDataAsset: React.FC = () => {
         )}
         {currentStep === 3 && (
           <XStorageCheckBox
-            title="How would you like your data to be stored?"
-            options={["Centralized/Web2 storage", "Decentralized/Web3 storage"]}
+            title="How would you like your data asset to be stored?"
+            options={["Centralized / Web2 Storage", "Decentralized / Web3 Storage"]}
             currentOption={storagePreference}
             descriptions={[
-              "This model of data storage are concentrated in a central location or controlled by a central authority.",
-              "TThis model of data storage may be distributed across a network of nodes without a central point of control.",
+              "A regular cloud storage model. You can start here and move to Web3 storage later.",
+              "A model of data storage where data assets are distributed across a network of nodes without a central point of control.",
             ]}
             setterFunction={setStoragePreference}
             disabled={[true, false]}
@@ -89,8 +85,8 @@ const StoreDataAsset: React.FC = () => {
         )}
         {currentStep === 4 && (
           <XStorageCheckBox
-            title="Storage Options"
-            options={["DNS (domain) + IPFS", "DNS (domain) + Arweave", "Ceramic", "IPNS + IPFS"]}
+            title="Do you have a preferred storage platform and architecture?"
+            options={["DNS + IPFS", "IPNS + IPFS", "Arweave", "Ceramic"]}
             currentOption={storageOption}
             setterFunction={setStorageOption}
             disabled={[false, true, true, true]}
@@ -121,7 +117,7 @@ const StoreDataAsset: React.FC = () => {
             </Link>
           ) : (
             <Button
-              disabled={isNextButtonDissabled()}
+              disabled={isNextButtonDisabled()}
               className="font-normal text-base p-4 px-8 rounded-full bg-accent text-accent-foreground"
               onClick={handleNext}>
               Next

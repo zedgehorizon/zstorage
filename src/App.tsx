@@ -12,7 +12,7 @@ import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
-import DataVault from "./pages/DataVault/DataVault";
+import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 
 const routes = [
@@ -35,9 +35,9 @@ const routes = [
     authenticatedRoute: true,
   },
   {
-    path: "/data-vault",
-    title: "Data Vault",
-    component: DataVault,
+    path: "/data-bunker",
+    title: "Data Bunker",
+    component: DataBunker,
     authenticatedRoute: true,
   },
   {
@@ -104,7 +104,7 @@ function App() {
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload-music" element={<UploadMusicData />}></Route>
                 <Route path="/upload" element={<UploadAnyFiles />}></Route>
-                <Route path="/data-vault" element={<DataVault />}></Route>
+                <Route path="/data-bunker" element={<DataBunker />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
