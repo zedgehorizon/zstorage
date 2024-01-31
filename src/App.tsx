@@ -14,6 +14,7 @@ import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
+import CampaignPage from "./pages/CampaignPage/CampaignPage";
 
 const routes = [
   {
@@ -58,6 +59,12 @@ const routes = [
     title: "Store Data Asset",
     component: StoreDataAsset,
     authenticatedRoute: true,
+  },
+  {
+    path: "/itheum-music-data-nft",
+    title: "Itheum Music Data NFT",
+    component: CampaignPage,
+    authenticatedRoute: false,
   },
 ];
 
@@ -106,6 +113,7 @@ function App() {
                 <Route path="/upload" element={<UploadAnyFiles />}></Route>
                 <Route path="/data-bunker" element={<DataBunker />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>
+                <Route path="/itheum-music-data-nft" element={<CampaignPage />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
