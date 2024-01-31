@@ -194,7 +194,6 @@ export const UploadMusicData: React.FC = () => {
           };
         }
       });
-
       return transformedData.filter((song: any) => song !== null);
     } catch (error: any) {
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {

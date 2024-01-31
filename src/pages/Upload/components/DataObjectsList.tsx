@@ -44,7 +44,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   useEffect(() => {
     setProgressValue(progressBar);
   }, [progressBar]);
-
+  console.log(progressValue);
   return (
     <div className="flex w-full flex-col">
       <ErrorBoundary
@@ -69,9 +69,9 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 w-[40rem] text-foreground items-center justify-center">
-            <span className="text-3xl">{progressBar}%</span>
+            <span className="text-3xl">{progressValue}%</span>
             <Progress className="bg-background w-[60%] " value={progressValue}></Progress>
-            <span className="">{progressBar > 60 ? (progressBar === 100 ? "Upload completed" : "Amost there") : "Uploading files to IPFS..."}</span>
+            <span className="">{progressBar > 60 ? (progressBar === 100 ? "Upload completed!" : "Amost there...") : "Uploading files to IPFS..."}</span>
             {manifestCid && (
               <div className="flex flex-col items-center justify-center p-8">
                 {progressBar === 100 && (

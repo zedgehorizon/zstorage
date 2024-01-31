@@ -14,14 +14,14 @@ const StoreDataAsset: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [dataAssetAction, setDataAssetAction] = useState("");
   const [storageType, setStorageType] = useState();
-  const [dynamicDataStream, setDynamicDataStream] = useState();
+  const [template, setTemplate] = useState("");
   const [storagePreference, setStoragePreference] = useState();
   const [storageOption, setStorageOption] = useState();
   const navigate = useNavigate();
 
   const isNextButtonDisabled = () => {
     if (currentStep === 1 && storageType) return false;
-    if (currentStep === 2 && dynamicDataStream) return false;
+    if (currentStep === 2 && template) return false;
     if (currentStep === 3 && storagePreference) return false;
     if (currentStep === 4 && storageOption) return false;
     return true;
@@ -37,7 +37,7 @@ const StoreDataAsset: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2] pb-16">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
@@ -63,14 +63,14 @@ const StoreDataAsset: React.FC = () => {
             title="What type of data asset would you like to store?"
             // description="OR choose any specific Itheum Data Stream template that you would like to use"
             options={["Upload my own files", "Music Data NFT", "Trailblazer data NFT"]}
-            currentOption={dynamicDataStream}
+            currentOption={template}
             descriptions={[
               "Store your own static or dynamic file",
               "Set up dynamic storage for your Itheum Music Data NFT.",
               "Set up dynamic storage for your Trailblazer Data NFT.",
             ]}
-            setterFunction={setDynamicDataStream}
-            disabled={[true, false, true]}
+            setterFunction={setTemplate}
+            disabled={[false, false, true]}
           />
         )}
 
@@ -109,11 +109,11 @@ const StoreDataAsset: React.FC = () => {
 
           {currentStep === 4 ? (
             <Link
-              to={"/upload"}
+              to={template.includes("Upload my own files") ? "/upload" : "/upload-music"}
               state={{
                 action: dataAssetAction,
                 type: storageType,
-                template: dynamicDataStream,
+                template: template,
                 storage: storagePreference,
                 decentralized: storageOption,
               }}

@@ -1,15 +1,17 @@
 import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { cn } from "../../../utils/utils";
 
 interface DragAndDropImageFilesProps {
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with ImageFiles
   imagePreview?: string;
+  className?: string;
 }
 
 const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
-  const { setFile, setImagePreview, imagePreview } = props;
+  const { setFile, setImagePreview, imagePreview, className } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
@@ -68,7 +70,9 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       } else {
-        setFile(file);
+        if (file) {
+          setFile(file);
+        }
       }
     }
   };
@@ -84,7 +88,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
 
   return (
     <div
-      className="relative w-[15rem] h-[15rem]  mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20   "
+      className={cn("relative w-[15rem] h-[15rem]  mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", className)}
       id="dropzone"
       ref={dropzoneRef}
       onDragOver={handleDragOver}
