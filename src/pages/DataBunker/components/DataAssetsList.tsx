@@ -7,7 +7,7 @@ import { theToken } from "../../../utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
-
+import { CATEGORIES } from "../../../utils/constants";
 interface DataStream {
   name: string;
   creator: string;
@@ -47,6 +47,29 @@ export const DataAssetList: React.FC = () => {
   // const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
+    [CATEGORIES[0]]: [],
+    [CATEGORIES[1]]: [],
+    [CATEGORIES[2]]: [],
+  });
+
+  async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
+    try {
+      const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
+      setIsLoading(true);
+
+      const response = await axios.get(apiUrlGet, {
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+        },
+      });
+      console.log(response);
+      console.log(response.data);
+      setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
+    } catch (error: any) {
+      console.error("Error fetching data assets", error);
+    }
+  }
 
   // fetch all data assets of an address
   async function fetchAllDataAssetsOfAnAddress() {
@@ -105,7 +128,7 @@ export const DataAssetList: React.FC = () => {
 
   useEffect(() => {
     if (storedDataAssets.length === 0) {
-      /// think about is, what happens if the user has no data assets
+      fetchAllDataAssetsOfAnAddressByCategory("test");
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all data assets from IPFS for your wallet...",
         success: <b>Fetched all data assets from IPFS for your wallet!</b>,

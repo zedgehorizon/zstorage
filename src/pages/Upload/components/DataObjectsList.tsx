@@ -13,12 +13,12 @@ interface DataObjectsListProps {
   addButton?: React.ReactNode;
   isUploadButtonDisabled: boolean;
   progressBar: number;
-  generateManifestFile: () => void;
+  uploadFileToIpfs: () => void;
   manifestCid?: string | null;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
-  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, generateManifestFile } = props;
+  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, uploadFileToIpfs } = props;
   const [progressValue, setProgressValue] = React.useState(0);
 
   // useEffect hook to load the progress bar smoothly to 100 in 10 seconds
@@ -44,13 +44,13 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   useEffect(() => {
     setProgressValue(progressBar);
   }, [progressBar]);
-  console.log(progressValue);
+
   return (
     <div className="flex w-full flex-col">
       <ErrorBoundary
         onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
         FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
-        <div className="mt-8 p-8 rounded-lg shadow-md w-[100%] bg-muted ">
+        <div className="flex flex-col mt-8 p-8 rounded-lg shadow-md w-[100%] bg-muted  justify-center items-center ">
           {DataObjectsComponents}
           {addButton}
         </div>
@@ -59,7 +59,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       <Modal
         openTrigger={
           <button
-            onClick={generateManifestFile}
+            onClick={uploadFileToIpfs}
             disabled={isUploadButtonDisabled || progressBar === 100}
             className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
             Upload Data

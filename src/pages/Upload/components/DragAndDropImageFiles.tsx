@@ -2,6 +2,7 @@ import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { cn } from "../../../utils/utils";
+import { set } from "date-fns";
 
 interface DragAndDropImageFilesProps {
   setFile: (file: File) => void;
@@ -9,9 +10,10 @@ interface DragAndDropImageFilesProps {
   imagePreview?: string;
   className?: string;
 }
-
 const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
   const { setFile, setImagePreview, imagePreview, className } = props;
+  console.log(setImagePreview);
+
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
@@ -44,10 +46,12 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       dropzoneRef.current.classList.remove("border-accent");
       dropzoneRef.current.classList.add("border-accent/20");
     }
-    const file = e.dataTransfer.files[0];
+    handleFileChange(e.dataTransfer.files[0]);
+  };
+  const handleFileChange = (file: File) => {
     if (file && file.type.startsWith("image/")) {
       setFile(file);
-      displayPreview(file);
+      if (setImagePreview) displayPreview(file);
     } else {
       if (setImagePreview) {
         toast("Please upload an image file", {
@@ -58,23 +62,9 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       }
     }
   };
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      displayPreview(file);
-      setFile(file);
-    } else {
-      if (setImagePreview !== undefined) {
-        toast("Please upload an image file", {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
-        });
-      } else {
-        if (file) {
-          setFile(file);
-        }
-      }
-    }
+    if (file) handleFileChange(file);
   };
 
   const displayPreview = (file: File) => {

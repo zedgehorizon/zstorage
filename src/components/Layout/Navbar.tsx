@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
             <img className="h-4" src={logo}></img>
             <p className=" ">EdgeStorage</p>
           </Link>
-          <div className="flex flex-row divide-x divide-yellow-400">
+          <div className="flex flex-row divide-x divide-accent">
             <div className="flex flex-row gap-8 mt-4 pr-4">
               <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
                 <p className=" ">Features</p>

@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -33,7 +33,7 @@ type FilePair = {
 
 export const UploadMusicData: React.FC = () => {
   const location = useLocation();
-
+  const currentCategory = 1; /// Music Data NFTs
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
@@ -44,7 +44,6 @@ export const UploadMusicData: React.FC = () => {
   // const theToken = tokenLogin?.nativeAuthToken;
 
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
-  const [isUploadingManifest, setIsUploadingManifest] = useState(false);
 
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
@@ -53,6 +52,7 @@ export const UploadMusicData: React.FC = () => {
   const [progressBar, setProgressBar] = useState(0);
 
   const [manifestCid, setManifestCid] = useState(null);
+
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -127,32 +127,6 @@ export const UploadMusicData: React.FC = () => {
     const response = await uploadFilesRequest(filesToUpload, theToken);
     return response;
   }
-
-  // async function uploadFilesRequest(filesToUpload: FormData) {
-  //   try {
-  //     const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
-  //       headers: {
-  //         "authorization": `Bearer ${theToken}`,
-  //       },
-  //     });
-
-  //     return response.data;
-  //   } catch (error: any) {
-  //     console.error("Error uploading files:", error);
-  //     if (error?.response.data.statusCode === 403) {
-  //       toast("Native auth token expired. Re-login and try again! ", {
-  //         icon: <Lightbulb color="yellow"></Lightbulb>,
-  //       });
-  //     }
-  //     toast.error("Error uploading files to Ipfs: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-  //       icon: (
-  //         <button onClick={() => toast.dismiss()}>
-  //           <XCircle color="red" />
-  //         </button>
-  //       ),
-  //     });
-  //   }
-  // }
 
   /**
    * Get all songs data into the right format for manifest file
@@ -237,15 +211,14 @@ export const UploadMusicData: React.FC = () => {
     }
 
     try {
-      setIsUploadingManifest(true);
       const data = await transformSongsData();
       if (data === undefined) {
-        setIsUploadingManifest(false);
         return;
       }
       if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
+          "category": CATEGORIES[currentCategory],
           "name": name,
           "creator": creator,
           "created_on": createdOn,
@@ -287,10 +260,8 @@ export const UploadMusicData: React.FC = () => {
         ),
       });
 
-      setIsUploadingManifest(false);
       console.error("Error generating the manifest file:", error);
     }
-    setIsUploadingManifest(false);
     setProgressBar(100);
   };
 
@@ -455,7 +426,7 @@ export const UploadMusicData: React.FC = () => {
             }
             isUploadButtonDisabled={isUploadButtonDisabled}
             progressBar={progressBar}
-            generateManifestFile={generateManifestFile}
+            uploadFileToIpfs={generateManifestFile}
             manifestCid={manifestCid}
           />
         </div>
