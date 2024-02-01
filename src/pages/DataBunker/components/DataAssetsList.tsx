@@ -10,6 +10,7 @@ import { Lightbulb, Loader2 } from "lucide-react";
 import { CATEGORIES } from "../../../utils/constants";
 interface DataStream {
   name: string;
+  category: string;
   creator: string;
   created_on: string;
   last_modified_on: string;
@@ -44,6 +45,7 @@ type DataAsset = {
 export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
+  const [showCategories, setShowCategories] = useState(false);
   // const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +54,6 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[1]]: [],
     [CATEGORIES[2]]: [],
   });
-
   async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
     try {
       const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
@@ -63,8 +64,7 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log(response);
-      console.log(response.data);
+
       setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
     } catch (error: any) {
       console.error("Error fetching data assets", error);
@@ -72,7 +72,7 @@ export const DataAssetList: React.FC = () => {
   }
 
   // fetch all data assets of an address
-  async function fetchAllDataAssetsOfAnAddress() {
+  async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
@@ -99,6 +99,11 @@ export const DataAssetList: React.FC = () => {
       throw error; // error to be caught by toast.promise
     }
   }
+  async function fetchAllDataAssetsOfAnAddress() {
+    await fetchAllManifestsOfAnAddress();
+
+    // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
+  }
 
   // download the manifest file for the corresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
@@ -112,13 +117,12 @@ export const DataAssetList: React.FC = () => {
       });
       if (!response.data?.data_stream) {
         /// empty manifest file or wrong format should not happen only with older versions
-        console.log("Manifest file is empty or wrong format", manifest);
         return undefined;
       }
       const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
       setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
     } catch (error) {
-      console.log("Error downloading manifest files:", manifest, error);
+      console.error("Error downloading manifest files:", manifest, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
@@ -128,7 +132,6 @@ export const DataAssetList: React.FC = () => {
 
   useEffect(() => {
     if (storedDataAssets.length === 0) {
-      fetchAllDataAssetsOfAnAddressByCategory("test");
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all data assets from IPFS for your wallet...",
         success: <b>Fetched all data assets from IPFS for your wallet!</b>,
@@ -136,6 +139,22 @@ export const DataAssetList: React.FC = () => {
       });
     }
   }, []);
+
+  useEffect(() => {
+    let count = 0;
+    if (isLoading === true) return;
+    if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;
+    manifestFiles.map((manifest: ManifestFile, index) => {
+      if (manifest.data_stream.category) {
+        count += 1;
+        setCategoryManifestFiles((prev) => ({
+          ...prev,
+          [manifest.data_stream.category]: Array.isArray(prev[manifest.data_stream.category]) ? [...prev[manifest.data_stream.category], manifest] : [manifest],
+        }));
+      }
+    });
+    setShowCategories(true);
+  }, [isLoading]);
 
   useEffect(() => {
     const downloadLatestVersionsManifestFiles = async () => {
@@ -159,23 +178,47 @@ export const DataAssetList: React.FC = () => {
           <Loader2 className="w-16 h-16 my-8 animate-spin text-accent"></Loader2>
         </div>
       )}
+      <span className="text-accent text-2xl py-12"> STORAGE BUNKERS</span>
       <div className="gap-4 grid grid-cols-3">
-        {!isLoading &&
-          manifestFiles.map((manifest: ManifestFile, index) => (
+        {showCategories &&
+          categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
             <Link
               key={index}
-              to={"/upload-music"}
+              to={"/upload"}
               state={{
-                manifestFile: manifestFiles[index],
+                manifestFile: manifest,
                 action: "Update Data Asset",
-                currentManifestFileCID: manifestFiles[index].hash,
-                manifestFileName: manifestFiles[index].manifestFileName,
-                folderCid: manifestFiles[index].folderHash,
+                currentManifestFileCID: manifest.hash,
+                manifestFileName: manifest.manifestFileName,
+                folderCid: manifest.folderHash,
               }}>
               <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
             </Link>
           ))}
       </div>
+      <span className="text-accent text-2xl py-12"> Music Playlists </span>
+      <div className="gap-4 grid grid-cols-3">
+        {!isLoading &&
+          manifestFiles.map((manifest: ManifestFile, index) => {
+            if (!manifest.data_stream.category) {
+              return (
+                <Link
+                  key={index}
+                  to={"/upload-music"}
+                  state={{
+                    manifestFile: manifestFiles[index],
+                    action: "Update Data Asset",
+                    currentManifestFileCID: manifestFiles[index].hash,
+                    manifestFileName: manifestFiles[index].manifestFileName,
+                    folderCid: manifestFiles[index].folderHash,
+                  }}>
+                  <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                </Link>
+              );
+            }
+          })}
+      </div>
+
       {manifestFiles.length === 0 && !isLoading && (
         <div className="flex justify-center items-center">
           <p className="text-gray-400 text-2xl">No data assets found.</p>

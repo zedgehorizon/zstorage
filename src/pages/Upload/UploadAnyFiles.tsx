@@ -44,9 +44,6 @@ const UploadAnyFiles: React.FC = () => {
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
 
-  console.log("FILES TO UPLOAD: ", files);
-  console.log("FILE OBJ ", fileObjects);
-
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -78,10 +75,6 @@ const UploadAnyFiles: React.FC = () => {
       }
     }
   }, [manifestFile]);
-
-  // setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
-  // setNumberOfSongs((prev) => prev + 1);
-  // setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
 
   function addNewFile(file: File) {
     setFiles((prevFiles) => {
@@ -144,9 +137,7 @@ const UploadAnyFiles: React.FC = () => {
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); /// anyfile
-    console.log("fukes to upload: ", filesToUpload.getAll("category"));
     const response = await uploadFilesRequest(filesToUpload, theToken);
-    console.log("RESPPNSE UPLOAD FILES", response);
 
     return response;
   }
@@ -154,14 +145,11 @@ const UploadAnyFiles: React.FC = () => {
   async function transformFilesToDataArray() {
     try {
       const responseDataCIDs = await uploadFiles();
-      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
 
       const transformedData = Object.keys(fileObjects).map((key: any, index: number) => {
-        console.log("key", key);
         const fileObj: FileData = fileObjects[key - 1 + 1];
-        console.log("FILE", fileObj);
-        console.log("index", index);
+
         if (fileObj && fileObj?.name) {
           let matchingObj;
 
@@ -171,10 +159,9 @@ const UploadAnyFiles: React.FC = () => {
             matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(fileToUpload.name));
             if (!matchingObj) throw new Error("The data has not been uploaded correctly. CID could not be found for file - " + fileToUpload.name);
           }
-          console.log("matchig obj", matchingObj);
           return {
             idx: index + 1,
-            name: matchingObj ? matchingObj.name : fileObj?.name,
+            name: matchingObj ? matchingObj.fileName : fileObj?.name,
             file: matchingObj ? `${IPFS_GATEWAY}ipfs/${matchingObj.folderHash}/${matchingObj.fileName}` : fileObj.file,
             date: fileObj.date ? new Date(fileObj.date).toISOString() : new Date().toISOString(),
             //category: file?.category,
@@ -183,7 +170,6 @@ const UploadAnyFiles: React.FC = () => {
           };
         }
       });
-      console.log("transformed data", transformedData);
       return transformedData.filter((file: any) => file !== null);
     } catch (error: any) {
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
@@ -205,7 +191,6 @@ const UploadAnyFiles: React.FC = () => {
         return;
       }
 
-      if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[currentCategory],
@@ -274,6 +259,9 @@ const UploadAnyFiles: React.FC = () => {
         setName={setName}
         setCreator={setCreator}
         setCreatedOn={setCreatedOn}
+        folderCid={folderCid}
+        manifestFileName={manifestFileName}
+        currentManifestFileCID={currentManifestFileCID}
       />
       <DragAndDropImageFiles setFile={addNewFile} className="w-full" />
       <div className="flex justify-center items-center">
