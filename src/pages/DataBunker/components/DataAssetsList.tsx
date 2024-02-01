@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_VERSION } from "../../../utils/constants";
+import { API_VERSION, VITE_ENV_BACKEND_API } from "../../../utils/constants";
 // import { theToken } from "../../../utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
@@ -56,7 +56,7 @@ export const DataAssetList: React.FC = () => {
   });
   async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
     try {
-      const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
+      const apiUrlGet = `${VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
       setIsLoading(true);
 
       const response = await axios.get(apiUrlGet, {
@@ -73,7 +73,7 @@ export const DataAssetList: React.FC = () => {
 
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
-    const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
+    const apiUrlGet = `${VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
@@ -107,7 +107,7 @@ export const DataAssetList: React.FC = () => {
 
   // download the manifest file for the corresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
-    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
+    const apiUrlDownloadFile = `${VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
 
     try {
       const response = await axios.get(apiUrlDownloadFile, {
