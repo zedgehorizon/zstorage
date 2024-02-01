@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "../../libComponents/Button";
+import { Button } from "../../../libComponents/Button";
 import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
-import { DatePicker } from "../../libComponents/DatePicker";
-import { Input } from "../../libComponents/Input";
-import DragAndDropImageFiles from "../../pages/Upload/components/DragAndDropImageFiles";
+import { DatePicker } from "../../../libComponents/DatePicker";
+import { Input } from "../../../libComponents/Input";
+import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
@@ -54,19 +54,19 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageURL, setImageURL] = useState("");
   const [audioURL, setAudioURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
-  console.log(imageFile);
+
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-  const handleImageFileChange = (event: any) => {
-    const file = event.target.files[0];
-    setImageFile(file);
-    const imageURL = URL.createObjectURL(event.target.files[0]);
-    form.setValue("cover_art_url", imageURL);
-    setImageURL(imageURL);
-    setwantToEditImage(false);
-  };
-  console.log(props.index, audioFile);
+
+  // const handleImageFileChange = (event: any) => {
+  //   const file = event.target.files[0];
+  //   setImageFile(file);
+  //   const imageURL = URL.createObjectURL(event.target.files[0]);
+  //   form.setValue("cover_art_url", imageURL);
+  //   setImageURL(imageURL);
+  //   setwantToEditImage(false);
+  // };
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("audio/")) {
@@ -94,7 +94,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       form.setValue("cover_art_url", props.song["cover_art_url"]);
       setImageURL(props.song["cover_art_url"]);
     } else {
-      setwantToEditImage(false);
       setImageURL("");
     }
     if (props.song["file"]) {
@@ -139,13 +138,19 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div className="absolute top-0 right-0">
           <div className="flex flex-col justify-between">
             {props.index != 1 && (
-              <Button tabIndex={-1} onClick={handleMoveUp} className=" text-accent hover:shadow-inner hover:shadow-accent">
-                <ArrowUp />
+              <Button
+                tabIndex={-1}
+                onClick={handleMoveUp}
+                className="mb-2 border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                <ArrowUp className="text-accent" />
               </Button>
             )}
             {!props.lastItem && (
-              <Button tabIndex={-1} onClick={handleMoveDown} className="text-accent hover:shadow-inner hover:shadow-accent">
-                <ArrowDown></ArrowDown>
+              <Button
+                tabIndex={-1}
+                onClick={handleMoveDown}
+                className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
+                <ArrowDown className="text-accent" />
               </Button>
             )}
           </div>
@@ -250,7 +255,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
             </div> */}
             <div>
-              <label className="mb-4 text-foreground">Track File (mp3)</label>
+              <div className="flex gap-2 flex-row">
+                <label className="text-foreground">Track File (mp3)</label>
+                {audioFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
+              </div>
               {/* {audioURL && !wantToEditAudio ? (
               <div className="flex justify-center flex-col w-full ">
                 <div className="flex flex-row justify-center">
@@ -294,19 +302,25 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                     }}
                     onLoadedData={() => setAudioFileIsLoading(false)}
                     src={audioURL}
-                    className="-ml-6 scale-[0.8] "
-                    controls></audio>
-                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center animate-spin" />}
-                  <Button tabIndex={-1} className="" onClick={() => setwantToEditAudio(true)}>
-                    <div className="p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center">
-                      <Edit2 className="text-accent" />
+                    className="-ml-9 scale-[0.8]"
+                    controls
+                  />
+                  <Button
+                    tabIndex={-1}
+                    className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center"
+                    onClick={() => setwantToEditAudio(true)}>
+                    <div>
+                      <Edit2 className="text-accent  " />
                     </div>
                   </Button>
                 </div>
               ) : (
-                <div className="mt-2 w-full flex-1 items-center ">
-                  <Input accept=".mp3" id="song" type="file" onChange={(e) => handleAudioFileChange(e)} />
-                  {audioURL ? <Music className="text-accent ml-[100px] mt-[-40px] " /> : <Upload className="text-accent ml-[100px] mt-[-40px] " />}
+                <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted p-2 text-sm text-accent/50  ">
+                  <Input accept=".mp3" id="song" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleAudioFileChange(e)} />
+                  <div className="text-accent/50 w-[10rem] truncate ">
+                    {audioFile ? audioFile.name : audioURL?.split("_")[1] ? audioURL.split("_")[1] : "No chosen file"}{" "}
+                  </div>
+                  {audioURL ? <Music className="text-accent ml-auto" /> : <Upload className="text-accent ml-auto" />}
                 </div>
               )}
               {form.formState.errors.file && <p className="text-red-500 mt-3 absolute">{form.formState.errors.file.message?.toString()}</p>}
@@ -322,7 +336,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <div className="w-full flex flex-col justify-center items-center ">
             {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
           </div>{" "}
-          <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 border border-accent">
+          <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
           <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">

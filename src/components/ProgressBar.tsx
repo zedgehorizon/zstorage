@@ -1,4 +1,4 @@
-import { Check, Loader, Loader2 } from "lucide-react";
+import { Check, Loader } from "lucide-react";
 import React from "react";
 
 interface ProgressBarProps {
@@ -9,7 +9,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
   return (
     <div className="w-[33rem] mx-auto  my-12 z-10">
       <div className="bg-gray-200 h-1 flex items-center justify-between">
-        {" "}
         <div className="w-1/4">
           {progress == 0 ? (
             <div className="bg-white h-6 w-6 rounded-full shadow flex items-center justify-center">
@@ -19,7 +18,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
                     Update data
                   </p>
                 </div>
-              </div>{" "}
+              </div>
             </div>
           ) : (
             <div className="w-[11rem] flex justify-between bg-accent h-1 items-center relative">
