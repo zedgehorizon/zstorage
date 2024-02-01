@@ -8,7 +8,6 @@ import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { theToken } from "../../utils/constants";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
@@ -41,7 +40,7 @@ export const UploadMusicData: React.FC = () => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  // const theToken = tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
 
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
 
@@ -124,7 +123,7 @@ export const UploadMusicData: React.FC = () => {
 
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, theToken);
+    const response = await uploadFilesRequest(filesToUpload, theToken || "");
     return response;
   }
 
@@ -236,7 +235,7 @@ export const UploadMusicData: React.FC = () => {
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
         manifestFileName ? manifestFileName : "manifest" + generateRandomString() + "_" + name + ".json"
       );
-      const response = await uploadFilesRequest(formDataFormat, theToken);
+      const response = await uploadFilesRequest(formDataFormat, theToken || "");
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(ipfs);

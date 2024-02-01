@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { Lightbulb, XCircle } from "lucide-react";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY, theToken } from "../../utils/constants";
+import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 
 import pdfFile from "../../assets/logo/document-type/pdf.png";
 import docFile from "../../assets/logo/document-type/doc.png";
@@ -29,7 +29,7 @@ const UploadAnyFiles: React.FC = () => {
   const currentCategory = 0;
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
-  //const theToken = tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
 
   const [name, setName] = useState("");
@@ -137,7 +137,7 @@ const UploadAnyFiles: React.FC = () => {
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); /// anyfile
-    const response = await uploadFilesRequest(filesToUpload, theToken);
+    const response = await uploadFilesRequest(filesToUpload, theToken || "");
 
     return response;
   }
@@ -212,7 +212,7 @@ const UploadAnyFiles: React.FC = () => {
         manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, theToken);
+      const response = await uploadFilesRequest(formDataFormat, theToken || "");
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(ipfs);
