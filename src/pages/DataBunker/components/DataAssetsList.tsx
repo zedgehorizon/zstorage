@@ -197,7 +197,7 @@ export const DataAssetList: React.FC = () => {
                     to={"/upload"}
                     state={{
                       manifestFile: manifest,
-                      action: "Update Data Asset",
+                      action: "Update Asset",
                       currentManifestFileCID: manifest.hash,
                       manifestFileName: manifest.manifestFileName,
                       folderCid: manifest.folderHash,
@@ -215,25 +215,21 @@ export const DataAssetList: React.FC = () => {
             </div>
           )) || (
             <div className="gap-4 grid grid-cols-3">
-              {!isLoading &&
-                manifestFiles.map((manifest: ManifestFile, index) => {
-                  if (!manifest.data_stream.category) {
-                    return (
-                      <Link
-                        key={index}
-                        to={"/upload-music"}
-                        state={{
-                          manifestFile: manifestFiles[index],
-                          action: "Update Data Asset",
-                          currentManifestFileCID: manifestFiles[index].hash,
-                          manifestFileName: manifestFiles[index].manifestFileName,
-                          folderCid: manifestFiles[index].folderHash,
-                        }}>
-                        <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                      </Link>
-                    );
-                  }
-                })}
+              {showCategories &&
+                categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
+                  <Link
+                    key={index}
+                    to={"/upload-music"}
+                    state={{
+                      manifestFile: manifest,
+                      action: "Update Asset",
+                      currentManifestFileCID: manifest.hash,
+                      manifestFileName: manifest.manifestFileName,
+                      folderCid: manifest.folderHash,
+                    }}>
+                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                  </Link>
+                ))}
             </div>
           )}
         </>
