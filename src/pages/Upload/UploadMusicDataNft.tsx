@@ -32,7 +32,7 @@ type FilePair = {
 
 export const UploadMusicData: React.FC = () => {
   const location = useLocation();
-  const currentCategory = 1; /// Music Data NFTs
+  const currentCategory = 1; // musicplaylist
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
@@ -214,6 +214,7 @@ export const UploadMusicData: React.FC = () => {
       if (data === undefined) {
         return;
       }
+
       if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
@@ -235,7 +236,9 @@ export const UploadMusicData: React.FC = () => {
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
         manifestFileName ? manifestFileName : "manifest" + generateRandomString() + "_" + name + ".json"
       );
+      formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
+
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(ipfs);

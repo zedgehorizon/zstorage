@@ -109,7 +109,7 @@ const StoreDataAsset: React.FC = () => {
 
           {currentStep === 4 ? (
             <Link
-              to={template.includes("Upload my own files") ? "/upload" : "/upload-music"}
+              to={template.includes("Upload My Files") ? "/upload" : "/upload-music"}
               state={{
                 action: dataAssetAction,
                 type: storageType,

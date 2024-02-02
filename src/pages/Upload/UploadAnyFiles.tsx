@@ -26,7 +26,7 @@ type FileData = {
 };
 
 const UploadAnyFiles: React.FC = () => {
-  const currentCategory = 0;
+  const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
   const theToken = tokenLogin?.nativeAuthToken;
