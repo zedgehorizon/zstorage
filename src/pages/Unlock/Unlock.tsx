@@ -10,6 +10,7 @@ import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 let onCloseReturnRoute = "/";
+let loginCallbackRoute = "/start";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
@@ -25,17 +26,20 @@ export const Unlock: React.FC = () => {
     // origin: window.location.origin,
     expirySeconds: 3000,
   };
+
+  if (document?.location?.hash.includes("#r=")) {
+    const rVal = document.location.hash.split("#r=")[1];
+    onCloseReturnRoute = `/${rVal}`;
+    loginCallbackRoute += `#r=${rVal}`;
+  }
+
   const commonProps = {
-    callbackRoute: "/start",
-    onLoginRedirect: () => navigate("/start"),
+    callbackRoute: loginCallbackRoute,
+    onLoginRedirect: () => navigate(loginCallbackRoute),
     nativeAuth: {
       ...nativeAuthProps,
     },
   };
-
-  if (document?.location?.hash.includes("#r=")) {
-    onCloseReturnRoute = `/${document.location.hash.split("#r=")[1]}`;
-  }
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">

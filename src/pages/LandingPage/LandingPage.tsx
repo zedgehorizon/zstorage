@@ -52,11 +52,11 @@ const LandingPage: React.FC = () => {
           <span className="text-[2rem] 2xl:text-[3rem] ">For your most vital data</span>
           <div className="mt-3">
             {(isLoggedIn && (
-              <Link to={"/start"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">
+              <Link to={"/data-bunker"} className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 text-xl flex justify-center">
                 Access Your Data Bunker
               </Link>
             )) || (
-              <Link to={"/unlock"} className="font-bold text-accent-foreground bg-accent rounded-full px-8 py-2 flex justify-center">
+              <Link to={"/unlock"} className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 text-xl flex justify-center">
                 <p className="">Get Started</p>{" "}
               </Link>
             )}
