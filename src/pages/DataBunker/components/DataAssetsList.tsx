@@ -48,12 +48,13 @@ export const DataAssetList: React.FC = () => {
   const [showCategories, setShowCategories] = useState(false);
   const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
     [CATEGORIES[0]]: [],
     [CATEGORIES[1]]: [],
     [CATEGORIES[2]]: [],
   });
+
   async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
     try {
       const apiUrlGet = `${VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
@@ -75,6 +76,7 @@ export const DataAssetList: React.FC = () => {
   async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
+
     try {
       const response = await axios.get(apiUrlGet, {
         headers: {
@@ -87,6 +89,7 @@ export const DataAssetList: React.FC = () => {
     } catch (error: any) {
       console.error("Error fetching data assets", error);
       setIsLoading(false);
+
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
           icon: <Lightbulb color="yellow"></Lightbulb>,
@@ -99,6 +102,7 @@ export const DataAssetList: React.FC = () => {
       throw error; // error to be caught by toast.promise
     }
   }
+
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
 
@@ -173,56 +177,66 @@ export const DataAssetList: React.FC = () => {
 
   return (
     <div className="p-4 flex flex-col">
-      {isLoading && (
+      {(isLoading && (
         <div className="flex justify-center items-center -mt-4">
           <Loader2 className="w-16 h-16 my-8 animate-spin text-accent"></Loader2>
         </div>
-      )}
-      <span className="text-accent text-2xl py-12"> STORAGE BUNKERS</span>
-      <div className="gap-4 grid grid-cols-3">
-        {showCategories &&
-          categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
-            <Link
-              key={index}
-              to={"/upload"}
-              state={{
-                manifestFile: manifest,
-                action: "Update Data Asset",
-                currentManifestFileCID: manifest.hash,
-                manifestFileName: manifest.manifestFileName,
-                folderCid: manifest.folderHash,
-              }}>
-              <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-            </Link>
-          ))}
-      </div>
-      <span className="text-accent text-2xl py-12"> Music Playlists </span>
-      <div className="gap-4 grid grid-cols-3">
-        {!isLoading &&
-          manifestFiles.map((manifest: ManifestFile, index) => {
-            if (!manifest.data_stream.category) {
-              return (
-                <Link
-                  key={index}
-                  to={"/upload-music"}
-                  state={{
-                    manifestFile: manifestFiles[index],
-                    action: "Update Data Asset",
-                    currentManifestFileCID: manifestFiles[index].hash,
-                    manifestFileName: manifestFiles[index].manifestFileName,
-                    folderCid: manifestFiles[index].folderHash,
-                  }}>
-                  <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                </Link>
-              );
-            }
-          })}
-      </div>
+      )) || (
+        <>
+          <span className="text-accent text-2xl py-12">Your Folder / Files</span>
+          {(categoryManifestFiles[CATEGORIES[0]].length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid grid-cols-3">
+              {showCategories &&
+                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
+                  <Link
+                    key={index}
+                    to={"/upload"}
+                    state={{
+                      manifestFile: manifest,
+                      action: "Update Data Asset",
+                      currentManifestFileCID: manifest.hash,
+                      manifestFileName: manifest.manifestFileName,
+                      folderCid: manifest.folderHash,
+                    }}>
+                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                  </Link>
+                ))}
+            </div>
+          )}
 
-      {manifestFiles.length === 0 && !isLoading && (
-        <div className="flex justify-center items-center">
-          <p className="text-gray-400 text-2xl">No data assets found.</p>
-        </div>
+          <span className="text-accent text-2xl py-12">Your Music Playlists </span>
+          {(manifestFiles.length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid grid-cols-3">
+              {!isLoading &&
+                manifestFiles.map((manifest: ManifestFile, index) => {
+                  if (!manifest.data_stream.category) {
+                    return (
+                      <Link
+                        key={index}
+                        to={"/upload-music"}
+                        state={{
+                          manifestFile: manifestFiles[index],
+                          action: "Update Data Asset",
+                          currentManifestFileCID: manifestFiles[index].hash,
+                          manifestFileName: manifestFiles[index].manifestFileName,
+                          folderCid: manifestFiles[index].folderHash,
+                        }}>
+                        <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                      </Link>
+                    );
+                  }
+                })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

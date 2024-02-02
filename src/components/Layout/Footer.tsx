@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
   };
   return (
     <footer className=" flex flex-col bg-accent px-12 pt-16 gap-4 justify-around items-center w-full">
-      <div className=" flex flex-col border-b-2 border-background w-[80%] text-background  ">
+      <div className=" flex flex-col border-b-2 border-background w-[80%] text-background hidden">
         <div className="flex flex-row">
           <div className="w-[50%] flex flex-col gap-4 pb-8">
             <img src={logoBlack} className="max-w-[8rem]" />
@@ -61,7 +61,7 @@ export const Footer: React.FC = () => {
         </div>
       </div>
       <span className="text-xl flex items-center pb-4 text-background ">
-        Made with <Heart className="mx-1 " color="black" /> by Zedge Horizon
+        Made with <Heart className="mx-1" color="black" /> by Zedge Horizon
       </span>
     </footer>
   );
