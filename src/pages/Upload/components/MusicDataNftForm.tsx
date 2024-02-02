@@ -8,6 +8,7 @@ import { DatePicker } from "../../../libComponents/DatePicker";
 import { Input } from "../../../libComponents/Input";
 import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -67,6 +68,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   //   setImageURL(imageURL);
   //   setwantToEditImage(false);
   // };
+
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("audio/")) {
@@ -208,7 +210,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") || format(new Date(), "yyyy-MM-dd")} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>

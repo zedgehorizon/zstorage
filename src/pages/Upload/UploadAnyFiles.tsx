@@ -9,6 +9,7 @@ import { Lightbulb, XCircle } from "lucide-react";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
+import { tokenConstant } from "../../utils/constants";
 
 import pdfFile from "../../assets/logo/document-type/pdf.png";
 import docFile from "../../assets/logo/document-type/doc.png";
@@ -29,7 +30,7 @@ const UploadAnyFiles: React.FC = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
+  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
 
   const [name, setName] = useState("");
