@@ -11,7 +11,7 @@ export default defineConfig(() => {
     define: {
       "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version),
       "import.meta.env.VITE_ENV_WALLETCONNECTV2_PROJECTID": JSON.stringify(process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID),
-      VITE_ENV_BACKEND_API: process.env.VITE_ENV_BACKEND_API,
+      "import.meta.env.VITE_ENV_BACKEND_API": process.env.VITE_ENV_BACKEND_API,
       "import.meta.env.VITE_ENV_NETWORK": JSON.stringify(process.env.VITE_ENV_NETWORK),
     },
     server: {

@@ -237,7 +237,7 @@ export const UploadMusicData: React.FC = () => {
         manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, theToken);
+      const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
