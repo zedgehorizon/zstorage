@@ -9,8 +9,8 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   define: {
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version),
-    "process.env": process.env,
-    // VITE_ENV_WALLETCONNECTV2_PROJECTID: process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID,
+    // "process.env": process.env,
+    VITE_ENV_WALLETCONNECTV2_PROJECTID: process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID,
     "import.meta.env.VITE_ENV_BACKEND_API": JSON.stringify(process.env.VITE_ENV_BACKEND_API),
     // VITE_ENV_NETWORK: process.env.VITE_ENV_NETWORK,
   },
