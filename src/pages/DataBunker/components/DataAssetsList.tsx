@@ -46,7 +46,7 @@ export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
-  const theToken = tokenConstant ? tokenConstant : tokenLogin?.nativeAuthToken;
+  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
@@ -55,35 +55,34 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[2]]: [],
   });
 
-  async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
-    try {
-      const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
-      setIsLoading(true);
+  // async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
+  //   try {
+  //     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
+  //     setIsLoading(true);
 
-      const response = await axios.get(apiUrlGet, {
-        headers: {
-          "authorization": `Bearer ${theToken}`,
-        },
-      });
+  //     const response = await axios.get(apiUrlGet, {
+  //       headers: {
+  //         "authorization": `Bearer ${theToken}`,
+  //       },
+  //     });
 
-      setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
-    } catch (error: any) {
-      console.error("Error fetching data assets", error);
-    }
-  }
+  //     setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
+  //   } catch (error: any) {
+  //     console.error("Error fetching data assets", error);
+  //   }
+  // }
 
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
-
     try {
       const response = await axios.get(apiUrlGet, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
-
+      console.log("response.data  setStoredDataAssets", response);
       setStoredDataAssets(response.data);
       if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
     } catch (error: any) {
@@ -162,11 +161,15 @@ export const DataAssetList: React.FC = () => {
 
   useEffect(() => {
     const downloadLatestVersionsManifestFiles = async () => {
-      await Promise.all(
-        storedDataAssets.map(async (manifestAsset) => {
-          await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash);
-        })
-      );
+      try {
+        await Promise.all(
+          storedDataAssets.map(async (manifestAsset) => {
+            await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash);
+          })
+        );
+      } catch (error) {
+        throw error;
+      }
       setIsLoading(false);
     };
 

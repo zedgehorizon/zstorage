@@ -38,13 +38,15 @@ const UploadAnyFiles: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
+  const [manifestCid, setManifestCid] = useState();
+
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
-
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -215,9 +217,13 @@ const UploadAnyFiles: React.FC = () => {
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
       if (response[0]) {
+        console.log("THE RESPONSE FROM UPLOADD ", response);
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestCid(ipfs);
-
+        setManifestFileIpfsUrl(ipfs);
+        setManifestCid(response[0]?.hash);
+        setFolderHash(response[0]?.folderHash);
+        setRecentlyUploadedManifestFileName(response[0]?.fileName);
+        null;
         toast.success("Manifest file uploaded successfully", {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -236,7 +242,6 @@ const UploadAnyFiles: React.FC = () => {
           </button>
         ),
       });
-
       console.error("Error generating the manifest file:", error);
     }
     setProgressBar(100);
@@ -252,7 +257,7 @@ const UploadAnyFiles: React.FC = () => {
   return (
     <div className="flex  flex-col  h-full pb-16 ">
       <UploadHeader
-        title={manifestCid ? "Update" : "Upload" + " Data"}
+        title={manifestFileIpfsUrl ? "Update" : "Upload" + " Data"}
         name={name}
         creator={creator}
         createdOn={createdOn}
@@ -284,6 +289,8 @@ const UploadAnyFiles: React.FC = () => {
           isUploadButtonDisabled={checkIsDisabled()}
           progressBar={progressBar}
           manifestCid={manifestCid}
+          folderHash={folderHash}
+          recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
         />
       </div>
     </div>

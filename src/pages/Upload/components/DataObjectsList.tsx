@@ -4,9 +4,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import { Progress } from "../../../libComponents/Progress";
 import { Link } from "react-router-dom";
-import { ToolTip } from "../../../libComponents/Tooltip";
-import { CopyIcon } from "lucide-react";
 import { IPFS_GATEWAY } from "../../../utils/constants";
+import CidsView from "./CidsView";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -14,11 +13,14 @@ interface DataObjectsListProps {
   isUploadButtonDisabled: boolean;
   progressBar: number;
   uploadFileToIpfs: () => void;
-  manifestCid?: string | null;
+  manifestCid?: string;
+  folderHash?: string;
+  recentlyUploadedManifestFileName?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
-  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, uploadFileToIpfs } = props;
+  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, recentlyUploadedManifestFileName, folderHash, uploadFileToIpfs } =
+    props;
   const [progressValue, setProgressValue] = React.useState(0);
 
   // useEffect hook to load the progress bar smoothly to 100 in 10 seconds
@@ -65,27 +67,18 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             Upload Data
           </button>
         }
-        modalClassName={"bg-background bg-muted !w-[40rem] items-center justify-center"}
+        modalClassName={"bg-background bg-muted !max-w-[60%] h-fulll items-center justify-center"}
         closeOnOverlayClick={false}>
         {
-          <div className="flex flex-col gap-4 w-[40rem] text-foreground items-center justify-center">
+          <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
-            <Progress className="bg-background w-[60%] " value={progressValue}></Progress>
-            <span className="">{progressBar > 60 ? (progressBar === 100 ? "Upload completed!" : "Amost there...") : "Uploading files..."}</span>
+            <Progress className="bg-background w-[40rem]" value={progressValue}></Progress>
+            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Amost there...") : "Uploading files..."}</span>
             {manifestCid && (
-              <div className="flex flex-col items-center justify-center p-8">
+              <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
-                    <a href={IPFS_GATEWAY + manifestCid} target="_blank" className="text-lg font-light underline text-accent">
-                      Click here to open manifest file
-                    </a>
-
-                    <ToolTip tooltip="It might take some time for the files to get pinned and to be visible on public gateways">
-                      <div className="text-accent flex flex-row items-center justify-center gap-4">
-                        <span className="max-w-[60%] overflow-hidden overflow-ellipsis">{manifestCid}</span>
-                        <CopyIcon onClick={() => navigator.clipboard.writeText(manifestCid)} className="h-5 w-5 cursor-pointer text-accent" />
-                      </div>
-                    </ToolTip>
+                    <CidsView currentManifestFileCID={manifestCid} folderCid={folderHash} manifestFileName={recentlyUploadedManifestFileName} />
                     <Link
                       to={"/data-bunker"}
                       className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">

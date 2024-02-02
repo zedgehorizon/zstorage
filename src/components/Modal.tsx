@@ -28,7 +28,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
             {description ? <DialogDescription className={descriptionClassName}>{description}</DialogDescription> : <></>}
           </div>
         </DialogHeader>
-        <div className="overflow-x-hidden overflow-y-auto scrollbar max-h-[65dvh] ">{children}</div>
+        <div className="overflow-x-hidden overflow-y-auto scrollbar   ">{children}</div>
       </DialogContent>
     </Dialog>
   );

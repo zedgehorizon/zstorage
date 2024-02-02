@@ -3,7 +3,6 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
 import { cn } from "../utils/utils";
 import { Button } from "./Button";
 import { Calendar } from "./Calendar";
@@ -18,8 +17,6 @@ export function DatePicker(props: DatePickerProps) {
   const { setterFunction, previousDate } = props;
   const [date, setDate] = React.useState<Date>();
 
-  console.log(date, "date");
-
   React.useEffect(() => {
     if (date) {
       setterFunction(format(date, "yyyy-MM-dd"));
@@ -32,11 +29,6 @@ export function DatePicker(props: DatePickerProps) {
     }
   }, [previousDate]);
 
-  // React.useEffect(() => {
-  //   if (date) {
-  //     setDate( new Date(), "yyyy-MM-dd" );
-  //   }
-  // }, []);
   return (
     <Popover>
       <PopoverTrigger asChild>
