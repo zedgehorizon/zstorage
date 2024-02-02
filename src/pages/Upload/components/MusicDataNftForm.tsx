@@ -200,7 +200,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
             </div>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent">
               <input
                 type="text"
                 placeholder="Title"
@@ -210,7 +210,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") || format(new Date(), "yyyy-MM-dd")} />
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
@@ -337,7 +337,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           )}
           <div className="w-full flex flex-col justify-center items-center ">
             {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
-          </div>{" "}
+          </div>
           <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>

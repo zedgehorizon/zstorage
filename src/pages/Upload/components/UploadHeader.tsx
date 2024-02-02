@@ -3,6 +3,7 @@ import { DatePicker } from "../../../libComponents/DatePicker";
 import { format } from "date-fns";
 import { CopyIcon, ExternalLink } from "lucide-react";
 import { IPFS_GATEWAY } from "../../../utils/constants";
+import CidsView from "./CidsView";
 
 interface UploadHeaderProps {
   title: string;
@@ -59,7 +60,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
 
         <div className="flex flex-col mb-4">
           <label className="text-foreground mb-2 ">Created On:</label>
-          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn || format(new Date(), "yyyy-MM-dd")} />
+          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : undefined} />
         </div>
 
         <div className="mb-4">
@@ -71,30 +72,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      <div>
-        {folderCid && (
-          <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-            <h3 className="">Folder CID - {folderCid}</h3>
-            <CopyIcon onClick={() => navigator.clipboard.writeText(folderCid)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-          </div>
-        )}
-        {currentManifestFileCID && (
-          <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-            <h3>Manifest CID - {currentManifestFileCID} </h3>
-            <CopyIcon onClick={() => navigator.clipboard.writeText(currentManifestFileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-          </div>
-        )}
-
-        {manifestFileName && (
-          <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
-            <h3>Manifest File Name - {manifestFileName} </h3>{" "}
-            <CopyIcon onClick={() => navigator.clipboard.writeText(manifestFileName)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-            <a href={IPFS_GATEWAY + "ipfs/" + folderCid + "/" + manifestFileName} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
-              <ExternalLink className="text-accent" />
-            </a>
-          </div>
-        )}
-      </div>
+      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} />
     </div>
   );
 };

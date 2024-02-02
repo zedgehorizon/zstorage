@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -50,7 +50,7 @@ export const UploadMusicData: React.FC = () => {
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
 
-  const [manifestCid, setManifestCid] = useState(null);
+  const [manifestCid, setManifestCid] = useState();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -120,7 +120,7 @@ export const UploadMusicData: React.FC = () => {
         }
       );
     }
-
+    filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
@@ -234,7 +234,7 @@ export const UploadMusicData: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : "manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
@@ -377,14 +377,6 @@ export const UploadMusicData: React.FC = () => {
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
-
-  // console.log("songsData: ", songsData);
-  // console.log("filePairs: ", filePairs);
-  // console.log("manifestFile: ", manifestFile);
-  // console.log("formData: ", formData);
-  // // console.log("totalItems: ", numberOfSongs);
-  // console.log("manifestCid: ", manifestCid);
-  // console.log("unsavedChanges: ", unsavedChanges);
 
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>

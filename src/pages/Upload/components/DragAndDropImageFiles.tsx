@@ -2,18 +2,16 @@ import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { cn } from "../../../utils/utils";
-import { set } from "date-fns";
 
 interface DragAndDropImageFilesProps {
   setFile: (file: File) => void;
-  setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with ImageFiles
+  setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
   className?: string;
 }
+
 const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
   const { setFile, setImagePreview, imagePreview, className } = props;
-  console.log(setImagePreview);
-
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
