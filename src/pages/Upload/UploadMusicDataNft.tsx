@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -40,7 +40,7 @@ export const UploadMusicData: React.FC = () => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
+  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
 
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
 

@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { API_VERSION, VITE_ENV_BACKEND_API } from "./constants";
+import { API_VERSION } from "./constants";
 import axios from "axios";
 
 import toast from "react-hot-toast";
@@ -17,7 +17,7 @@ export function generateRandomString() {
 
 export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToken: string) {
   try {
-    const response = await axios.post(`${VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
+    const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
       headers: {
         "authorization": `Bearer ${nativeAuthToken}`,
       },

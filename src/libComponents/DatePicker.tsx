@@ -18,6 +18,8 @@ export function DatePicker(props: DatePickerProps) {
   const { setterFunction, previousDate } = props;
   const [date, setDate] = React.useState<Date>();
 
+  console.log(date, "date");
+
   React.useEffect(() => {
     if (date) {
       setterFunction(format(date, "yyyy-MM-dd"));
@@ -30,6 +32,11 @@ export function DatePicker(props: DatePickerProps) {
     }
   }, [previousDate]);
 
+  // React.useEffect(() => {
+  //   if (date) {
+  //     setDate( new Date(), "yyyy-MM-dd" );
+  //   }
+  // }, []);
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -39,7 +46,7 @@ export function DatePicker(props: DatePickerProps) {
             "justify-between text-accent/50 hover:bg-background/1 hover:text-accent w-full fill-accent text-md   bg-background p-6 border border-accent/50 rounded ",
             !date && "text-accent"
           )}>
-          {date ? format(date, "dd/MM/yyyy") : <span>Pick a date</span>}
+          {date ? format(date, "dd/MM/yyyy") : <span> Pick a date</span>}
           <CalendarIcon className="ml-8 h-5 w-5 text-accent" />
         </Button>
       </PopoverTrigger>

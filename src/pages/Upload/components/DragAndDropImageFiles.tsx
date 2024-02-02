@@ -95,7 +95,15 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
               Drag & drop file here, or
               <span className=" mx-2 text-accent text-center underline ">select </span>
               from your computer.
-              <input id="file-upload" name="file-upload" type="file" className="sr-only " ref={inputRef} onChange={handleInputChange} />
+              <input
+                type="file"
+                accept={setImagePreview ? "image/*" : ""}
+                id="file-upload"
+                name="file-upload"
+                className="sr-only "
+                ref={inputRef}
+                onChange={handleInputChange}
+              />
             </label>
           </>
         )}
@@ -113,7 +121,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
           </div>
           <input
             type="file"
-            // accept="image/*"
+            accept={setImagePreview ? "image/*" : ""}
             className="mx-auto w-full h-full rounded-xl cursor-pointer   absolute inset-0   opacity-0 z-50"
             ref={inputRef}
             onChange={handleInputChange}
