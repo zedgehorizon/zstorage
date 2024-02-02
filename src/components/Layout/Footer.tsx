@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Heart } from "lucide-react";
 import logoBlack from "../../assets/logo/logo-black.png";
 import toast from "react-hot-toast";
+import { ELROND_NETWORK } from "../../utils/constants";
+
+const appVersion = import.meta.env.VITE_APP_VERSION ? `v${import.meta.env.VITE_APP_VERSION}` : "version number unknown";
+
 export const Footer: React.FC = () => {
   const [email, setEmail] = useState("");
 
@@ -14,10 +18,6 @@ export const Footer: React.FC = () => {
       toast.error("Please enter your email address.");
       return;
     }
-
-    const endpoint = "https:// ";
-
-    /// TODO: Send email to endpoint
   };
   return (
     <footer className=" flex flex-col bg-accent px-12 pt-16 gap-4 justify-around items-center w-full">
@@ -60,8 +60,11 @@ export const Footer: React.FC = () => {
           <span> Cookies Settings</span>
         </div>
       </div>
-      <span className="text-xl flex items-center pb-4 text-background ">
-        Made with <Heart className="mx-1" color="black" /> by Zedge Horizon
+      <span className="text-sm flex items-center pb-4 text-background ">
+        Made with <Heart className="mx-1" color="black" /> by Zedge Horizon |&nbsp;(
+        <span className="text-sm">
+          {ELROND_NETWORK} {appVersion})
+        </span>
       </span>
     </footer>
   );

@@ -8,9 +8,11 @@ import { walletConnectV2ProjectId } from "../../config";
 import zImageHalf from "../../assets/img/z-image-half.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ELROND_NETWORK } from "../../utils/constants";
 
 let onCloseReturnRoute = "/";
 let loginCallbackRoute = "/start";
+let xAliasEnv = "https://xalias.com";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
@@ -41,6 +43,10 @@ export const Unlock: React.FC = () => {
     },
   };
 
+  if (ELROND_NETWORK === "devnet") {
+    xAliasEnv = "https://devnet.xalias.com";
+  }
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
@@ -62,7 +68,7 @@ export const Unlock: React.FC = () => {
           <WebWalletLoginButton
             className={buttonStyles}
             loginButtonText={"Google (via xAlias)"}
-            customWalletAddress="https://devnet.xalias.com"
+            customWalletAddress={xAliasEnv}
             {...commonProps}></WebWalletLoginButton>
 
           <div className="text-xs flex justify-center mt-5">... or use any wallet that's compatible with the MultiversX Blockchain</div>

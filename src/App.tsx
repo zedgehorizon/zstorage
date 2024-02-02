@@ -15,6 +15,7 @@ import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
+import { ELROND_NETWORK } from "./utils/constants";
 
 const routes = [
   {
@@ -71,7 +72,7 @@ const routes = [
 function App() {
   return (
     <DappProvider
-      environment={"devnet"}
+      environment={ELROND_NETWORK}
       customNetworkConfig={{
         name: "customConfig",
         apiTimeout,
