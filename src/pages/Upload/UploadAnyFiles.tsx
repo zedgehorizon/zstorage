@@ -217,8 +217,7 @@ const UploadAnyFiles: React.FC = () => {
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
       if (response[0]) {
-        console.log("THE RESPONSE FROM UPLOADD ", response);
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
+         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);

@@ -378,14 +378,6 @@ export const UploadMusicData: React.FC = () => {
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
 
-  // console.log("songsData: ", songsData);
-  // console.log("filePairs: ", filePairs);
-  // console.log("manifestFile: ", manifestFile);
-  // console.log("formData: ", formData);
-  // // console.log("totalItems: ", numberOfSongs);
-  // console.log("manifestCid: ", manifestCid);
-  // console.log("unsavedChanges: ", unsavedChanges);
-
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -430,7 +422,6 @@ export const UploadMusicData: React.FC = () => {
             progressBar={progressBar}
             uploadFileToIpfs={generateManifestFile}
             manifestCid={manifestCid}
-            
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "../utils/utils";
 import { Button } from "./Button";
@@ -15,17 +15,19 @@ interface DatePickerProps {
 
 export function DatePicker(props: DatePickerProps) {
   const { setterFunction, previousDate } = props;
-  const [date, setDate] = React.useState<Date>();
-
-  React.useEffect(() => {
+  const [date, setDate] = React.useState<Date | undefined>();
+  function handleDateChange(date: Date | undefined) {
     if (date) {
+      setDate(date);
       setterFunction(format(date, "yyyy-MM-dd"));
     }
-  }, [date]);
+  }
 
   React.useEffect(() => {
     if (previousDate) {
       setDate(new Date(previousDate));
+    } else {
+      setDate(new Date());
     }
   }, [previousDate]);
 
@@ -43,7 +45,7 @@ export function DatePicker(props: DatePickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+        <Calendar mode="single" selected={date} onSelect={(date: Date | undefined) => handleDateChange(date)} initialFocus />
       </PopoverContent>
     </Popover>
   );

@@ -82,7 +82,6 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      console.log("response.data  setStoredDataAssets", response);
       setStoredDataAssets(response.data);
       if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
     } catch (error: any) {

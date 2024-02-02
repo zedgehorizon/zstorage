@@ -6,43 +6,45 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 import svgrPlugin from "vite-plugin-svgr";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig({
-  define: {
-    "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version),
-    "import.meta.env.VITE_ENV_WALLETCONNECTV2_PROJECTID": JSON.stringify(process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID),
-    "import.meta.env.VITE_ENV_BACKEND_API": JSON.stringify(process.env.VITE_ENV_BACKEND_API),
-    "import.meta.env.VITE_ENV_NETWORK": JSON.stringify(process.env.VITE_ENV_NETWORK),
-  },
-  server: {
-    port: Number(process.env.PORT) || 3000,
-    strictPort: true,
-    host: true,
-    https: true,
-    watch: {
-      usePolling: false,
-      useFsEvents: false,
+export default defineConfig(() => {
+  return {
+    define: {
+      "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version),
+      "import.meta.env.VITE_ENV_WALLETCONNECTV2_PROJECTID": JSON.stringify(process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID),
+      VITE_ENV_BACKEND_API: process.env.VITE_ENV_BACKEND_API,
+      "import.meta.env.VITE_ENV_NETWORK": JSON.stringify(process.env.VITE_ENV_NETWORK),
     },
-    hmr: {
-      overlay: false,
+    server: {
+      port: Number(process.env.PORT) || 3000,
+      strictPort: true,
+      host: true,
+      https: true,
+      watch: {
+        usePolling: false,
+        useFsEvents: false,
+      },
+      hmr: {
+        overlay: false,
+      },
     },
-  },
-  plugins: [
-    react(),
-    tailwindcss(),
-    basicSsl(),
-    tsconfigPaths(),
-    svgrPlugin(),
-    nodePolyfills({
-      globals: { Buffer: true, global: true, process: true },
-    }),
-  ],
-  build: {
-    outDir: "build",
-  },
-  preview: {
-    port: 3002,
-    https: true,
-    host: "localhost",
-    strictPort: true,
-  },
+    plugins: [
+      react(),
+      tailwindcss(),
+      basicSsl(),
+      tsconfigPaths(),
+      svgrPlugin(),
+      nodePolyfills({
+        globals: { Buffer: true, global: true, process: true },
+      }),
+    ],
+    build: {
+      outDir: "build",
+    },
+    preview: {
+      port: 3002,
+      https: true,
+      host: "localhost",
+      strictPort: true,
+    },
+  };
 });

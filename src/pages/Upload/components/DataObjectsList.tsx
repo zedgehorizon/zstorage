@@ -4,8 +4,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import { Progress } from "../../../libComponents/Progress";
 import { Link } from "react-router-dom";
-import { IPFS_GATEWAY } from "../../../utils/constants";
 import CidsView from "./CidsView";
+import NextStepsList from "../../../components/Lists/NextStepsList";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -67,7 +67,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             Upload Data
           </button>
         }
-        modalClassName={"bg-background bg-muted !max-w-[60%] h-fulll items-center justify-center"}
+        modalClassName={"bg-background bg-muted !max-w-[60%] h-fulll items-center justify-center border-accent/50"}
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
@@ -79,11 +79,24 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
                     <CidsView currentManifestFileCID={manifestCid} folderCid={folderHash} manifestFileName={recentlyUploadedManifestFileName} />
-                    <Link
-                      to={"/data-bunker"}
-                      className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                      View stored files
-                    </Link>
+
+                    <div className="flex flex-row justify-center items-center gap-4">
+                      <Link
+                        to={"/data-bunker"}
+                        className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                        View stored files
+                      </Link>
+                      <Modal
+                        modalClassName="w-[40%] border-accent/50"
+                        openTrigger={
+                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                            Update your DNS
+                          </button>
+                        }
+                        closeOnOverlayClick={true}>
+                        {<NextStepsList manifestCid={manifestCid} />}
+                      </Modal>
+                    </div>
                   </div>
                 )}
               </div>
