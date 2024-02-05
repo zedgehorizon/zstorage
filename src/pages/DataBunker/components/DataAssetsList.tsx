@@ -75,6 +75,7 @@ export const DataAssetList: React.FC = () => {
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
+    // const apiUrlGet = `https://zsuite-backend.up.railway.app/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
