@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "../../../utils/constants";
-import { tokenConstant } from "../../../utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
@@ -46,7 +45,7 @@ export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
-  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
@@ -193,20 +192,7 @@ export const DataAssetList: React.FC = () => {
           )) || (
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
-                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
-                ))}
+                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => <DataAssetCard category={0} manifest={manifest}></DataAssetCard>)}
             </div>
           )}
 
@@ -219,18 +205,7 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload-music"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
+                  <DataAssetCard category={1} manifest={manifest} key={index}></DataAssetCard>
                 ))}
             </div>
           )}

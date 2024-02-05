@@ -37,12 +37,11 @@ type MusicDataNftFormProps = {
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
-  const [wantToEditImage, setwantToEditImage] = useState(false);
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       category: "",
       artist: "",
       album: "",
@@ -57,17 +56,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageFile, setImageFile] = useState<File>();
 
   const [audioFile, setAudioFile] = useState<File>();
-  const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-
-  // const handleImageFileChange = (event: any) => {
-  //   const file = event.target.files[0];
-  //   setImageFile(file);
-  //   const imageURL = URL.createObjectURL(event.target.files[0]);
-  //   form.setValue("cover_art_url", imageURL);
-  //   setImageURL(imageURL);
-  //   setwantToEditImage(false);
-  // };
 
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -83,6 +72,9 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       });
     }
   };
+  useEffect(() => {
+    form.setValue("date", new Date().toISOString().split("T")[0]);
+  }, []);
 
   // populate the form
   useEffect(() => {
@@ -107,7 +99,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
     setImageFile(undefined);
     setAudioFile(undefined);
-    setAudioError(false);
   }, [props.song]);
 
   useEffect(() => {
@@ -216,83 +207,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           </div>
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Cover Art Image</span>
-            {/* <Suspense fallback={<div>Loading image...</div>}>
-              <img
-                className="mx-auto w-32 h-32 border border-white"
-                src={imageURL || songFallbackImage}
-                onError={() => setImageURL(songFallbackImage)}
-                alt="Cover Image"
-              />
-            </Suspense> */}
-            {/* <div className="flex flex-col justify-center items-center w-[80%] mb-4 mt-2 justify-start h-[65%] border-2 border-dashed border-accent/50">
-              <div className="bg-accent/20 p-3 rounded-full">
-                <ImagePlus className="w-8 h-8 text-accent" />
-              </div>
 
-              <p className="text-accent/70 mx-8">Drag & drop image here, or select from your computer.</p>
-            </div> */}
             <DragAndDropImageFiles setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
             {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
 
-            {/* <div className="flex flex-col w-full justify-end">
-              {(imageFile || imageURL !== "") && !wantToEditImage ? (
-                <div className="flex flex-row">
-                  <Button
-                    tabIndex={-1}
-                    className="scale-75 ml-auto justify-end hover:shadow-inner hover:shadow-sky-400 "
-                    onClick={() => setwantToEditImage(true)}>
-                    <Edit2 scale={0.5}></Edit2>
-                  </Button>
-                </div>
-              ) : (
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  onChange={(e) => {
-                    if (e.target.files) handleImageFileChange(e);
-                  }}
-                />
-              )}
-              {form.formState.errors.cover_art_url && <p className="text-red-500">{form.formState.errors.cover_art_url.message?.toString()}</p>}
-            </div> */}
             <div>
               <div className="flex gap-2 flex-row">
                 <label className="text-foreground">Track File (mp3)</label>
                 {audioFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
-              {/* {audioURL && !wantToEditAudio ? (
-              <div className="flex justify-center flex-col w-full ">
-                <div className="flex flex-row justify-center">
-                  <audio
-                    tabIndex={-1}
-                    onLoadStart={() => setAudioFileIsLoading(true)}
-                    onError={() => {
-                      setAudioFileIsLoading(false);
-                      setAudioError(true);
-                    }}
-                    onLoadedData={() => setAudioFileIsLoading(false)}
-                    src={audioURL}
-                    className="scale-75"
-                    controls></audio>
-                  {audioFileIsLoading && <Loader2 className="flex justify-center items-center -ml-8 mt-3  animate-spin" />}
-                  <Button tabIndex={-1} className="scale-75  ml-auto  hover:shadow-inner hover:shadow-sky-400 " onClick={() => setwantToEditAudio(true)}>
-                    <Edit2 scale={0.5}></Edit2>
-                  </Button>
-                </div>
-                {audioFileIsLoading && (
-                  <>
-                    <p className="mx-auto text-foreground"> Pinning file to IPFS may take some time. </p>
-                  </>
-                )}
-                {audioError && (
-                  <>
-                    <p className="mx-auto text-foreground">Unable to load audio file from IPFS. </p>
-                  </>
-                )}
-              </div>
-            ) : ( */}
-              {/* <input type="file" accept=".mp3" className="w-full p-2 border border-gray-300 rounded" onChange={(e) => handleAudioFileChange(e)} /> */}
               {audioURL && !wantToEditAudio && !audioFile ? (
                 <div className="mt-2 flex flex-row justify-start items-center  ">
                   <audio
@@ -300,7 +223,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                     onLoadStart={() => setAudioFileIsLoading(true)}
                     onError={() => {
                       setAudioFileIsLoading(false);
-                      setAudioError(true);
                     }}
                     onLoadedData={() => setAudioFileIsLoading(false)}
                     src={audioURL}
