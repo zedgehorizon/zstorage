@@ -1,7 +1,7 @@
 import { CheckCircle2 } from "lucide-react";
 import React from "react";
-import { Button } from "../../libComponents/Button";
-import { cn } from "../../utils/utils";
+import { Button } from "../../../libComponents/Button";
+import { cn } from "../../../utils/utils";
 
 interface PriceCardProps {
   title: string;
