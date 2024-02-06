@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MusicDataNftForm } from "./components/MusicDataNftForm";
+import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
@@ -12,29 +12,46 @@ import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFa
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 
-type SongData = {
+// {
+//   "category": "Feature",
+//   "date": "2022-10-06T00:00:00Z",
+//   "title": "Morningstar Ventures Project Review",
+//   "link": "https://twitter.com/Morningstar_vc/status/1577801459013386240"
+// }
+
+// {
+//   "category": "Meme",
+//   "date": "2024-02-01T05:37:17Z",
+//   "title": "Feb 1 2024 Announcement Secret Team Meeting",
+//   "link": "https://twitter.com/PepeVersX/status/1752353118208098615",
+//   "file": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_video_feb_1_2024_meeting.mp4",
+//   "file_preview_img": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_previmg_feb_1_2024_meeting.png",
+//   "file_mimeType": "video/mp4"
+// }
+
+type ItemData = {
   date: string;
   category: string;
-  artist: string;
-  album: string;
   title: string;
+  link: string;
   file: string;
-  cover_art_url: string;
+  file_preview_img: string;
+  file_mimeType: string;
 };
 
 type FilePair = {
   image: File;
-  audio: File;
+  media: File;
 };
 
-export const UploadMusicData: React.FC = () => {
+export const UploadTrailblazerData: React.FC = () => {
   const location = useLocation();
-  const currentCategory = 1; // musicplaylist
+  const currentCategory = 2; // trailblazer
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
-  const [songsData, setSongsData] = useState<Record<number, SongData>>({});
+  const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
-  const [numberOfSongs, setNumberOfSongs] = useState(1);
+  const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
   const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
@@ -53,15 +70,15 @@ export const UploadMusicData: React.FC = () => {
         setCreator(dataStream.creator);
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
-        const songsDataMap = manifestFile.data.reduce(
-          (acc: any, song: any) => {
-            if (song) acc[song.idx] = song;
+        setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
+        const itemDataMap = manifestFile.data.reduce(
+          (acc: any, itemData: any) => {
+            if (itemData) acc[itemData.idx] = itemData;
             return acc;
           },
-          {} as Record<number, SongData>
+          {} as Record<number, ItemData>
         );
-        setSongsData(songsDataMap);
+        setItemsData(itemDataMap);
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
@@ -79,7 +96,7 @@ export const UploadMusicData: React.FC = () => {
   useEffect(() => {
     let hasUnsavedChanges = false;
 
-    if (numberOfSongs > 1 && songsData[1].title) {
+    if (numberOfItems > 1 && itemsData[1].title) {
       if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
@@ -91,35 +108,35 @@ export const UploadMusicData: React.FC = () => {
     }
     hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
     setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [songsData, unsavedChanges, name, creator, createdOn]);
+  }, [itemsData, unsavedChanges, name, creator, createdOn]);
 
-  // upload the audio and images of all the songs
-  async function uploadSongsAndImagesFiles() {
+  // upload the preview images and media of all the items
+  async function uploadItemItemMediaFiles() {
     const filesToUpload = new FormData();
     try {
-      //iterating over the songsData and for each object add its image and song to the formData
-      Object.values(songsData).forEach((songData, idx) => {
-        if (songData && songData?.title && filePairs[idx + 1]) {
+      //iterating over the itemsData and for each object add its preview image and media to the formData
+      Object.values(itemsData).forEach((mediaData, idx) => {
+        if (mediaData && mediaData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + songData.title + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() + "." + "image" + "_" + mediaData.title + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
-          if (filePairs[idx + 1]?.audio) {
+          if (filePairs[idx + 1]?.media) {
             filesToUpload.append(
               "files",
-              filePairs[idx + 1].audio,
-              generateRandomString() + "." + "audio" + "_" + songData.title + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              filePairs[idx + 1].media,
+              generateRandomString() + "." + "media" + "_" + mediaData.title + "." + filePairs[idx + 1].media.name.split(".")[1]
             );
           }
         }
       });
     } catch (error: any) {
-      console.error("ERROR iterating through songs Data : ", error);
+      console.error("ERROR iterating through items Data : ", error);
       toast.error(
-        "Error iterating through songs Data : " +
+        "Error iterating through items Data : " +
           `${error ? error.message + ". " + error?.response?.data.message : ""}` +
           " Please check all the fields to be filled correctly.",
         {
@@ -131,7 +148,9 @@ export const UploadMusicData: React.FC = () => {
         }
       );
     }
+
     filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
+
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
@@ -139,46 +158,46 @@ export const UploadMusicData: React.FC = () => {
   }
 
   /**
-   * Get all songs data into the right format for manifest file
-   * Transforms the songs data and uploads the songs and images files.
-   * @returns {Array<Object>} The transformed data of the songs.
-   * @throws {Error} If the upload songs import.meta did not work correctly or if the data has not been uploaded correctly.
+   * Get all items data into the right format for manifest file
+   * Transforms the items data and uploads the preview images and media files.
+   * @returns {Array<Object>} The transformed data of the items.
+   * @throws {Error} If the upload items import.meta did not work correctly or if the data has not been uploaded correctly.
    */
-  async function transformSongsData() {
+  async function transformItemData() {
     try {
-      const responseDataCIDs = await uploadSongsAndImagesFiles();
+      const responseDataCIDs = await uploadItemItemMediaFiles();
       if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
       // Iterate through the response list and find the matching cidv1
-      const transformedData = Object.values(songsData).map((songObj, index) => {
-        if (songObj && songObj?.title) {
+      const transformedData = Object.values(itemsData).map((itemObj, index) => {
+        if (itemObj && itemObj?.title) {
           let matchingObjImage;
-          let matchingObjSong;
+          let matchingObjItem;
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${songObj.title}`));
-              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${itemObj.title}`));
+              if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Preview Image CID could not be found ");
             }
-            if (fileObj.audio && fileObj.audio.name) {
-              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.audio_${songObj.title}`));
-              if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
+            if (fileObj.media && fileObj.media.name) {
+              matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.media_${itemObj.title}`));
+              if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
           }
 
           return {
             idx: index + 1,
-            date: new Date(songObj?.date).toISOString(),
-            category: songObj?.category,
-            artist: songObj?.artist,
-            album: songObj?.album,
-            file: matchingObjSong ? `${IPFS_GATEWAY}ipfs/${matchingObjSong.folderHash}/${matchingObjSong.fileName}` : songObj.file,
-            cover_art_url: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : songObj.cover_art_url,
-            title: songObj?.title,
+            date: new Date(itemObj?.date).toISOString(),
+            category: itemObj?.category,
+            title: itemObj?.title,
+            link: itemObj?.link,
+            file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
+            file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
+            file_mimeType: itemObj?.file_mimeType,
           };
         }
       });
-      return transformedData.filter((song: any) => song !== null);
+      return transformedData.filter((item: any) => item !== null);
     } catch (error: any) {
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
@@ -192,7 +211,7 @@ export const UploadMusicData: React.FC = () => {
   }
 
   function verifyHeaderFields() {
-    if (!name || !creator || !createdOn || !songsData) {
+    if (!name || !creator || !createdOn || !itemsData) {
       // toast.error("Please fill all the fields from the header section", {
       //   icon: (
       //     <button onClick={() => toast.dismiss()}>
@@ -221,7 +240,7 @@ export const UploadMusicData: React.FC = () => {
     }
 
     try {
-      const data = await transformSongsData();
+      const data = await transformItemData();
       if (data === undefined) {
         return;
       }
@@ -235,7 +254,7 @@ export const UploadMusicData: React.FC = () => {
           "created_on": createdOn,
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
-            "totalItems": numberOfSongs - 1,
+            "totalItems": numberOfItems - 1,
             "nestedStream": "true", // set to true for MUSIC DATA NFTs
           },
         },
@@ -278,52 +297,52 @@ export const UploadMusicData: React.FC = () => {
     setProgressBar(100);
   };
 
-  const handleAddMoreSongs = () => {
-    setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
-    setNumberOfSongs((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
+  const handleAddMoreItems = () => {
+    setItemsData((prev) => Object.assign(prev, { [numberOfItems]: {} }));
+    setNumberOfItems((prev) => prev + 1);
+    setUnsavedChanges((prev) => ({ ...prev, [numberOfItems]: true }));
   };
 
-  function deleteSong(index: number) {
-    const variableSongsData = { ...songsData };
+  function deleteItem(index: number) {
+    const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
 
-    for (let i = index; i < numberOfSongs - 1; ++i) {
-      variableSongsData[i] = variableSongsData[i + 1];
+    for (let i = index; i < numberOfItems - 1; ++i) {
+      variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
     }
 
-    delete variableSongsData[numberOfSongs - 1];
-    delete variableFilePairs[numberOfSongs - 1];
-    delete variableUnsavedChanges[numberOfSongs - 1];
+    delete variableItemsData[numberOfItems - 1];
+    delete variableFilePairs[numberOfItems - 1];
+    delete variableUnsavedChanges[numberOfItems - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
-    setSongsData(variableSongsData);
+    setItemsData(variableItemsData);
     setFilePairs(variableFilePairs);
-    setNumberOfSongs((prev) => prev - 1);
+    setNumberOfItems((prev) => prev - 1);
   }
 
   /**
-   * Swaps the songs at the given indices in the songsData and filePairs state.
-   * If second is -1, it deletes the song at index first.
-   * @param first - The index of the first song to swap or delete.
-   * @param second - The index of the second song to swap. Use -1 to delete the song at index first.
+   * Swaps the items at the given indices in the itemsData and filePairs state.
+   * If second is -1, it deletes the item at index first.
+   * @param first - The index of the first item to swap or delete.
+   * @param second - The index of the second item to swap. Use -1 to delete the item at index first.
    */
-  function swapSongs(first: number, second: number) {
-    if (first < 1 || second >= numberOfSongs) {
+  function swapItemData(first: number, second: number) {
+    if (first < 1 || second >= numberOfItems) {
       return;
     }
 
-    // deleting song with index = first
+    // deleting item with index = first
     if (second === -1) {
-      deleteSong(first);
+      deleteItem(first);
       return;
     }
 
     if (unsavedChanges[first] || unsavedChanges[second]) {
-      toast.error("Please save all the changes before swapping the songs", {
+      toast.error("Please save all the changes before swapping the items", {
         icon: (
           <button onClick={() => toast.dismiss()}>
             <Lightbulb color="yellow" />
@@ -333,27 +352,27 @@ export const UploadMusicData: React.FC = () => {
       return;
     }
 
-    const songsDataVar = { ...songsData };
-    const storeSong = songsDataVar[second];
-    songsDataVar[second] = songsDataVar[first];
-    songsDataVar[first] = storeSong;
+    const itemsDataVar = { ...itemsData };
+    const storeItem = itemsDataVar[second];
+    itemsDataVar[second] = itemsDataVar[first];
+    itemsDataVar[first] = storeItem;
 
     const storeFilesVar = { ...filePairs };
     const storeFile = storeFilesVar[second];
     storeFilesVar[second] = storeFilesVar[first];
     storeFilesVar[first] = storeFile;
 
-    setSongsData(songsDataVar);
+    setItemsData(itemsDataVar);
     setFilePairs(storeFilesVar);
   }
 
   // setter function for a music Data nft form fields and files
-  const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
-    if (image && audio) {
-      // Both image and audio files uploaded
+  const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
+    if (image && media) {
+      // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
-        [index]: { image: image, audio: audio },
+        [index]: { image: image, media: media },
       }));
     } else if (image) {
       // Only image file uploaded
@@ -361,24 +380,22 @@ export const UploadMusicData: React.FC = () => {
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
-    } else if (audio) {
-      // Only audio file uploaded
+    } else if (media) {
+      // Only media file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
-        [index]: { ...prevFilePairs[index], audio: audio },
+        [index]: { ...prevFilePairs[index], media: media },
       }));
     }
-    setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
 
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
-
         <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
-            title={(manifestFile ? "Update" : "Upload") + " Music Data"}
+            title={(manifestFile ? "Update" : "Upload") + " Trailblazer Data"}
             name={name}
             creator={creator}
             createdOn={createdOn}
@@ -391,23 +408,23 @@ export const UploadMusicData: React.FC = () => {
             currentManifestFileCID={currentManifestFileCID}
           />
           <DataObjectsList
-            DataObjectsComponents={Object.keys(songsData).map((index: any) => (
-              <MusicDataNftForm
+            DataObjectsComponents={Object.keys(itemsData).map((index: any) => (
+              <TrailblazerNftForm
                 key={index}
                 index={index}
-                lastItem={Number(index) === numberOfSongs - 1}
-                song={songsData[index]}
+                lastItem={Number(index) === numberOfItems - 1}
+                itemData={itemsData[index]}
                 setterFunction={handleFilesSelected}
-                swapFunction={swapSongs}
+                swapFunction={swapItemData}
                 unsavedChanges={unsavedChanges[index]}
-                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
+                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></TrailblazerNftForm>
             ))}
             addButton={
               <div className="flex flex-col justify-center items-center">
                 <Button
                   className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
-                  onClick={handleAddMoreSongs}>
-                  Add song
+                  onClick={handleAddMoreItems}>
+                  Add Item
                 </Button>
               </div>
             }
