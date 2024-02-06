@@ -10,16 +10,6 @@ import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
-type ItemData = {
-  date: string;
-  category: string;
-  title: string;
-  link: string;
-  file: string;
-  file_preview_img: string;
-  file_mimeType: string;
-};
-
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
   category: z.string().min(1, "Required field"),
@@ -49,6 +39,12 @@ type TrailblazerNftFormProps = {
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   const [wantToEditImage, setWantToEditImage] = useState(false);
   const [wantToEditMedia, setWantToEditMedia] = useState(false);
+  const [imageURL, setImageURL] = useState("");
+  const [mediaURL, setMediaURL] = useState("");
+  const [imageFile, setImageFile] = useState<File>();
+  const [mediaFile, setMediaFile] = useState<File>();
+  const [mediaError, setMediaError] = useState(false);
+  const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,13 +57,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       file_mimeType: "",
     },
   });
-
-  const [imageURL, setImageURL] = useState("");
-  const [mediaURL, setMediaURL] = useState("");
-  const [imageFile, setImageFile] = useState<File>();
-  const [mediaFile, setMediaFile] = useState<File>();
-  const [mediaError, setMediaError] = useState(false);
-  const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
 
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -176,12 +165,12 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             </div>
 
             <div className=" hover:text-accent ">
-              <input
-                type="text"
-                placeholder="Category"
+              <select
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                {...form.register("category")}
-              />
+                {...form.register("category")}>
+                <option value="Meme">Media Meme</option>
+                <option value="Feature">Feature</option>
+              </select>
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
             </div>
 

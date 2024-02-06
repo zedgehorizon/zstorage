@@ -55,7 +55,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageURL, setImageURL] = useState("");
   const [audioURL, setAudioURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
-
   const [audioFile, setAudioFile] = useState<File>();
   const [audioError, setAudioError] = useState(false);
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
@@ -120,7 +119,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }
 
   function handleMoveUp() {
-    ///prosp.index is string
     if (props.index == 1) return;
     props.swapFunction(props.index - 1 + 1, props.index - 1);
   }

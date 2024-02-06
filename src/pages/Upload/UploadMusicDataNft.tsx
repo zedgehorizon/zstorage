@@ -2,16 +2,13 @@ import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
-
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 
@@ -46,7 +43,6 @@ export const UploadMusicData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-
   const [manifestCid, setManifestCid] = useState();
 
   useEffect(() => {
@@ -78,6 +74,24 @@ export const UploadMusicData: React.FC = () => {
       }
     }
   }, [manifestFile]);
+
+  // check whether the upload button should be disabled or not
+  useEffect(() => {
+    let hasUnsavedChanges = false;
+
+    if (numberOfSongs > 1 && songsData[1].title) {
+      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
+      Object.values(unsavedChanges).forEach((item) => {
+        if (item === true) {
+          hasUnsavedChanges = true;
+        }
+      });
+    } else {
+      hasUnsavedChanges = true;
+    }
+    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
+    setIsUploadButtonDisabled(hasUnsavedChanges);
+  }, [songsData, unsavedChanges, name, creator, createdOn]);
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -290,24 +304,6 @@ export const UploadMusicData: React.FC = () => {
     setFilePairs(variableFilePairs);
     setNumberOfSongs((prev) => prev - 1);
   }
-
-  // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
-
-    if (numberOfSongs > 1 && songsData[1].title) {
-      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
-      });
-    } else {
-      hasUnsavedChanges = true;
-    }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [songsData, unsavedChanges, name, creator, createdOn]);
 
   /**
    * Swaps the songs at the given indices in the songsData and filePairs state.

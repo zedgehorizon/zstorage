@@ -135,8 +135,8 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
-        loading: "Fetching all data assets from IPFS for your wallet...",
-        success: <b>Fetched all data assets from IPFS for your wallet!</b>,
+        loading: "Fetching all your digital bunker data assets...",
+        success: <b>Fetched all your digital bunker data assets!</b>,
         error: <b>The data assets could not be fetched. </b>,
       });
     }
