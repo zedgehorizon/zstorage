@@ -47,7 +47,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
               </Button>
             }
             footerContent={
-              <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
+              <div className="flex flex-row p-2 gap-8 justify-center items-center w-full -mt-16 ">
                 <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back</Button>
                 <Link
                   to={"/upload-music"}
@@ -62,7 +62,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
                 </Link>
               </div>
             }>
-            <div className="flex flex-col h-[30rem] scale-[0.7]">
+            <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16">
               <AudioPlayerPreview
                 songs={Object.values(manifest.data).map((songData) => {
                   return songData;

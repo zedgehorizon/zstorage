@@ -37,8 +37,8 @@ const StoreDataAsset: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2] pb-16">
-      <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2] pb-16">
+      <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
       <div className="gap-4 flex flex-col w-[80%] items-center justify-center">

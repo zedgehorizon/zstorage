@@ -387,7 +387,7 @@ export const UploadMusicData: React.FC = () => {
       <div className="p-4 flex flex-col">
         {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
 
-        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
+        <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
             name={name}
@@ -422,7 +422,7 @@ export const UploadMusicData: React.FC = () => {
                 </Button>
                 <Modal
                   closeOnOverlayClick={true}
-                  modalClassName="p-0 m-0 max-w-[80%]"
+                  modalClassName="p-0 m-0 max-w-[80%] w-[60%]"
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
@@ -445,7 +445,7 @@ export const UploadMusicData: React.FC = () => {
                       Preview Player
                     </Button>
                   }>
-                  <div className="flex flex-col h-[30rem] scale-[0.7]">
+                  <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16 ">
                     <AudioPlayerPreview
                       songs={Object.values(songsData).map((songData) => {
                         return songData;
