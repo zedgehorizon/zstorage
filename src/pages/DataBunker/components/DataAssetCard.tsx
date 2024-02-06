@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../../../libComponents/Button";
 import { Modal } from "../../../components/Modal";
 import { AudioPlayerPreview } from "../../../components/AudioPlayerPreview";
+import MintDataNftModal from "../../Upload/components/modals/MintDataNftModal";
 
 interface DataAsset {
   name: string;
@@ -32,7 +33,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
   } = dataAsset;
   const paths = ["/upload", "/upload-music", "/upload-trailbrazer"];
   return (
-    <div className="truncate hover:bg-accent/10  gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md  ">
+    <div className="truncate hover:shadow-inner hover:shadow-accent/50  gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md  ">
       <div className="z-10 flex flex-row justify-between border-b border-accent/30 p-2">
         <h2 className="text-2xl font-bold ">{name}</h2>
         {category === 1 && (
@@ -77,22 +78,27 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
         <p>Created On: {created_on}</p>
         <p>Last Modified On: {last_modified_on}</p>
         <p>Total Items: {totalItems}</p>
-        <div className="flex flex-row justify-between">
-          <p>Nested Stream: {nestedStream ? "Yes" : "No"}</p>
-          <Link
-            to={paths[category]}
-            state={{
-              manifestFile: manifest,
-              action: "Update Asset",
-              currentManifestFileCID: manifest.hash,
-              manifestFileName: manifest.manifestFileName,
-              folderCid: manifest.folderHash,
-            }}>
-            <div className="hover:scale-125 transition -mt-2 p-2 w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
-              <Edit2 className="text-accent" />
-            </div>
-          </Link>
-        </div>
+        <p>Nested Stream: {nestedStream ? "Yes" : "No"}</p>
+      </div>
+      <div className="flex flex-row justify-between">
+        <MintDataNftModal
+          triggerElement={
+            <Button className={"hover:scale-110 duration-300 transition px-8 text-accent border border-accent rounded-full"}>Mint Data NFT</Button>
+          }
+        />
+        <Link
+          to={paths[category]}
+          state={{
+            manifestFile: manifest,
+            action: "Update Asset",
+            currentManifestFileCID: manifest.hash,
+            manifestFileName: manifest.manifestFileName,
+            folderCid: manifest.folderHash,
+          }}>
+          <div className="hover:scale-125 transition border border-accent p-2 rounded-full flex items-center justify-center">
+            <Edit2 className="text-accent" />
+          </div>
+        </Link>
       </div>
     </div>
   );

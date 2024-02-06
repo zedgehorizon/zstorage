@@ -16,6 +16,7 @@ import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "../../components/Modal";
 import { AudioPlayerPreview } from "../../components/AudioPlayerPreview";
+import MintDataNftModal from "./components/modals/MintDataNftModal";
 
 type SongData = {
   date: string;
@@ -382,6 +383,11 @@ export const UploadMusicData: React.FC = () => {
   const handleModalUploadButton = () => {
     document.getElementById("uploadButton")?.click();
   };
+
+  const handleOpenMintModal = () => {
+    document.getElementById("mintModalTrigger")?.click();
+  };
+
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -422,7 +428,7 @@ export const UploadMusicData: React.FC = () => {
                 </Button>
                 <Modal
                   closeOnOverlayClick={true}
-                  modalClassName="p-0 m-0 max-w-[80%] w-[60%]"
+                  modalClassName="p-0 m-0 max-w-[80%] "
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
@@ -433,7 +439,9 @@ export const UploadMusicData: React.FC = () => {
                         onClick={handleModalUploadButton}>
                         Upload Data
                       </Button>
-                      <Button disabled={true} className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>
+                      <Button
+                        onClick={handleOpenMintModal}
+                        className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>
                         Mint Data NFT
                       </Button>
                     </div>
@@ -463,6 +471,7 @@ export const UploadMusicData: React.FC = () => {
             folderHash={folderHash}
           />
         </div>
+        <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>
       </div>
     </ErrorBoundary>
   );
