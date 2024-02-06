@@ -1,4 +1,4 @@
-import { Edit, Edit2 } from "lucide-react";
+import { Edit2 } from "lucide-react";
 
 interface DataAsset {
   name: string;
