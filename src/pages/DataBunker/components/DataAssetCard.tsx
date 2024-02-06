@@ -31,7 +31,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
     last_modified_on,
     marshalManifest: { totalItems, nestedStream },
   } = dataAsset;
-  const paths = ["/upload", "/upload-music", "/upload-trailbrazer"];
+  const paths = ["/upload", "/upload-music", "/upload-trailblazer"];
   return (
     <div className="truncate hover:shadow-inner hover:shadow-accent/50  gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md  ">
       <div className="z-10 flex flex-row justify-between border-b border-accent/30 p-2">

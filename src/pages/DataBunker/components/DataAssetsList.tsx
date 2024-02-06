@@ -197,7 +197,7 @@ export const DataAssetList: React.FC = () => {
           )}
 
           <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
-          {(manifestFiles.length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[1]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
@@ -211,7 +211,7 @@ export const DataAssetList: React.FC = () => {
           )}
 
           <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
-          {(manifestFiles.length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[2]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
@@ -219,18 +219,7 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload-trailblazer"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
+                  <DataAssetCard key={index} category={2} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}

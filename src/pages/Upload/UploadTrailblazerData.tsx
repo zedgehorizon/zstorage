@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
@@ -53,14 +53,17 @@ export const UploadTrailblazerData: React.FC = () => {
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
+  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
+  const [folderHash, setFolderHash] = useState();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -271,7 +274,10 @@ export const UploadTrailblazerData: React.FC = () => {
 
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestCid(ipfs);
+        setManifestFileIpfsUrl(ipfs);
+        setManifestCid(response[0]?.hash);
+        setFolderHash(response[0]?.folderHash);
+        setRecentlyUploadedManifestFileName(response[0]?.fileName);
 
         toast.success("Manifest file uploaded successfully", {
           icon: (
@@ -432,6 +438,8 @@ export const UploadTrailblazerData: React.FC = () => {
             progressBar={progressBar}
             uploadFileToIpfs={generateManifestFile}
             manifestCid={manifestCid}
+            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+            folderHash={folderHash}
           />
         </div>
       </div>

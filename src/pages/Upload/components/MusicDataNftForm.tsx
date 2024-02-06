@@ -237,7 +237,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                   </Button>
                 </div>
               ) : (
-                <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted p-2 text-sm text-accent/50  ">
+                <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
                   <Input accept=".mp3" id="song" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleAudioFileChange(e)} />
                   <div className="text-accent/50 w-[10rem] truncate ">
                     {audioFile ? audioFile.name : audioURL?.split("_")[1] ? audioURL.split("_")[1] : "No chosen file"}{" "}

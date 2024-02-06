@@ -36,9 +36,6 @@ const StoreDataAsset: React.FC = () => {
     setCurrentStep(currentStep + 1);
   };
 
-  console.log("template");
-  console.log(template);
-
   return (
     <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2] pb-16">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
