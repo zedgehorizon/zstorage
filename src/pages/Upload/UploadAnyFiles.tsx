@@ -20,7 +20,6 @@ type FileData = {
   name: string;
   file: string;
   date: string;
-  ///not sure if we need category: string;
   mime_type: string;
   size: number;
 };

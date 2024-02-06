@@ -102,14 +102,12 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
-
     // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
   // download the manifest file for the corresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
     const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
-
     try {
       const response = await axios.get(apiUrlDownloadFile, {
         headers: {
@@ -117,7 +115,7 @@ export const DataAssetList: React.FC = () => {
         },
       });
       if (!response.data?.data_stream) {
-        /// empty manifest file or wrong format should not happen only with older versions
+        /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
       const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
@@ -192,7 +190,9 @@ export const DataAssetList: React.FC = () => {
           )) || (
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
-                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => <DataAssetCard category={0} manifest={manifest}></DataAssetCard>)}
+                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
+                  <DataAssetCard key={index} category={0} manifest={manifest}></DataAssetCard>
+                ))}
             </div>
           )}
 
@@ -205,7 +205,7 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
-                  <DataAssetCard category={1} manifest={manifest} key={index}></DataAssetCard>
+                  <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
