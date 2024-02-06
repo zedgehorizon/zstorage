@@ -5,14 +5,17 @@ import { NotificationModal, SignTransactionsModals, TransactionsToastList } from
 import { apiTimeout, walletConnectV2ProjectId } from "./config";
 import { Navbar } from "./components/Layout/Navbar";
 import { Route, Routes } from "react-router-dom";
-import { Home } from "./pages/Home/Home";
+import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
-import { UploadData } from "./pages/Upload/Upload";
+import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
-import DataVault from "./pages/DataVault/DataVault";
+import DataBunker from "./pages/DataBunker/DataBunker";
+import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
+import CampaignPage from "./pages/CampaignPage/CampaignPage";
+import { ELROND_NETWORK } from "./utils/constants";
 
 const routes = [
   {
@@ -24,13 +27,19 @@ const routes = [
   {
     path: "/upload",
     title: "Upload Files",
-    component: UploadData,
+    component: UploadAnyFiles,
     authenticatedRoute: true,
   },
   {
-    path: "/data-vault",
-    title: "Data Vault",
-    component: DataVault,
+    path: "/upload-music",
+    title: "Upload Files",
+    component: UploadMusicData,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/data-bunker",
+    title: "Data Bunker",
+    component: DataBunker,
     authenticatedRoute: true,
   },
   {
@@ -43,7 +52,7 @@ const routes = [
   {
     path: "/start",
     title: "Start",
-    component: Home,
+    component: Start,
     authenticatedRoute: true,
   },
   {
@@ -52,12 +61,18 @@ const routes = [
     component: StoreDataAsset,
     authenticatedRoute: true,
   },
+  {
+    path: "/itheum-music-data-nft",
+    title: "Itheum Music Data NFT",
+    component: CampaignPage,
+    authenticatedRoute: false,
+  },
 ];
 
 function App() {
   return (
     <DappProvider
-      environment={"devnet"}
+      environment={ELROND_NETWORK}
       customNetworkConfig={{
         name: "customConfig",
         apiTimeout,
@@ -67,15 +82,13 @@ function App() {
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
-        {/* <div className="backgroundCircle"></div>
-        <div className="backgroundCircle1"></div> */}
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Toaster
             position="top-right"
             reverseOrder={false}
             containerStyle={{
               position: "sticky",
-
+              zIndex: 9999,
               width: "100%",
             }}
             toastOptions={{
@@ -95,11 +108,13 @@ function App() {
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
                 <Route path="/" element={<LandingPage />}></Route>
-                <Route path="/start" element={<Home />}></Route>
+                <Route path="/start" element={<Start />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
-                <Route path="/upload" element={<UploadData />}></Route>
-                <Route path="/data-vault" element={<DataVault />}></Route>
+                <Route path="/upload-music" element={<UploadMusicData />}></Route>
+                <Route path="/upload" element={<UploadAnyFiles />}></Route>
+                <Route path="/data-bunker" element={<DataBunker />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>
+                <Route path="/itheum-music-data-nft" element={<CampaignPage />}></Route>
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
