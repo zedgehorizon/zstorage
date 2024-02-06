@@ -167,7 +167,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
             <span className="text-foreground">
-              Update details <span className="text-accent">*</span>{" "}
+              Entry details <span className="text-accent">*</span>{" "}
             </span>
 
             <div className=" hover:text-accent ">
@@ -258,7 +258,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             </div> */}
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground">Track File (mp3)</label>
+                <label className="text-foreground text-xs">Track File (.mp3)</label>
                 {audioFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
               {/* {audioURL && !wantToEditAudio ? (

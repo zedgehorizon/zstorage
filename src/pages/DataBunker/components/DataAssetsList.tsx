@@ -75,7 +75,6 @@ export const DataAssetList: React.FC = () => {
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
-    // const apiUrlGet = `https://zsuite-backend.up.railway.app/files${API_VERSION}?manifest=true`;
     setIsLoading(true);
     try {
       const response = await axios.get(apiUrlGet, {
@@ -211,7 +210,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Your Music Playlists </span>
+          <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
           {(manifestFiles.length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -223,6 +222,31 @@ export const DataAssetList: React.FC = () => {
                   <Link
                     key={index}
                     to={"/upload-music"}
+                    state={{
+                      manifestFile: manifest,
+                      action: "Update Asset",
+                      currentManifestFileCID: manifest.hash,
+                      manifestFileName: manifest.manifestFileName,
+                      folderCid: manifest.folderHash,
+                    }}>
+                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                  </Link>
+                ))}
+            </div>
+          )}
+
+          <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
+          {(manifestFiles.length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid grid-cols-3">
+              {showCategories &&
+                categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
+                  <Link
+                    key={index}
+                    to={"/upload-trailblazer"}
                     state={{
                       manifestFile: manifest,
                       action: "Update Asset",

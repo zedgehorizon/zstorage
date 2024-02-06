@@ -37,13 +37,10 @@ export const UploadMusicData: React.FC = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
-
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
   const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
-
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
-
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
