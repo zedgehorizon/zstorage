@@ -13,99 +13,99 @@ import { format } from "date-fns";
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
   category: z.string().min(1, "Required field"),
-  artist: z.string().min(1, "Required field"),
-  album: z.string().min(1, "Required field"),
   title: z
     .string()
     .min(1, "Required field")
     .refine((data) => !data.includes("manifest"), {
       message: "The title cannot contain the word 'manifest'",
     }),
-  cover_art_url: z.string().min(1, "Required field"),
+  link: z.string().min(1, "Required field"),
   file: z.string().min(1, "Required field"),
+  file_preview_img: z.string().min(1, "Required field"),
+  file_mimeType: z.string().min(1, "Required field"),
 });
 
-type MusicDataNftFormProps = {
+type TrailblazerNftFormProps = {
   index: number;
-  song: any;
+  itemData: any;
   lastItem: boolean;
-  setterFunction: (index: number, formInputs: any, image: any, audio: any) => void;
-  swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
+  setterFunction: (index: number, formInputs: any, image: any, media: any) => void;
+  swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parent component
   unsavedChanges: boolean;
   setUnsavedChanges: (index: number, value: boolean) => void;
 };
 
-/// the form for each song that is going to be uploaded
-export function MusicDataNftForm(props: MusicDataNftFormProps) {
-  const [wantToEditAudio, setwantToEditAudio] = useState(false);
+/// the form for each itemData that is going to be uploaded
+export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
+  const [wantToEditImage, setWantToEditImage] = useState(false);
+  const [wantToEditMedia, setWantToEditMedia] = useState(false);
+  const [imageURL, setImageURL] = useState("");
+  const [mediaURL, setMediaURL] = useState("");
+  const [imageFile, setImageFile] = useState<File>();
+  const [mediaFile, setMediaFile] = useState<File>();
+  const [mediaError, setMediaError] = useState(false);
+  const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
+      date: "",
       category: "",
-      artist: "",
-      album: "",
       title: "",
+      link: "",
       file: "",
-      cover_art_url: "",
+      file_preview_img: "",
+      file_mimeType: "",
     },
   });
 
-  const [imageURL, setImageURL] = useState("");
-  const [audioURL, setAudioURL] = useState("");
-  const [imageFile, setImageFile] = useState<File>();
-  const [audioFile, setAudioFile] = useState<File>();
-  const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-
-  const handleAudioFileChange = (event: any) => {
+  const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("audio/")) {
-      setAudioFile(file);
-      const audioURL = URL.createObjectURL(event.target.files[0]);
-      form.setValue("file", audioURL);
-      setAudioURL(audioURL);
-      setwantToEditAudio(false);
+    if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio"))) {
+      setMediaFile(file);
+      const mediaURL = URL.createObjectURL(event.target.files[0]);
+      form.setValue("file", mediaURL);
+      form.setValue("file_mimeType", file.type);
+      setMediaURL(mediaURL);
+      setWantToEditMedia(false);
     } else {
-      toast("Please upload an audio file", {
+      toast("Please upload a valid file", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
       });
     }
   };
-  useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
 
   // populate the form
   useEffect(() => {
-    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
-    form.setValue("category", props.song["category"] ? props.song["category"] : "");
-    form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
-    form.setValue("album", props.song["album"] ? props.song["album"] : "");
-    form.setValue("title", props.song["title"] ? props.song["title"] : "");
+    form.setValue("date", props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : "");
+    form.setValue("category", props.itemData["category"] ? props.itemData["category"] : "");
+    form.setValue("title", props.itemData["title"] ? props.itemData["title"] : "");
+    form.setValue("link", props.itemData["link"] ? props.itemData["link"] : "");
+    form.setValue("file_mimeType", props.itemData["file_mimeType"] ? props.itemData["file_mimeType"] : "");
 
-    if (props.song["cover_art_url"]) {
-      form.setValue("cover_art_url", props.song["cover_art_url"]);
-      setImageURL(props.song["cover_art_url"]);
+    if (props.itemData["file_preview_img"]) {
+      form.setValue("file_preview_img", props.itemData["file_preview_img"]);
+      setImageURL(props.itemData["file_preview_img"]);
     } else {
       setImageURL("");
     }
-    if (props.song["file"]) {
-      form.setValue("file", props.song["file"]);
-      setAudioURL(props.song["file"]);
+    if (props.itemData["file"]) {
+      form.setValue("file", props.itemData["file"]);
+      setMediaURL(props.itemData["file"]);
     } else {
-      setwantToEditAudio(false);
-      setAudioURL("");
+      setWantToEditMedia(false);
+      setMediaURL("");
     }
     setImageFile(undefined);
-    setAudioFile(undefined);
-  }, [props.song]);
+    setMediaFile(undefined);
+    setMediaError(false);
+  }, [props.itemData]);
 
   useEffect(() => {
-    if (imageURL) form.setValue("cover_art_url", imageURL);
+    if (imageURL) form.setValue("file_preview_img", imageURL);
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    props.setterFunction(props.index, values, imageFile, audioFile);
+    props.setterFunction(props.index, values, imageFile, mediaFile);
     props.setUnsavedChanges(props.index, false);
   }
 
@@ -118,7 +118,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     props.swapFunction(Number(props.index), Number(props.index) + 1); // -1 transform string in number
   }
 
-  function deleteSong() {
+  function deleteItem() {
     props.swapFunction(Number(props.index), -1);
   }
 
@@ -156,36 +156,21 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
             <span className="text-foreground">
-              Entry details <span className="text-accent">*</span>{" "}
+              Entry Details <span className="text-accent">*</span>{" "}
             </span>
 
-            <div className=" hover:text-accent ">
-              <input
-                type="text"
-                placeholder="Artist Name"
-                className="-mt-4 w-full bg-background placeholder:text-accent  p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                {...form.register("artist")}
-              />
-              {form.formState.errors.artist && <p className="text-red-500 absolute">{form.formState.errors.artist.message}</p>}
+            <div>
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
+              {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
 
             <div className=" hover:text-accent ">
-              <input
-                type="text"
-                placeholder="Album Name"
-                className="w-full  bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                {...form.register("album")}
-              />
-              {form.formState.errors.album && <p className="text-red-500 absolute ">{form.formState.errors.album.message}</p>}
-            </div>
-
-            <div className=" hover:text-accent ">
-              <input
-                type="text"
-                placeholder="Category"
+              <select
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-                {...form.register("category")}
-              />
+                {...form.register("category")}>
+                <option value="Meme">Media Meme</option>
+                <option value="Feature">Feature</option>
+              </select>
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
             </div>
 
@@ -193,44 +178,55 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               <input
                 type="text"
                 placeholder="Title"
-                className="w-full bg-background p-3 placeholder:text-accent border border-accent/50 rounded focus:outline-none focus:border-accent"
+                className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("title")}
               />
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
-            <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
-              {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
+
+            <div className=" hover:text-accent ">
+              <input
+                type="text"
+                placeholder="Action Link"
+                className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("link")}
+              />
+              {form.formState.errors.link && <p className="text-red-500 absolute">{form.formState.errors.link.message}</p>}
             </div>
           </div>
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
-            <span className="mb-6 text-foreground">Cover Art Image</span>
+            <span className="mb-6 text-foreground">Media Image</span>
 
             <DragAndDropImageFiles setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
-            {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
+
+            {form.formState.errors.file_preview_img && (
+              <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>
+            )}
 
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground text-xs">Track File (.mp3)</label>
-                {audioFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
+                <label className="text-foreground text-xs">Media File (.mp3, .mp4)</label>
+                {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
-              {audioURL && !wantToEditAudio && !audioFile ? (
+
+              {mediaURL && !wantToEditMedia && !mediaFile ? (
                 <div className="mt-2 flex flex-row justify-start items-center  ">
                   <audio
                     tabIndex={-1}
-                    onLoadStart={() => setAudioFileIsLoading(true)}
+                    onLoadStart={() => setMediaFileIsLoading(true)}
                     onError={() => {
-                      setAudioFileIsLoading(false);
+                      setMediaFileIsLoading(false);
+                      setMediaError(true);
                     }}
-                    onLoadedData={() => setAudioFileIsLoading(false)}
-                    src={audioURL}
+                    onLoadedData={() => setMediaFileIsLoading(false)}
+                    src={mediaURL}
                     className="-ml-9 scale-[0.8]"
                     controls
                   />
                   <Button
                     tabIndex={-1}
                     className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center"
-                    onClick={() => setwantToEditAudio(true)}>
+                    onClick={() => setWantToEditMedia(true)}>
                     <div>
                       <Edit2 className="text-accent  " />
                     </div>
@@ -238,11 +234,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted p-2 text-sm text-accent/50  ">
-                  <Input accept=".mp3" id="song" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleAudioFileChange(e)} />
+                  <Input accept=".mp3, .mp4" id="file" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleMediaFileChange(e)} />
                   <div className="text-accent/50 w-[10rem] truncate ">
-                    {audioFile ? audioFile.name : audioURL?.split("_")[1] ? audioURL.split("_")[1] : "No chosen file"}{" "}
+                    {mediaFile ? mediaFile.name : mediaURL?.split("_")[1] ? mediaURL.split("_")[1] : "No chosen file"}{" "}
                   </div>
-                  {audioURL ? <Music className="text-accent ml-auto" /> : <Upload className="text-accent ml-auto" />}
+                  {mediaURL ? <span className="text-xs">{form.getValues("file_mimeType")}</span> : <Upload className="text-accent ml-auto" />}
                 </div>
               )}
               {form.formState.errors.file && <p className="text-red-500 mt-3 absolute">{form.formState.errors.file.message?.toString()}</p>}
@@ -258,7 +254,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <div className="w-full flex flex-col justify-center items-center ">
             {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
           </div>
-          <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
+          <Button tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
           <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">

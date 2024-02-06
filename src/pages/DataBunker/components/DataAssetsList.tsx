@@ -132,8 +132,8 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
-        loading: "Fetching all data assets from IPFS for your wallet...",
-        success: <b>Fetched all data assets from IPFS for your wallet!</b>,
+        loading: "Fetching all your digital bunker data assets...",
+        success: <b>Fetched all your digital bunker data assets!</b>,
         error: <b>The data assets could not be fetched. </b>,
       });
     }
@@ -196,7 +196,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Your Music Playlists </span>
+          <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
           {(manifestFiles.length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -206,6 +206,31 @@ export const DataAssetList: React.FC = () => {
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
+                ))}
+            </div>
+          )}
+
+          <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
+          {(manifestFiles.length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid grid-cols-3">
+              {showCategories &&
+                categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
+                  <Link
+                    key={index}
+                    to={"/upload-trailblazer"}
+                    state={{
+                      manifestFile: manifest,
+                      action: "Update Asset",
+                      currentManifestFileCID: manifest.hash,
+                      manifestFileName: manifest.manifestFileName,
+                      folderCid: manifest.folderHash,
+                    }}>
+                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
+                  </Link>
                 ))}
             </div>
           )}
