@@ -81,11 +81,14 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
         <p>Nested Stream: {nestedStream ? "Yes" : "No"}</p>
       </div>
       <div className="flex flex-row justify-between">
-        <MintDataNftModal
-          triggerElement={
-            <Button className={"hover:scale-110 duration-300 transition px-8 text-accent border border-accent rounded-full"}>Mint Data NFT</Button>
-          }
-        />
+        {category === 1 && (
+          <MintDataNftModal
+            triggerElement={
+              <button className={"hover:scale-110 duration-300 transition text-xs  px-4  text-accent border border-accent rounded-full"}>Mint Data NFT</button>
+            }
+          />
+        )}
+        <div></div>
         <Link
           to={paths[category]}
           state={{
@@ -95,8 +98,8 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
             manifestFileName: manifest.manifestFileName,
             folderCid: manifest.folderHash,
           }}>
-          <div className="hover:scale-125 transition border border-accent p-2 rounded-full flex items-center justify-center">
-            <Edit2 className="text-accent" />
+          <div className="hover:scale-125 transition border border-accent p-2   rounded-full flex items-center justify-center">
+            <Edit2 className="text-accent w-4  h-4" />
           </div>
         </Link>
       </div>
