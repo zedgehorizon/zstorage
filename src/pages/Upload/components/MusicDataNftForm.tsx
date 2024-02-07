@@ -71,6 +71,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       });
     }
   };
+  
   useEffect(() => {
     form.setValue("date", new Date().toISOString().split("T")[0]);
   }, []);
