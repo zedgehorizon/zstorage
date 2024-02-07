@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "../../../utils/constants";
@@ -22,12 +21,12 @@ interface DataStream {
 interface ManifestFile {
   data_stream: DataStream;
   data: [];
-  version: number;
   manifestFileName: string;
   folderCid: string;
-  cidv1: string;
   hash: string;
   folderHash: string;
+  ipnsHash?: string;
+  ipnsKey?: string;
 }
 
 type DataAsset = {
@@ -35,13 +34,23 @@ type DataAsset = {
   id: string;
   folderCid: string;
   cid: string;
-  cidv1: string;
   mimeType: string;
   hash: string;
   folderHash: string;
+  ipnsHash?: string;
+  ipnsKey?: string;
+};
+
+type IpnsResponseStruct = {
+  key: string;
+  hash: string;
+  address: string;
+  pointingHash: string;
+  lastUpdated: string;
 };
 
 export const DataAssetList: React.FC = () => {
+  const [ipnsResponse, setIpnsResponse] = useState<IpnsResponseStruct[]>([]);
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
@@ -70,6 +79,59 @@ export const DataAssetList: React.FC = () => {
   //     console.error("Error fetching data assets", error);
   //   }
   // }
+
+  // fetch all ipns keys of an address
+  async function fetchAllIpnsKeysOfAnAddress() {
+    const apiUrlGetIpns = `${import.meta.env.VITE_ENV_BACKEND_API}/ipns/hashes`;
+
+    try {
+      const response = await axios.get(apiUrlGetIpns, {
+        headers: {
+          "authorization": `Bearer ${theToken}`,
+        },
+      });
+
+      // if (response.data.length === 0) setIsLoading(false);
+      // // if no data assets, stop loading
+      setIpnsResponse(response.data);
+      console.log("ipnsResponse", response.data);
+    } catch (error: any) {
+      console.error("Error fetching ipns data assets", error);
+      if (error?.response.data.statusCode === 403) {
+        toast("Native auth token expired. Re-login and try again! ", {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      } else {
+        toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
+          icon: <Lightbulb color="yellow"></Lightbulb>,
+        });
+      }
+      throw error; // error to be caught by toast.promise
+    }
+  }
+
+  /// download the manifest file of the pointingCid of each ipns key
+  useEffect(() => {
+    const downloadManifestFilesFromIpns = async () => {
+      console.log("START DOWNLOAD IPNS MANIFEST FILES");
+      try {
+        await Promise.all(
+          ipnsResponse.map((ipnsObject: IpnsResponseStruct) => {
+            console.log("ipnsObject", ipnsObject);
+            downloadTheManifestFile("-", "-", ipnsObject.pointingHash, ipnsObject.hash, ipnsObject.key);
+          })
+        );
+      } catch (error) {
+        throw error;
+      }
+      console.log("Stop DOWNLOAD IPNS MANIFEST FILES");
+
+      //setIsLoading(false);
+    };
+    if (ipnsResponse.length > 0) {
+      downloadManifestFilesFromIpns();
+    }
+  }, [ipnsResponse]);
 
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
@@ -102,27 +164,41 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
+    await fetchAllIpnsKeysOfAnAddress();
     // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
   // download the manifest file for the corresponding CID
-  async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
-    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
+  async function downloadTheManifestFile(folderHash: string, manifestFileName: string, manifestCid: string, ipnsHash?: string, ipnsKey?: string) {
+    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid;
     try {
       const response = await axios.get(apiUrlDownloadFile, {
         headers: {
           "authorization": `Bearer ${theToken}`,
         },
       });
+      if (ipnsKey) console.log(response.data, "response.data ipnsKey", ipnsKey);
       if (!response.data?.data_stream) {
+        console.error("error undefined");
         /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
-      const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
-      setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
+      console.log("manifestFileName", manifestFileName);
+      console.log("manifestCid", manifestCid);
+      console.log(ipnsHash, "ipnsHash");
+      const allDetailsStampedManifestFile = {
+        ...response.data,
+        manifestFileName: manifestFileName,
+        hash: manifestCid,
+        folderHash: folderHash,
+        ipnsHash: ipnsHash,
+        ipnsKey: ipnsKey,
+      };
+
+      setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
     } catch (error) {
-      console.error("Error downloading manifest files:", manifest, error);
-      toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
+      console.error("Error downloading manifest files:", manifestCid, error);
+      toast("Wait some more time for the manifest file to get pinned and try again if you can't find the one you are looking for", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
       });
@@ -142,8 +218,8 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     let count = 0;
     if (isLoading === true) return;
-    if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;
-    manifestFiles.map((manifest: ManifestFile, index) => {
+    // if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;    TODO check why I placed this here?
+    manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
         count += 1;
         setCategoryManifestFiles((prev) => ({
@@ -152,11 +228,13 @@ export const DataAssetList: React.FC = () => {
         }));
       }
     });
+    console.log("count", count);
+    console.log("manifestFiles.length", manifestFiles);
     setShowCategories(true);
   }, [isLoading]);
 
   useEffect(() => {
-    const downloadLatestVersionsManifestFiles = async () => {
+    const downloadAllTheManifestFiles = async () => {
       try {
         await Promise.all(
           storedDataAssets.map(async (manifestAsset) => {
@@ -170,7 +248,7 @@ export const DataAssetList: React.FC = () => {
     };
 
     if (storedDataAssets.length > 0) {
-      downloadLatestVersionsManifestFiles();
+      downloadAllTheManifestFiles();
     }
   }, [storedDataAssets]);
 

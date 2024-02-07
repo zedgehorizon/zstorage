@@ -6,7 +6,7 @@ import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import toast from "react-hot-toast";
 import { Lightbulb, XCircle } from "lucide-react";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, publishIpns, uploadFilesRequest } from "../../utils/utils";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 
@@ -29,14 +29,14 @@ const UploadAnyFiles: React.FC = () => {
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
   const theToken = tokenLogin?.nativeAuthToken;
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, manifestFileName, folderCid } = location.state || {};
 
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
+  const [ipnsHash, setIpnsHash] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -213,10 +213,8 @@ const UploadAnyFiles: React.FC = () => {
         manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, theToken);
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -227,6 +225,21 @@ const UploadAnyFiles: React.FC = () => {
             </button>
           ),
         });
+
+        if (decentralized.includes("IPNS")) {
+          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -253,7 +266,7 @@ const UploadAnyFiles: React.FC = () => {
   return (
     <div className="flex  flex-col  h-full pb-16 ">
       <UploadHeader
-        title={manifestFileIpfsUrl ? "Update" : "Upload" + " Data"}
+        title={manifestFile ? "Update" : "Upload" + " Data"}
         name={name}
         creator={creator}
         createdOn={createdOn}
@@ -287,6 +300,7 @@ const UploadAnyFiles: React.FC = () => {
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+          ipnsHash={ipnsHash}
         />
       </div>
     </div>

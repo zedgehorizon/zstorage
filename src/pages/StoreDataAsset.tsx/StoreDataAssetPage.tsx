@@ -94,7 +94,7 @@ const StoreDataAsset: React.FC = () => {
             options={["DNS + IPFS", "IPNS + IPFS", "Arweave", "Ceramic"]}
             currentOption={storageOption}
             setterFunction={setStorageOption}
-            disabled={[false, true, true, true]}
+            disabled={[false, false, true, true]}
           />
         )}
 

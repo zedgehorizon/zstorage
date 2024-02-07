@@ -16,11 +16,21 @@ interface DataObjectsListProps {
   manifestCid?: string;
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
+  ipnsHash?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
-  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, recentlyUploadedManifestFileName, folderHash, uploadFileToIpfs } =
-    props;
+  const {
+    isUploadButtonDisabled,
+    addButton,
+    progressBar,
+    DataObjectsComponents,
+    manifestCid,
+    recentlyUploadedManifestFileName,
+    folderHash,
+    ipnsHash,
+    uploadFileToIpfs,
+  } = props;
   const [progressValue, setProgressValue] = React.useState(0);
 
   // useEffect hook to load the progress bar smoothly to 100 in 10 seconds
@@ -79,7 +89,12 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
-                    <CidsView currentManifestFileCID={manifestCid} folderCid={folderHash} manifestFileName={recentlyUploadedManifestFileName} />
+                    <CidsView
+                      ipnsHash={ipnsHash}
+                      currentManifestFileCID={manifestCid}
+                      folderCid={folderHash}
+                      manifestFileName={recentlyUploadedManifestFileName}
+                    />
 
                     <div className="flex flex-row justify-center items-center gap-4">
                       <Link
@@ -87,16 +102,20 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                         className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                         View stored files
                       </Link>
-                      <Modal
-                        modalClassName="w-[40%] border-accent/50"
-                        openTrigger={
-                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                            Update your DNS
-                          </button>
-                        }
-                        closeOnOverlayClick={true}>
-                        {<NextStepsList manifestCid={manifestCid} />}
-                      </Modal>
+                      {ipnsHash ? (
+                        <></>
+                      ) : (
+                        <Modal
+                          modalClassName="w-[40%] border-accent/50"
+                          openTrigger={
+                            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                              Update your DNS
+                            </button>
+                          }
+                          closeOnOverlayClick={true}>
+                          {<NextStepsList manifestCid={manifestCid} />}
+                        </Modal>
+                      )}
                     </div>
                   </div>
                 )}

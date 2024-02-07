@@ -23,15 +23,15 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
           </a>
           .
         </p>
-        <p className="mb-4">
+        <div className="mb-4">
           <p className="text-lg font-bold mb-4 text-accent">I am ready to mint, just tell me what I need to do now?</p>
           Take a few mins to fill this{" "}
           <a href="https://share-eu1.hsforms.com/1h2V8AgnkQJKp3tstayTsEAf5yjc" target="_blank" className="text-accent hover:underline">
             form
           </a>{" "}
           and a member of the Itheum protocol onboarding support team will reach out to you within 2 days to explain how to get your whitelisted.{" "}
-        </p>
-        <p className="mb-4">
+        </div>
+        <div className="mb-4">
           <p className="text-lg font-bold mb-4 text-accent"> I've filled the form, what happens next?</p>
           You should be in touch with someone from the Itheum protocol onboarding support team. If not, feel free to head over to Itheum's telegram at{" "}
           <a href="https://t.me/itheum" target="_blank" className="text-accent hover:underline">
@@ -46,7 +46,7 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
             hello@itheum.io
           </a>{" "}
           to check the status of your whitelist application.
-        </p>
+        </div>
         <p className="mb-4">
           Once you have been whitelisted, you will be able to mint your Music Data NFT on{" "}
           <a href="datadex.itheum.io" target="_blank" className="text-accent hover:underline">

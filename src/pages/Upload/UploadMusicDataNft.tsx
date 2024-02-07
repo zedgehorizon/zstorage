@@ -6,7 +6,7 @@ import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, publishIpns, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -33,7 +33,7 @@ type FilePair = {
 export const UploadMusicData: React.FC = () => {
   const location = useLocation();
   const currentCategory = 1; // musicplaylist
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -46,11 +46,10 @@ export const UploadMusicData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState<string>();
-
+  const [ipnsHash, setIpnsHash] = useState<string>();
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -137,7 +136,7 @@ export const UploadMusicData: React.FC = () => {
         }
       );
     }
-    filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
+    filesToUpload.append("category", FILES_CATEGORY); // set the category for files uploaded to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
@@ -255,8 +254,6 @@ export const UploadMusicData: React.FC = () => {
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -268,6 +265,20 @@ export const UploadMusicData: React.FC = () => {
             </button>
           ),
         });
+        if (decentralized.includes("IPNS")) {
+          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -466,6 +477,7 @@ export const UploadMusicData: React.FC = () => {
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
+            ipnsHash={ipnsHash}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>

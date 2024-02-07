@@ -6,7 +6,7 @@ import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, publishIpns, uploadFilesRequest } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -47,7 +47,7 @@ type FilePair = {
 export const UploadTrailblazerData: React.FC = () => {
   const location = useLocation();
   const currentCategory = 2; // trailblazer
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, manifestFileName, folderCid } = location.state || {};
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -60,11 +60,10 @@ export const UploadTrailblazerData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
-
+  const [ipnsHash, setIpnsHash] = useState();
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
@@ -248,7 +247,6 @@ export const UploadTrailblazerData: React.FC = () => {
         return;
       }
 
-      if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[currentCategory],
@@ -273,8 +271,6 @@ export const UploadTrailblazerData: React.FC = () => {
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -286,6 +282,21 @@ export const UploadTrailblazerData: React.FC = () => {
             </button>
           ),
         });
+
+        if (decentralized.includes("IPNS")) {
+          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -440,6 +451,7 @@ export const UploadTrailblazerData: React.FC = () => {
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
+            ipnsHash={ipnsHash}
           />
         </div>
       </div>
