@@ -100,7 +100,7 @@ const LandingPage: React.FC = () => {
       <div id="features"></div>
       <KeyFeatures />
       <div className="w-full h-full bg-background flex flex-col items-center pb-16">
-        <div className="  mt-8 flex flex-col justify-center items-center w-full h-screen bg-top bg-white-rectangle bg-cover bg-no-repeat bg-center">
+        <div className="  mt-8 flex flex-col justify-center items-center w-full h-[100svh] bg-top bg-white-rectangle bg-cover bg-no-repeat">
           <img className="scale-75 lg:scale-100" src={folders}></img>
           <span className=" text-muted text-5xl w-[60%] mx-auto text-center">
             Complete Toolkit

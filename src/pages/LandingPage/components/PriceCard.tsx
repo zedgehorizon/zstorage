@@ -9,10 +9,11 @@ interface PriceCardProps {
   description?: string;
   plan?: string;
   features: string[];
+  buttonText?: string;
 }
 
 const PriceCard: React.FC<PriceCardProps> = (props) => {
-  const { title, price, features, plan, description } = props;
+  const { title, buttonText, price, features, plan, description } = props;
   const colorClass = plan === "PREMIUM" ? "text-accent" : "text-foreground";
 
   return (
@@ -40,8 +41,8 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
           </li>
         ))}
       </ul>
-      <Button className={cn(` ml-0 border px-16 border-foreground w-[50%] rounded-full ${plan === "PREMIUM" ? "bg-accent border-0 text-muted" : ""}`)}>
-        Get Started{" "}
+      <Button className={cn(`ml-0 border px-16 border-foreground w-[50%] rounded-full ${plan === "PREMIUM" ? "bg-accent border-0 text-muted" : ""}`)}>
+        {buttonText ? buttonText : "Get Started"}
       </Button>
     </div>
   );

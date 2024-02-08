@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
-import { format, set } from "date-fns";
+import React, { useEffect } from "react";
+import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "../utils/utils";
 import { Button } from "./Button";
@@ -16,6 +16,7 @@ interface DatePickerProps {
 export function DatePicker(props: DatePickerProps) {
   const { setterFunction, previousDate } = props;
   const [date, setDate] = React.useState<Date | undefined>();
+
   function handleDateChange(date: Date | undefined) {
     if (date) {
       setDate(date);
@@ -23,11 +24,11 @@ export function DatePicker(props: DatePickerProps) {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (previousDate) {
       setDate(new Date(previousDate));
     } else {
-      setDate(new Date());
+      handleDateChange(new Date());
     }
   }, [previousDate]);
 

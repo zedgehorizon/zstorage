@@ -16,7 +16,7 @@ const UseCase: React.FC = () => {
           </div>
         </div>
         <div className=" w-[28rem] h-[32rem] flex flex-col">
-          <div className="h-[80%] flex rounded-t-3xl h-full bg-muted items-center justify-center">
+          <div className="h-[80%] flex rounded-t-3xl bg-muted items-center justify-center">
             <img className="" src={realWorldIllustration} alt="Real World Illustration" />
           </div>
           <div className="bg-foreground flex items-center justify-center rounded-b-3xl">

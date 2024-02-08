@@ -29,6 +29,6 @@ export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToke
     if (error?.response.data.statusCode === 403) {
       toast("Native auth token expired. Re-login and try again! ");
     }
-    toast.error("Error uploading files to Ipfs: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
+    toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
   }
 }

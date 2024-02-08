@@ -9,6 +9,7 @@ import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
+import { UploadTrailblazerData } from "./pages/Upload/UploadTrailblazerData";
 import { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
@@ -32,8 +33,14 @@ const routes = [
   },
   {
     path: "/upload-music",
-    title: "Upload Files",
+    title: "Upload Music Data NFT Stream",
     component: UploadMusicData,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/upload-trailblazer",
+    title: "Upload Trailblazer Data NFT Stream",
+    component: UploadTrailblazerData,
     authenticatedRoute: true,
   },
   {
@@ -111,6 +118,7 @@ function App() {
                 <Route path="/start" element={<Start />}></Route>
                 <Route path="/unlock" element={<Unlock />}></Route>
                 <Route path="/upload-music" element={<UploadMusicData />}></Route>
+                <Route path="/upload-trailblazer" element={<UploadTrailblazerData />}></Route>
                 <Route path="/upload" element={<UploadAnyFiles />}></Route>
                 <Route path="/data-bunker" element={<DataBunker />}></Route>
                 <Route path="/storage" element={<StoreDataAsset />}></Route>

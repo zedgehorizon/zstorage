@@ -37,7 +37,7 @@ const NextStepsList: React.FC<NextStepsListProps> = (props) => {
 
           <div>
             Create a new TXT record. Name it _dnslink.yoursubdomain and set its value to: <br />
-            <div className=" flex flex-row items-center justify-center font-bold text-lg text-center">
+            <div className=" flex flex-row items-center justify-center font-bold text-lg text-center p-3">
               dnslink=
               <span className="ml-1 text-accent">
                 {" "}

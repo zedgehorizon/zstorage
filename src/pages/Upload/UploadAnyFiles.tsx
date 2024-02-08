@@ -9,7 +9,6 @@ import { Lightbulb, XCircle } from "lucide-react";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
-import { tokenConstant } from "../../utils/constants";
 
 import pdfFile from "../../assets/logo/document-type/pdf.png";
 import docFile from "../../assets/logo/document-type/doc.png";
@@ -21,7 +20,6 @@ type FileData = {
   name: string;
   file: string;
   date: string;
-  ///not sure if we need category: string;
   mime_type: string;
   size: number;
 };
@@ -30,7 +28,7 @@ const UploadAnyFiles: React.FC = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
 
   const [name, setName] = useState("");
@@ -40,13 +38,13 @@ const UploadAnyFiles: React.FC = () => {
   const [progressBar, setProgressBar] = useState(0);
   const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
-
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
-  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
-  const [folderHash, setFolderHash] = useState<string>();
+
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -222,7 +220,6 @@ const UploadAnyFiles: React.FC = () => {
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
-        null;
         toast.success("Manifest file uploaded successfully", {
           icon: (
             <button onClick={() => toast.dismiss()}>
