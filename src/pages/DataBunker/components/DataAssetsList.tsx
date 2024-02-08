@@ -94,7 +94,6 @@ export const DataAssetList: React.FC = () => {
       // if (response.data.length === 0) setIsLoading(false);
       // // if no data assets, stop loading
       setIpnsResponse(response.data);
-      console.log("ipnsResponse", response.data);
     } catch (error: any) {
       console.error("Error fetching ipns data assets", error);
       if (error?.response.data.statusCode === 403) {
@@ -113,24 +112,24 @@ export const DataAssetList: React.FC = () => {
   /// download the manifest file of the pointingCid of each ipns key
   useEffect(() => {
     const downloadManifestFilesFromIpns = async () => {
-      console.log("START DOWNLOAD IPNS MANIFEST FILES");
       try {
         await Promise.all(
           ipnsResponse.map((ipnsObject: IpnsResponseStruct) => {
-            console.log("ipnsObject", ipnsObject);
             downloadTheManifestFile("-", "-", ipnsObject.pointingHash, ipnsObject.hash, ipnsObject.key);
           })
         );
       } catch (error) {
         throw error;
       }
-      console.log("Stop DOWNLOAD IPNS MANIFEST FILES");
-
       //setIsLoading(false);
     };
     if (ipnsResponse.length > 0) {
       downloadManifestFilesFromIpns();
     }
+    if (ipnsResponse.length === 0) return;
+    ipnsResponse.map((ipns: IpnsResponseStruct) => {
+      downloadTheManifestFile(ipns.hash, ipns.key, ipns.pointingHash, ipns.hash, ipns.key);
+    });
   }, [ipnsResponse]);
 
   // fetch all data assets of an address
@@ -177,15 +176,12 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
-      if (ipnsKey) console.log(response.data, "response.data ipnsKey", ipnsKey);
       if (!response.data?.data_stream) {
         console.error("error undefined");
         /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
-      console.log("manifestFileName", manifestFileName);
-      console.log("manifestCid", manifestCid);
-      console.log(ipnsHash, "ipnsHash");
+
       const allDetailsStampedManifestFile = {
         ...response.data,
         manifestFileName: manifestFileName,
@@ -228,8 +224,6 @@ export const DataAssetList: React.FC = () => {
         }));
       }
     });
-    console.log("count", count);
-    console.log("manifestFiles.length", manifestFiles);
     setShowCategories(true);
   }, [isLoading]);
 

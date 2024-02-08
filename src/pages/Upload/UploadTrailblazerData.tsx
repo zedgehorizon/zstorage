@@ -64,6 +64,7 @@ export const UploadTrailblazerData: React.FC = () => {
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
   const [ipnsHash, setIpnsHash] = useState();
+
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
