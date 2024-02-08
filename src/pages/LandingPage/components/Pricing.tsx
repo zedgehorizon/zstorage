@@ -30,8 +30,9 @@ const Pricing: React.FC = () => {
           plan="ENTERPRISE"
           title="Go Big"
           price={"?"}
-          features={["1GB Storage", "10GB Bandwidth"]}
+          features={["Custom plan that suits your needs"]}
           description="For your custom data bunker needs like sovereign encryption of vital data."
+          buttonText="Contact Us"
         />
       </div>
     </div>
