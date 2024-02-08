@@ -3,7 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../../libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
@@ -11,6 +11,9 @@ import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
+import { Modal } from "../../components/Modal";
+import { AudioPlayerPreview } from "../../components/AudioPlayerPreview";
+import MintDataNftModal from "./components/modals/MintDataNftModal";
 
 type SongData = {
   date: string;
@@ -36,14 +39,17 @@ export const UploadMusicData: React.FC = () => {
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState("");
+  const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
+  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
+  const [folderHash, setFolderHash] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -147,7 +153,6 @@ export const UploadMusicData: React.FC = () => {
   async function transformSongsData() {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
-      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
@@ -226,7 +231,6 @@ export const UploadMusicData: React.FC = () => {
         return;
       }
 
-      if (progressBar < 80) setProgressBar(80);
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[currentCategory],
@@ -252,7 +256,10 @@ export const UploadMusicData: React.FC = () => {
 
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestCid(ipfs);
+        setManifestFileIpfsUrl(ipfs);
+        setManifestCid(response[0]?.hash);
+        setFolderHash(response[0]?.folderHash);
+        setRecentlyUploadedManifestFileName(response[0]?.fileName);
 
         toast.success("Manifest file uploaded successfully", {
           icon: (
@@ -370,13 +377,20 @@ export const UploadMusicData: React.FC = () => {
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
+  const handleModalUploadButton = () => {
+    document.getElementById("uploadButton")?.click();
+  };
+
+  const handleOpenMintModal = () => {
+    document.getElementById("mintModalTrigger")?.click();
+  };
 
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
         {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
 
-        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
+        <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
             name={name}
@@ -403,20 +417,58 @@ export const UploadMusicData: React.FC = () => {
                 setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
             ))}
             addButton={
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-row justify-center items-center gap-8">
                 <Button
                   className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
                   onClick={handleAddMoreSongs}>
                   Add song
                 </Button>
+                <Modal
+                  closeOnOverlayClick={true}
+                  modalClassName="p-0 m-0 max-w-[80%] "
+                  title="Preview Music Data NFTs"
+                  titleClassName="px-8 mt-3"
+                  footerContent={
+                    <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
+                      <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</Button>
+                      <Button
+                        className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
+                        onClick={handleModalUploadButton}>
+                        Upload Data
+                      </Button>
+                      <Button
+                        onClick={handleOpenMintModal}
+                        className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>
+                        Mint Data NFT
+                      </Button>
+                    </div>
+                  }
+                  openTrigger={
+                    <Button
+                      disabled={isUploadButtonDisabled}
+                      className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>
+                      Preview Player
+                    </Button>
+                  }>
+                  <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16 ">
+                    <AudioPlayerPreview
+                      songs={Object.values(songsData).map((songData) => {
+                        return songData;
+                      })}
+                    />
+                  </div>
+                </Modal>
               </div>
             }
             isUploadButtonDisabled={isUploadButtonDisabled}
             progressBar={progressBar}
             uploadFileToIpfs={generateManifestFile}
             manifestCid={manifestCid}
+            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+            folderHash={folderHash}
           />
         </div>
+        <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>
       </div>
     </ErrorBoundary>
   );

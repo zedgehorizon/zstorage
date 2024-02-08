@@ -48,8 +48,8 @@ export const Unlock: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-screen gap-4 bg-background z-[-2]">
-      <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2]">
+      <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
       <div className="w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
         <div className="flex flex-col w-full gap-2">

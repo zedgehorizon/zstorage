@@ -18,8 +18,8 @@ export const Start: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center w-full h-screen bg-background z-[-2]">
-        <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-screen"></img>
+      <div className="flex flex-col items-center justify-center w-full h-[100svh] bg-background z-[-2]">
+        <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
         <div className="flex flex-col z-2 w-[80%] md:w-[55%] xl:w-[45%] bg-muted rounded-2xl border border-accent/25">
           <div className="flex flex-row w-full rounded-2xl bg-gradient-to-r from-muted via-accent/50 to-muted pb-[1px]">
