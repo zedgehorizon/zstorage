@@ -61,6 +61,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       <Modal
         openTrigger={
           <button
+            id="uploadButton"
             onClick={uploadFileToIpfs}
             disabled={isUploadButtonDisabled || progressBar === 100}
             className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
