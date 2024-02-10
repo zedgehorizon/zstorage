@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
-                <Link className=" cursor-pointer group " to={"/data-bunker"}>
+                <Link className=" cursor-pointer group" to={"/data-bunker"}>
                   <p className=" ">My Data Bunker</p>
                   <div className="opacity-0 group-hover:opacity-100">
                     <Dot className="text-accent scale-[2] mx-auto "></Dot>
