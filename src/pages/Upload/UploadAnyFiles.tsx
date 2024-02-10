@@ -6,7 +6,7 @@ import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import toast from "react-hot-toast";
 import { Lightbulb, XCircle } from "lucide-react";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 import { tokenConstant } from "../../utils/constants";
@@ -122,7 +122,7 @@ const UploadAnyFiles: React.FC = () => {
     setProgressBar(27);
     try {
       Object.values(files).forEach((file) => {
-        filesToUpload.append("files", file, generateRandomString() + "_" + file.name);
+        filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name));
       });
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);
@@ -139,7 +139,7 @@ const UploadAnyFiles: React.FC = () => {
       );
     }
     if (filesToUpload.getAll("files").length === 0) return [];
-    filesToUpload.append("category", CATEGORIES[currentCategory]); /// anyfile
+    filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
 
     return response;

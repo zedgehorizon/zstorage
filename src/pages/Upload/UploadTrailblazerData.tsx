@@ -6,7 +6,7 @@ import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY, tokenConstant } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -121,14 +121,14 @@ export const UploadTrailblazerData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + mediaData.title + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.media) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].media,
-              generateRandomString() + "." + "media" + "_" + mediaData.title + "." + filePairs[idx + 1].media.name.split(".")[1]
+              generateRandomString() + "." + "media" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].media.name.split(".")[1]
             );
           }
         }
