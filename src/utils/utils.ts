@@ -15,6 +15,10 @@ export function generateRandomString() {
   return `${timestampInSeconds}${randomNum}`;
 }
 
+export function onlyAlphaNumericChars(str: string) {
+  return str.replace(/[^a-zA-Z0-9]/g, "");
+}
+
 export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToken: string) {
   try {
     const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
