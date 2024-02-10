@@ -11,6 +11,7 @@ interface PriceCardProps {
   description?: string;
   plan?: string;
   features: string[];
+  buttonText?: string;
 }
 
 const PriceCard: React.FC<PriceCardProps> = (props) => {

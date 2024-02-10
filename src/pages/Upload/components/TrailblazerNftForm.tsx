@@ -58,6 +58,10 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
     },
   });
 
+  useEffect(() => {
+    form.setValue("date", new Date().toISOString().split("T")[0]);
+  }, []);
+
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio"))) {

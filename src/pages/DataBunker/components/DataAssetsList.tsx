@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "../../../utils/constants";
-import { tokenConstant } from "../../../utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
@@ -46,7 +45,7 @@ export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
-  const theToken = tokenConstant || tokenLogin?.nativeAuthToken;
+  const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
@@ -103,14 +102,12 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
-
     // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
   // download the manifest file for the corresponding CID
   async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
     const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
-
     try {
       const response = await axios.get(apiUrlDownloadFile, {
         headers: {
@@ -118,7 +115,7 @@ export const DataAssetList: React.FC = () => {
         },
       });
       if (!response.data?.data_stream) {
-        /// empty manifest file or wrong format should not happen only with older versions
+        /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
       const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
@@ -194,24 +191,13 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
+                  <DataAssetCard key={index} category={0} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
 
           <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
-          {(manifestFiles.length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[1]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
@@ -219,24 +205,13 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload-music"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
+                  <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
 
           <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
-          {(manifestFiles.length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[2]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
@@ -244,18 +219,7 @@ export const DataAssetList: React.FC = () => {
             <div className="gap-4 grid grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
-                  <Link
-                    key={index}
-                    to={"/upload-trailblazer"}
-                    state={{
-                      manifestFile: manifest,
-                      action: "Update Asset",
-                      currentManifestFileCID: manifest.hash,
-                      manifestFileName: manifest.manifestFileName,
-                      folderCid: manifest.folderHash,
-                    }}>
-                    <DataAssetCard dataAsset={manifest.data_stream}></DataAssetCard>
-                  </Link>
+                  <DataAssetCard key={index} category={2} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}

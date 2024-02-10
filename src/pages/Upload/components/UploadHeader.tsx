@@ -1,9 +1,7 @@
 import React from "react";
 import { DatePicker } from "../../../libComponents/DatePicker";
-import { format } from "date-fns";
-import { CopyIcon, ExternalLink } from "lucide-react";
-import { IPFS_GATEWAY } from "../../../utils/constants";
 import CidsView from "./CidsView";
+import { format } from "date-fns";
 
 interface UploadHeaderProps {
   title: string;
@@ -68,7 +66,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             Modified On:
           </label>
           <div className="w-full hover:text-accent text-center min-w-[10rem] text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent">
-            {modifiedOn}
+            {format(modifiedOn, "dd/MM/yyyy")}
           </div>
         </div>
       </div>
