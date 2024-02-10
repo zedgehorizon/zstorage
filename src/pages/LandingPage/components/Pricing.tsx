@@ -16,14 +16,14 @@ const Pricing: React.FC = () => {
           plan="BASIC"
           title="Go Basic"
           price={"0"}
-          features={["1GB Storage", "10GB Bandwidth"]}
+          features={["10MB Storage", "500MB Bandwidth"]}
           description="Upload and manage your vital data. Built-in support for Itheum Data NFTs."
         />
         <PriceCard
           plan="PREMIUM"
           title="Go Zzz"
           price={"10"}
-          features={["500GB Storage", "500GB Bandwidth"]}
+          features={["1GB Storage", "1GB Bandwidth"]}
           description="Everything in basic with more storage and bandwidth for your vital data."
         />
         <PriceCard

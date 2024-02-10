@@ -6,7 +6,7 @@ import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -110,14 +110,14 @@ export const UploadMusicData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + songData.title + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.audio) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              generateRandomString() + "." + "audio" + "_" + songData.title + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              generateRandomString() + "." + "audio" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].audio.name.split(".")[1]
             );
           }
         }
