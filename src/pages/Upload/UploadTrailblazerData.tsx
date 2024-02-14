@@ -179,11 +179,15 @@ export const UploadTrailblazerData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${itemObj.title}`));
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(itemObj.title)}`)
+              );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Preview Image CID could not be found ");
             }
             if (fileObj.media && fileObj.media.name) {
-              matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.media_${itemObj.title}`));
+              matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.media_${onlyAlphaNumericChars(itemObj.title)}`)
+              );
               if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
           }
@@ -267,7 +271,7 @@ export const UploadTrailblazerData: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");

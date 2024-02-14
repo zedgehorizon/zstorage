@@ -157,7 +157,7 @@ const UploadAnyFiles: React.FC = () => {
           const fileToUpload = files[key];
 
           if (fileToUpload) {
-            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(fileToUpload.name));
+            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(onlyAlphaNumericChars(fileToUpload.name)));
             if (!matchingObj) throw new Error("The data has not been uploaded correctly. CID could not be found for file - " + fileToUpload.name);
           }
           return {
@@ -210,7 +210,7 @@ const UploadAnyFiles: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");

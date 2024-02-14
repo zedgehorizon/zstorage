@@ -162,11 +162,15 @@ export const UploadMusicData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${songObj.title}`));
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(songObj.title)}`)
+              );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
-              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.audio_${songObj.title}`));
+              matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.audio_${onlyAlphaNumericChars(songObj.title)}`)
+              );
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
           }
@@ -249,7 +253,7 @@ export const UploadMusicData: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
       );
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
