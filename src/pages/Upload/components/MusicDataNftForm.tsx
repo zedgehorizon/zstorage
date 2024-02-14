@@ -8,7 +8,6 @@ import { DatePicker } from "../../../libComponents/DatePicker";
 import { Input } from "../../../libComponents/Input";
 import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -33,12 +32,15 @@ type MusicDataNftFormProps = {
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
   unsavedChanges: boolean;
   setUnsavedChanges: (index: number, value: boolean) => void;
+  validationMessage?: string;
 };
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
+  const { validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
+    mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
@@ -71,10 +73,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       });
     }
   };
-  
-  useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
 
   // populate the form
   useEffect(() => {
@@ -106,8 +104,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // console.log(imageFile, audioFile);
+    // console.log(values, "values");
     props.setterFunction(props.index, values, imageFile, audioFile);
-    props.setUnsavedChanges(props.index, false);
+    //props.setUnsavedChanges(props.index, false);
   }
 
   function handleMoveUp() {
@@ -149,10 +149,16 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         </div>
       </div>
       <form
-        onChange={() => {
-          props.setUnsavedChanges(props.index, true);
+        // onFocus={() => props.setterFunction(props.index, form.getValues(), imageFile, audioFile)}
+        // onChange={() => {
+        //   onSubmit(form.getValues());
+        // }}
+        onBlur={() => {
+          console.log("onBlur song Object ");
+          // console.log(form.getValues(), "form values");
+          props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
         }}
-        onSubmit={form.handleSubmit(onSubmit)}
+        // onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -200,7 +206,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
@@ -236,6 +242,11 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                       <Edit2 className="text-accent  " />
                     </div>
                   </Button>
+                  {/* <Button tabIndex={-1} onClick={() => setwantToEditAudio(true)}>
+                    <div className="hover:scale-110 hover:bg-accent text-accent hover:text-accent-foreground  bg-accent-foreground transition border border-accent hover:border-2 hover:border-accent-foreground  p-2 rounded-full flex items-center justify-center">
+                      <Edit2 className="t " />
+                    </div>
+                  </Button> */}
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
@@ -250,21 +261,25 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             </div>
           </div>
         </div>
+
         <div className="w-full flex flex-row ">
           {props.unsavedChanges != undefined && props.unsavedChanges === false && (
             <div className="mt-2  flex flex-row gap-2 text-accent">
-              Saved <CheckCircleIcon className="text-accent" />
+              Verified <CheckCircleIcon className="text-accent" />
             </div>
           )}
+          {/* <div className="w-full flex flex-col justify-center items-center ">
+            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save ! {validationMessage} </p>}
+          </div> */}
           <div className="w-full flex flex-col justify-center items-center ">
-            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
+            {validationMessage && <p className="text-red-500"> Please add: {validationMessage} </p>}
           </div>
           <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
-          <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
+          {/* <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
             Save
-          </button>
+          </button> */}
         </div>
       </form>
     </div>

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "../../../utils/constants";
@@ -89,11 +88,19 @@ export const DataAssetList: React.FC = () => {
 
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow"></Lightbulb>{" "}
+            </button>
+          ),
         });
       } else {
         toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow"></Lightbulb>{" "}
+            </button>
+          ),
         });
       }
       throw error; // error to be caught by toast.promise
@@ -133,8 +140,8 @@ export const DataAssetList: React.FC = () => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all your digital bunker data assets...",
-        success: <b>Fetched all your digital bunker data assets!</b>,
-        error: <b>The data assets could not be fetched. </b>,
+        success: <p>Fetched all your digital bunker data assets!</p>,
+        error: <p>The data assets could not be fetched. </p>,
       });
     }
   }, []);
@@ -163,10 +170,10 @@ export const DataAssetList: React.FC = () => {
             await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash);
           })
         );
+        setIsLoading(false);
       } catch (error) {
         throw error;
       }
-      setIsLoading(false);
     };
 
     if (storedDataAssets.length > 0) {

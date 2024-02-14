@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { AuthenticatedRoutesWrapper, DappProvider } from "@multiversx/sdk-dapp/wrappers";
 import { NotificationModal, SignTransactionsModals, TransactionsToastList } from "@multiversx/sdk-dapp/UI";
@@ -17,6 +17,7 @@ import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
 import { ELROND_NETWORK } from "./utils/constants";
+import { useLocation } from "react-router-dom";
 
 const routes = [
   {
@@ -77,6 +78,12 @@ const routes = [
 ];
 
 function App() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <DappProvider
       environment={ELROND_NETWORK}

@@ -100,4 +100,6 @@
 /* Dapp Core Component Overwrites */
 #nativeAuthTokenExpiration {
   background-color: #a7a847;
+  height: 5rem;
+  color: #000;
 }

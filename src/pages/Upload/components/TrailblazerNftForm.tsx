@@ -8,7 +8,6 @@ import { DatePicker } from "../../../libComponents/DatePicker";
 import { Input } from "../../../libComponents/Input";
 import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -37,7 +36,6 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  const [wantToEditImage, setWantToEditImage] = useState(false);
   const [wantToEditMedia, setWantToEditMedia] = useState(false);
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
@@ -48,7 +46,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       category: "",
       title: "",
       link: "",
@@ -57,10 +55,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       file_mimeType: "",
     },
   });
-
-  useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
 
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -164,11 +158,11 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             </span>
 
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
+              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent">
               <select
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("category")}>

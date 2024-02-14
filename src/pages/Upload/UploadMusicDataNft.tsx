@@ -37,6 +37,8 @@ export const UploadMusicData: React.FC = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
   const theToken = tokenLogin?.nativeAuthToken;
@@ -98,6 +100,16 @@ export const UploadMusicData: React.FC = () => {
     hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
     setIsUploadButtonDisabled(hasUnsavedChanges);
   }, [songsData, unsavedChanges, name, creator, createdOn]);
+
+  function validateData() {
+    console.log(songsData, "songsData");
+    console.log("validation ERRROrS", validationErrors);
+    if (songsData) {
+      Object.keys(songsData).forEach((index: any) => {
+        dataAssetObjectValidation(Number(index));
+      });
+    }
+  }
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -220,6 +232,7 @@ export const UploadMusicData: React.FC = () => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
+    validateData();
     setProgressBar(12);
     if (!verifyHeaderFields()) {
       return;
@@ -356,6 +369,7 @@ export const UploadMusicData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    console.log("received info", index, formInputs, image, audio);
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -377,6 +391,43 @@ export const UploadMusicData: React.FC = () => {
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
+
+  const dataAssetObjectValidation = (index: number) => {
+    let message: string = "";
+    if (songsData[index]) {
+      if (!songsData[index].title) {
+        message += "Title, ";
+      }
+      if (!songsData[index].artist) {
+        message += "Artist, ";
+      }
+      if (!songsData[index].album) {
+        message += "Album, ";
+      }
+      if (!songsData[index].category) {
+        message += "Category, ";
+      }
+      if (!songsData[index].date) {
+        message += "Date, ";
+      }
+      if (!filePairs[index]?.image && !songsData[index].cover_art_url) {
+        message += "Image, ";
+      }
+      if (!filePairs[index]?.audio && !songsData[index].file) {
+        message += "Audio, ";
+      }
+    }
+
+    setValidationErrors((prev) => ({ ...prev, [index]: message }));
+    if (message === "") {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+      return true;
+    } else {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
+      return false;
+    }
+  };
+
   const handleModalUploadButton = () => {
     document.getElementById("uploadButton")?.click();
   };
@@ -414,6 +465,7 @@ export const UploadMusicData: React.FC = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
                 unsavedChanges={unsavedChanges[index]}
+                validationMessage={validationErrors[index]}
                 setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
             ))}
             addButton={
@@ -423,14 +475,17 @@ export const UploadMusicData: React.FC = () => {
                   onClick={handleAddMoreSongs}>
                   Add song
                 </Button>
+                <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"} onClick={validateData}>
+                  Validate data
+                </Button>
                 <Modal
                   closeOnOverlayClick={true}
                   modalClassName="p-0 m-0 max-w-[80%] "
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
-                    <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
-                      <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</Button>
+                    <div className="flex flex-row p-2 gap-8 justify-center items-center w-full -mt-16 ">
+                      <Button className={"px-8 mt-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</Button>
                       <Button
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
                         onClick={handleModalUploadButton}>
