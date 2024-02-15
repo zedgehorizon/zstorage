@@ -221,12 +221,14 @@ export const UploadMusicData: React.FC = () => {
    */
   const generateManifestFile = async () => {
     setProgressBar(12);
+
     if (!verifyHeaderFields()) {
       return;
     }
 
     try {
       const data = await transformSongsData();
+
       if (data === undefined) {
         return;
       }
@@ -245,13 +247,17 @@ export const UploadMusicData: React.FC = () => {
         },
         "data": data,
       };
+
       const formDataFormat = new FormData();
+
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
         manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
+
       formDataFormat.append("category", CATEGORIES[currentCategory]);
+
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
       if (response[0]) {
@@ -268,6 +274,8 @@ export const UploadMusicData: React.FC = () => {
             </button>
           ),
         });
+
+        setProgressBar(100);
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -282,7 +290,6 @@ export const UploadMusicData: React.FC = () => {
 
       console.error("Error generating the manifest file:", error);
     }
-    setProgressBar(100);
   };
 
   const handleAddMoreSongs = () => {

@@ -186,8 +186,10 @@ const UploadAnyFiles: React.FC = () => {
 
   const generateManifestFile = async () => {
     setProgressBar(12);
+
     try {
       const data = await transformFilesToDataArray();
+
       if (data === undefined) {
         return;
       }
@@ -206,14 +208,19 @@ const UploadAnyFiles: React.FC = () => {
         },
         "data": data,
       };
+
       const formDataFormat = new FormData();
+
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
         manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
+
       formDataFormat.append("category", CATEGORIES[currentCategory]);
+
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
+
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
@@ -227,6 +234,8 @@ const UploadAnyFiles: React.FC = () => {
             </button>
           ),
         });
+
+        setProgressBar(100);
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -240,7 +249,6 @@ const UploadAnyFiles: React.FC = () => {
       });
       console.error("Error generating the manifest file:", error);
     }
-    setProgressBar(100);
   };
 
   function checkIsDisabled() {

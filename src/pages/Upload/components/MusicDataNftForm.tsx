@@ -71,7 +71,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       });
     }
   };
-  
+
   useEffect(() => {
     form.setValue("date", new Date().toISOString().split("T")[0]);
   }, []);
@@ -90,6 +90,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     } else {
       setImageURL("");
     }
+
     if (props.song["file"]) {
       form.setValue("file", props.song["file"]);
       setAudioURL(props.song["file"]);
@@ -97,6 +98,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setwantToEditAudio(false);
       setAudioURL("");
     }
+
     setImageFile(undefined);
     setAudioFile(undefined);
   }, [props.song]);
