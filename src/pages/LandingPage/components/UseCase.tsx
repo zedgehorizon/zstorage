@@ -4,15 +4,15 @@ import realWorldIllustration from "../../../assets/img/illustration-real-world.p
 
 const UseCase: React.FC = () => {
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center">
+    <div className="scale-75 lg:scale-100 w-screen h-full lg:h-screen flex flex-col items-center justify-center">
       <span className="text-foreground text-4xl mb-8">Use Cases</span>
-      <div className=" flex flex-row gap-4">
+      <div className=" flex flex-col lg:flex-row gap-4">
         <div className=" w-[28rem] h-[32rem] flex flex-col">
           <div className="h-[80%] flex rounded-t-3xl bg-muted items-center justify-center">
             <img className=" " src={storageIllustration} alt="Storage Illustration" />
           </div>
           <div className="bg-foreground flex items-center justify-center rounded-b-3xl">
-            <span className="  font-semibold text-center p-8 text-xl text-accent-foreground">Robust Dynamic Image, Metadata and Data Storage for NFTs</span>
+            <span className="font-semibold text-center p-8 text-xl text-accent-foreground">Robust Dynamic Image, Metadata and Data Storage for NFTs</span>
           </div>
         </div>
         <div className=" w-[28rem] h-[32rem] flex flex-col">

@@ -48,10 +48,10 @@ export const Unlock: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2]">
+    <div className="p-8 flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
-      <div className="w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
+      <div className="w-full lg:w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
         <div className="flex flex-col w-full gap-2">
           <Link to={onCloseReturnRoute} className=" bg-muted rounded-r-2xl flex items-center pr-4 absolute right-0">
             <XCircle className="w-6 h-6 text-foreground cursor-pointer" />

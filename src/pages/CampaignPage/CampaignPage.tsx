@@ -20,7 +20,7 @@ const CampaignPage: React.FC = () => {
             {(isLoggedIn && (
               <Link
                 to={"/data-bunker#r=itheum-music-data-nft"}
-                className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center">
+                className="scale-75 xl:scale-100 font-bold text-accent-foreground bg-accent rounded-full px-4 lg:px-20 py-5 flex justify-center">
                 Access Your Data Bunker
               </Link>
             )) || (
@@ -33,7 +33,7 @@ const CampaignPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="-mt-12 z-2  ">
+      <div className="lg:-mt-12 z-2 mb-4 ">
         <img src={vault}></img>
       </div>
       <Footer />
