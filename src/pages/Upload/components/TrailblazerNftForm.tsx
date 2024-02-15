@@ -3,27 +3,31 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../../libComponents/Button";
-import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
+import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, Lightbulb } from "lucide-react";
 import { DatePicker } from "../../../libComponents/DatePicker";
 import { Input } from "../../../libComponents/Input";
 import DragAndDropImageFiles from "./DragAndDropImageFiles";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 
-const formSchema = z.object({
-  date: z.string().min(1, "Required field"),
-  category: z.string().min(1, "Required field"),
-  title: z
-    .string()
-    .min(1, "Required field")
-    .refine((data) => !data.includes("manifest"), {
-      message: "The title cannot contain the word 'manifest'",
-    }),
-  link: z.string().min(1, "Required field"),
-  file: z.string().min(1, "Required field"),
-  file_preview_img: z.string().min(1, "Required field"),
-  file_mimeType: z.string().min(1, "Required field"),
-});
+const formSchema = z
+  .object({
+    date: z.string().min(1, "Required field"),
+    category: z.string().min(1, "Required field"),
+    title: z
+      .string()
+      .min(1, "Required field")
+      .refine((data) => !data.includes("manifest"), {
+        message: "The title cannot contain the word 'manifest'",
+      }),
+    link: z.string().min(1, "Required field"),
+    file: z.string(),
+    file_preview_img: z.string(),
+    file_mimeType: z.string(),
+  })
+  .refine((data) => !!data.file || !!data.file_preview_img, {
+    message: "Either Media Image OR Media File is mandatory. Both allowed as well.",
+    path: ["min_media_files"],
+  });
 
 type TrailblazerNftFormProps = {
   index: number;
@@ -37,13 +41,13 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  const [wantToEditImage, setWantToEditImage] = useState(false);
-  const [wantToEditMedia, setWantToEditMedia] = useState(false);
+  // const [wantToEditImage, setWantToEditImage] = useState(false);
+  // const [wantToEditMedia, setWantToEditMedia] = useState(false);
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
-  const [mediaError, setMediaError] = useState(false);
+  // const [mediaError, setMediaError] = useState(false);
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,7 +74,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
-      setWantToEditMedia(false);
+      // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
@@ -92,23 +96,26 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
     } else {
       setImageURL("");
     }
+
     if (props.itemData["file"]) {
       form.setValue("file", props.itemData["file"]);
       setMediaURL(props.itemData["file"]);
     } else {
-      setWantToEditMedia(false);
+      // setWantToEditMedia(false);
       setMediaURL("");
     }
+
     setImageFile(undefined);
     setMediaFile(undefined);
-    setMediaError(false);
+    // setMediaError(false);
   }, [props.itemData]);
 
   useEffect(() => {
-    if (imageURL) form.setValue("file_preview_img", imageURL);
+    // if (imageURL) form.setValue("file_preview_img", imageURL);
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    debugger;
     props.setterFunction(props.index, values, imageFile, mediaFile);
     props.setUnsavedChanges(props.index, false);
   }
@@ -125,6 +132,9 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   function deleteItem() {
     props.swapFunction(Number(props.index), -1);
   }
+
+  console.log("form.formState.errors");
+  console.log(form.formState.errors);
 
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
@@ -173,7 +183,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("category")}>
                 <option value="Meme">Media Meme</option>
-                <option value="Feature">Feature</option>
               </select>
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
             </div>
@@ -201,7 +210,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropImageFiles setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropImageFiles idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>
@@ -213,28 +222,28 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                 {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
 
-              {mediaURL && !wantToEditMedia && !mediaFile ? (
+              {/* {mediaURL && !wantToEditMedia && !mediaFile ? ( */}
+              {mediaURL && !mediaFile ? (
                 <div className="mt-2 flex flex-row justify-start items-center  ">
                   <audio
                     tabIndex={-1}
                     onLoadStart={() => setMediaFileIsLoading(true)}
                     onError={() => {
                       setMediaFileIsLoading(false);
-                      setMediaError(true);
                     }}
                     onLoadedData={() => setMediaFileIsLoading(false)}
                     src={mediaURL}
                     className="-ml-9 scale-[0.8]"
                     controls
                   />
-                  <Button
+                  {/* <Button
                     tabIndex={-1}
                     className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center"
                     onClick={() => setWantToEditMedia(true)}>
                     <div>
                       <Edit2 className="text-accent  " />
                     </div>
-                  </Button>
+                  </Button> */}
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted p-2 text-sm text-accent/50  ">
@@ -249,9 +258,14 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             </div>
           </div>
         </div>
+        <div>
+          {form.formState.errors?.min_media_files && (
+            <p className="w-full text-red-500 flex flex-col justify-center items-center">{form.formState.errors?.min_media_files.message}</p>
+          )}
+        </div>
         <div className="w-full flex flex-row ">
           {props.unsavedChanges != undefined && props.unsavedChanges === false && (
-            <div className="mt-2  flex flex-row gap-2 text-accent">
+            <div className="mt-2 flex flex-row gap-2 text-accent">
               Saved <CheckCircleIcon className="text-accent" />
             </div>
           )}
