@@ -62,7 +62,7 @@ const StoreDataAsset: React.FC = () => {
           <XStorageCheckBox
             title="What type of data asset would you like to store?"
             // description="OR choose any specific Itheum Data Stream template that you would like to use"
-            options={["Upload My Files", "Music Data NFT", "Trailblazer data NFT"]}
+            options={["Upload My Files", "Music Data NFT", "Trailblazer Data NFT"]}
             currentOption={template}
             descriptions={[
               "Upload and store a single file or multiple files.",
@@ -109,7 +109,7 @@ const StoreDataAsset: React.FC = () => {
 
           {currentStep === 4 ? (
             <Link
-              to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer data NFT") ? "/upload-trailblazer" : "/upload-music"}
+              to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer Data NFT") ? "/upload-trailblazer" : "/upload-music"}
               state={{
                 action: dataAssetAction,
                 type: storageType,

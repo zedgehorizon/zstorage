@@ -10,11 +10,6 @@ import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 
-import pdfFile from "../../assets/logo/document-type/pdf.png";
-import docFile from "../../assets/logo/document-type/doc.png";
-import imageFile from "../../assets/logo/document-type/music.png";
-import musicFile from "../../assets/logo/document-type/music.png";
-
 type FileData = {
   idx: number;
   name: string;
@@ -157,7 +152,7 @@ const UploadAnyFiles: React.FC = () => {
           const fileToUpload = files[key];
 
           if (fileToUpload) {
-            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(fileToUpload.name));
+            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(onlyAlphaNumericChars(fileToUpload.name)));
             if (!matchingObj) throw new Error("The data has not been uploaded correctly. CID could not be found for file - " + fileToUpload.name);
           }
           return {
@@ -186,8 +181,10 @@ const UploadAnyFiles: React.FC = () => {
 
   const generateManifestFile = async () => {
     setProgressBar(12);
+
     try {
       const data = await transformFilesToDataArray();
+
       if (data === undefined) {
         return;
       }
@@ -206,14 +203,19 @@ const UploadAnyFiles: React.FC = () => {
         },
         "data": data,
       };
+
       const formDataFormat = new FormData();
+
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
       );
+
       formDataFormat.append("category", CATEGORIES[currentCategory]);
+
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
+
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
@@ -227,6 +229,8 @@ const UploadAnyFiles: React.FC = () => {
             </button>
           ),
         });
+
+        setProgressBar(100);
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -240,7 +244,6 @@ const UploadAnyFiles: React.FC = () => {
       });
       console.error("Error generating the manifest file:", error);
     }
-    setProgressBar(100);
   };
 
   function checkIsDisabled() {
@@ -265,7 +268,7 @@ const UploadAnyFiles: React.FC = () => {
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
       />
-      <DragAndDropImageFiles setFile={addNewFile} className="w-full" />
+      <DragAndDropImageFiles idxId={1} setFile={addNewFile} className="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
