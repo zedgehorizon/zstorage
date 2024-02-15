@@ -88,7 +88,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                         View stored files
                       </Link>
                       <Modal
-                        modalClassName="w-[40%] border-accent/50"
+                        modalClassName="w-[70%] border-accent/50"
                         openTrigger={
                           <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                             Update your DNS

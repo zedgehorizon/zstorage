@@ -59,7 +59,7 @@ export const Unlock: React.FC = () => {
           <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50 to-muted pb-[1px] -z-1">
             <div className="w-full bg-muted flex justify-center text-accent text-2xl font-medium">Create or Connect a Digital Wallet</div>
 
-            <div className="w-full bg-muted flex justify-center text-xs font-medium p-3 z-3">
+            <div className="w-full bg-muted flex justify-center text-xs font-medium p-3 z-3 text-center">
               A digital wallet is what ensures that you have sovereignty over your zEdgeStorage data bunker.
             </div>
           </div>
