@@ -10,11 +10,6 @@ import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
 
-import pdfFile from "../../assets/logo/document-type/pdf.png";
-import docFile from "../../assets/logo/document-type/doc.png";
-import imageFile from "../../assets/logo/document-type/music.png";
-import musicFile from "../../assets/logo/document-type/music.png";
-
 type FileData = {
   idx: number;
   name: string;
@@ -157,7 +152,7 @@ const UploadAnyFiles: React.FC = () => {
           const fileToUpload = files[key];
 
           if (fileToUpload) {
-            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(fileToUpload.name));
+            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(onlyAlphaNumericChars(fileToUpload.name)));
             if (!matchingObj) throw new Error("The data has not been uploaded correctly. CID could not be found for file - " + fileToUpload.name);
           }
           return {
@@ -273,7 +268,7 @@ const UploadAnyFiles: React.FC = () => {
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
       />
-      <DragAndDropImageFiles setFile={addNewFile} className="w-full" />
+      <DragAndDropImageFiles idxId={1} setFile={addNewFile} className="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
