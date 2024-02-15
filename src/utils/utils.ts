@@ -30,9 +30,15 @@ export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToke
     return response.data;
   } catch (error: any) {
     console.error("Error uploading files:", error);
+
     if (error?.response.data.statusCode === 403) {
-      toast("Native auth token expired. Re-login and try again! ");
+      toast("Native auth token expired. Re-login and try again!");
     }
+
+    if (error?.response.data.statusCode === 402) {
+      toast("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+    }
+
     toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
   }
 }
