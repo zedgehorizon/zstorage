@@ -21,7 +21,14 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
           <a href="https://datadex.itheum.io/getwhitelisted" target="_blank" className="text-accent hover:underline">
             here
           </a>
-          .
+          . Once you have been whitelisted to mint your Data NFT, your music Data NFTs will be available on NFT marketplaces like{" "}
+          <a href="https://datadex.itheum.io/datanfts/marketplace/DATANFTFT-e936d4-04" target="_blank" className="text-accent hover:underline">
+            Itheum's Data DEX
+          </a>{" "}
+          and be supported in web3 music platforms like{" "}
+          <a href="https://explorer.itheum.io/nftunes" target="_blank" className="text-accent hover:underline">
+            NF.Tunes
+          </a>
         </p>
         <p className="mb-4">
           <p className="text-lg font-bold mb-4 text-accent">I am ready to mint, just tell me what I need to do now?</p>
@@ -49,13 +56,18 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
         </p>
         <p className="mb-4">
           Once you have been whitelisted, you will be able to mint your Music Data NFT on{" "}
-          <a href="datadex.itheum.io" target="_blank" className="text-accent hover:underline">
+          <a href="https://datadex.itheum.io" target="_blank" className="text-accent hover:underline">
             datadex.itheum.io
           </a>{" "}
           . The process is seamless and fast. Once your Music Data NFT is minted, you can continue to use ZedgeStorage to update the music files, and your fans
           (Data NFT token holders) can enjoy listening to your ever-evolving music streams.
         </p>
-        <p className="text-lg font-bold mb-4 text-accent">What are you waiting for? Join the Itheum Music Data NFT revolution!</p>
+        <p className="text-lg font-bold mb-4 text-accent">
+          What are you waiting for? Join the Itheum Music Data NFT revolution!{" "}
+          <a href="https://share-eu1.hsforms.com/1h2V8AgnkQJKp3tstayTsEAf5yjc" target="_blank" className="text-accent underline">
+            Apply for a mint whitelist today!
+          </a>{" "}
+        </p>
       </div>
     </Modal>
   );
