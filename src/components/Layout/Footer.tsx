@@ -20,8 +20,8 @@ export const Footer: React.FC = () => {
     }
   };
   return (
-    <footer className=" flex flex-col bg-accent px-12 pt-16 gap-4 justify-around items-center w-full">
-      <div className=" flex flex-col border-b-2 border-background w-[80%] text-background hidden">
+    <footer className="flex flex-col bg-accent px-12 pt-4 justify-around items-center w-full">
+      <div className="flex flex-col border-b-2 border-background w-[80%] text-background hidden">
         <div className="flex flex-row">
           <div className="w-[50%] flex flex-col gap-4 pb-8">
             <img src={logoBlack} className="max-w-[8rem]" />

@@ -2,6 +2,8 @@ import React from "react";
 import { DatePicker } from "../../../libComponents/DatePicker";
 import CidsView from "./CidsView";
 import { format } from "date-fns";
+import { Modal } from "../../../components/Modal";
+import NextStepsList from "../../../components/Lists/NextStepsList";
 
 interface UploadHeaderProps {
   title: string;
@@ -24,7 +26,6 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
   return (
     <div className="flex flex-col mx-auto">
       <h1 className="text-4xl text-accent font- pt-16 pb-8">{title} </h1>
-
       <div className="flex gap-x-4">
         <div className="mb-4  ">
           <label htmlFor="name" className="block text-foreground font-thin mb-2">
@@ -70,6 +71,16 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
+      <Modal
+        modalClassName="w-[70%] border-accent/50"
+        openTrigger={
+          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+            Instructions to Update your DNS
+          </button>
+        }
+        closeOnOverlayClick={true}>
+        {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+      </Modal>
       <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} />
     </div>
   );
