@@ -97,7 +97,7 @@ export const Navbar: React.FC = () => {
               </Link>
             )}
           </div>
-          <div className="lg:!hidden !visible flex z-10">
+          <div className="lg:!hidden !visible flex items-center justify-center z-10">
             <DropdownMenu>
               <div className="flex flex-row">
                 <DropdownMenuTrigger asChild>
@@ -152,7 +152,7 @@ export const Navbar: React.FC = () => {
                         </div>
                       </Link>
                     ) : (
-                      <Link to={"/unlock"}>
+                      <Link to={"/unlock"} className="w-full">
                         <p className="">Login</p>{" "}
                       </Link>
                     )}
