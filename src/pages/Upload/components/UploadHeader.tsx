@@ -71,16 +71,18 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      <Modal
-        modalClassName="w-[70%] border-accent/50"
-        openTrigger={
-          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-            Instructions to Update your DNS
-          </button>
-        }
-        closeOnOverlayClick={true}>
-        {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
-      </Modal>
+      {currentManifestFileCID && folderCid && (
+        <Modal
+          modalClassName="w-[70%] border-accent/50"
+          openTrigger={
+            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+              Instructions to Update your DNS
+            </button>
+          }
+          closeOnOverlayClick={true}>
+          {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+        </Modal>
+      )}
       <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} />
     </div>
   );
