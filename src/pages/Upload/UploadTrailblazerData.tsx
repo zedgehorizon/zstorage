@@ -34,14 +34,14 @@ type ItemData = {
   category: string;
   title: string;
   link: string;
-  file: string;
-  file_preview_img: string;
-  file_mimeType: string;
+  file?: string;
+  file_preview_img?: string;
+  file_mimeType?: string;
 };
 
 type FilePair = {
-  image: File;
-  media: File;
+  image?: File;
+  media?: File;
 };
 
 export const UploadTrailblazerData: React.FC = () => {
@@ -127,6 +127,7 @@ export const UploadTrailblazerData: React.FC = () => {
               generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
             );
           }
+
           if (filePairs[idx + 1]?.media) {
             filesToUpload.append(
               "files",
@@ -171,6 +172,7 @@ export const UploadTrailblazerData: React.FC = () => {
       const responseDataCIDs = await uploadItemItemMediaFiles();
       if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
+
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(itemsData).map((itemObj, index) => {
         if (itemObj && itemObj?.title) {
@@ -179,25 +181,54 @@ export const UploadTrailblazerData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.image_${itemObj.title}`));
+              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(itemObj.title)}`)
+              );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Preview Image CID could not be found ");
             }
             if (fileObj.media && fileObj.media.name) {
-              matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(`.media_${itemObj.title}`));
+              matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) =>
+                uploadedFileObj.fileName.includes(`.media_${onlyAlphaNumericChars(itemObj.title)}`)
+              );
               if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
           }
 
-          return {
+          const condensedObject: any = {
             idx: index + 1,
             date: new Date(itemObj?.date).toISOString(),
             category: itemObj?.category,
             title: itemObj?.title,
             link: itemObj?.link,
-            file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
-            file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
-            file_mimeType: itemObj?.file_mimeType,
           };
+
+          // we don't need to save file, file_mimeType or file_preview_img if it does not exist
+          if (itemObj.file || matchingObjItem) {
+            condensedObject["file"] = matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file;
+          }
+
+          if (itemObj?.file_mimeType) {
+            condensedObject["file_mimeType"] = itemObj?.file_mimeType;
+          }
+
+          if (itemObj.file_preview_img || matchingObjImage) {
+            condensedObject["file_preview_img"] = matchingObjImage
+              ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}`
+              : itemObj.file_preview_img;
+          }
+
+          return condensedObject;
+
+          // return {
+          //   idx: index + 1,
+          //   date: new Date(itemObj?.date).toISOString(),
+          //   category: itemObj?.category,
+          //   title: itemObj?.title,
+          //   link: itemObj?.link,
+          //   file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
+          //   file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
+          //   file_mimeType: itemObj?.file_mimeType,
+          // };
         }
       });
       return transformedData.filter((item: any) => item !== null);
@@ -238,6 +269,7 @@ export const UploadTrailblazerData: React.FC = () => {
    */
   const generateManifestFile = async () => {
     setProgressBar(12);
+
     if (!verifyHeaderFields()) {
       return;
     }
@@ -249,6 +281,7 @@ export const UploadTrailblazerData: React.FC = () => {
       }
 
       if (progressBar < 80) setProgressBar(80);
+
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[currentCategory],
@@ -263,16 +296,19 @@ export const UploadTrailblazerData: React.FC = () => {
         },
         "data": data,
       };
+
       const formDataFormat = new FormData();
+
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
       );
+
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
-      if (response[0]) {
+      if (response && response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
@@ -286,6 +322,8 @@ export const UploadTrailblazerData: React.FC = () => {
             </button>
           ),
         });
+
+        setProgressBar(100);
       } else {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
@@ -300,7 +338,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
       console.error("Error generating the manifest file:", error);
     }
-    setProgressBar(100);
   };
 
   const handleAddMoreItems = () => {
@@ -374,6 +411,7 @@ export const UploadTrailblazerData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
+    debugger;
     if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -399,7 +437,7 @@ export const UploadTrailblazerData: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl  ">
+        <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Trailblazer Data"}
             name={name}
@@ -427,9 +465,7 @@ export const UploadTrailblazerData: React.FC = () => {
             ))}
             addButton={
               <div className="flex flex-col justify-center items-center">
-                <Button
-                  className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
-                  onClick={handleAddMoreItems}>
+                <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"} onClick={handleAddMoreItems}>
                   Add Item
                 </Button>
               </div>

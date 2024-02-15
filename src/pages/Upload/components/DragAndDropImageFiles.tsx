@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { cn } from "../../../utils/utils";
 
 interface DragAndDropImageFilesProps {
+  idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
@@ -11,7 +12,7 @@ interface DragAndDropImageFilesProps {
 }
 
 const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
-  const { setFile, setImagePreview, imagePreview, className } = props;
+  const { idxId, setFile, setImagePreview, imagePreview, className } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
@@ -44,6 +45,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       dropzoneRef.current.classList.remove("border-accent");
       dropzoneRef.current.classList.add("border-accent/20");
     }
+
     handleFileChange(e.dataTransfer.files[0]);
   };
   const handleFileChange = (file: File) => {
@@ -60,6 +62,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
       }
     }
   };
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFileChange(file);
@@ -76,8 +79,8 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
 
   return (
     <div
-      className={cn("relative w-[15rem] h-[15rem]  mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", className)}
-      id="dropzone"
+      className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", className)}
+      id={`dropzone-${idxId}`}
       ref={dropzoneRef}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -89,7 +92,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
               {setImagePreview ? <ImagePlus className="w-8 h-8 text-accent" /> : <File className="w-8 h-8 text-accent" />}
             </div>
 
-            <label htmlFor="file-upload" className="relative text-accent/70 mx-2 text-center   cursor-pointer">
+            <label htmlFor="file-upload" className="relative text-accent/70 mx-2 text-center cursor-pointer">
               Drag & drop file here, or
               <span className=" mx-2 text-accent text-center underline ">select </span>
               from your computer.

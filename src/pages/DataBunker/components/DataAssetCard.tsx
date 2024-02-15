@@ -33,9 +33,9 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
   } = dataAsset;
   const paths = ["/upload", "/upload-music", "/upload-trailblazer"];
   return (
-    <div className="truncate hover:shadow-inner hover:shadow-accent/50  gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md  ">
+    <div className="truncate hover:shadow-inner hover:shadow-accent/50 gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md">
       <div className="z-10 flex flex-row justify-between border-b border-accent/30 p-2">
-        <h2 className="text-2xl font-bold ">{name}</h2>
+        <h2 className="text-2xl font-bold text-ellipsis whitespace-nowrap overflow-hidden">{name}</h2>
         {category === 1 && (
           <Modal
             closeOnOverlayClick={true}
@@ -98,7 +98,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
             manifestFileName: manifest.manifestFileName,
             folderCid: manifest.folderHash,
           }}>
-          <div className="hover:scale-125 transition border border-accent p-2   rounded-full flex items-center justify-center">
+          <div className="hover:scale-125 transition border border-accent p-2 rounded-full flex items-center justify-center">
             <Edit2 className="text-accent w-4  h-4" />
           </div>
         </Link>

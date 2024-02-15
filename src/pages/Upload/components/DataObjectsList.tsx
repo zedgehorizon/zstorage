@@ -68,7 +68,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             Upload Data
           </button>
         }
-        modalClassName={"bg-background bg-muted !max-w-[60%] h-fulll items-center justify-center border-accent/50"}
+        modalClassName={"bg-background bg-muted !max-w-[60%] h-full items-center justify-center border-accent/50"}
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
