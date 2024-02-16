@@ -39,6 +39,7 @@ const UploadAnyFiles: React.FC = () => {
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
+  const [errorMessage, setErrorMessage] = useState();
 
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
@@ -61,6 +62,7 @@ const UploadAnyFiles: React.FC = () => {
         setFileObjects(filesMap);
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
+        setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
           icon: (
             <button onClick={() => toast.dismiss()}>
@@ -119,6 +121,7 @@ const UploadAnyFiles: React.FC = () => {
       });
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);
+      setErrorMessage("Error iterating through files : " + (error instanceof Error) ? error.message : "");
       toast.error(
         "Error iterating through files : " +
           `${error ? error.message + ". " + error?.response?.data.message : ""}` +
@@ -168,6 +171,7 @@ const UploadAnyFiles: React.FC = () => {
       });
       return transformedData.filter((file: any) => file !== null);
     } catch (error: any) {
+      setErrorMessage("Error transforming the data : " + (error instanceof Error) ? error.message : "");
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
@@ -235,6 +239,7 @@ const UploadAnyFiles: React.FC = () => {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
     } catch (error: any) {
+      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
       toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
@@ -290,6 +295,7 @@ const UploadAnyFiles: React.FC = () => {
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+          errorMessage={errorMessage}
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import CidsView from "./CidsView";
 import { format } from "date-fns";
 import { Modal } from "../../../components/Modal";
 import NextStepsList from "../../../components/Lists/NextStepsList";
+import { Button } from "../../../libComponents/Button";
 
 interface UploadHeaderProps {
   title: string;
@@ -79,6 +80,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
               Instructions to Update your DNS
             </button>
           }
+          footerContent={<Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>}
           closeOnOverlayClick={true}>
           {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
         </Modal>

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../../../libComponents/Button";
-import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, Lightbulb } from "lucide-react";
+import { ArrowUp, ArrowDown, CheckCircleIcon, Loader2, Upload, Lightbulb } from "lucide-react";
 import { DatePicker } from "../../../libComponents/DatePicker";
 import { Input } from "../../../libComponents/Input";
 import DragAndDropImageFiles from "./DragAndDropImageFiles";
@@ -52,7 +52,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "",
+      date: new Date().toISOString().split("T")[0],
       category: "",
       title: "",
       link: "",
