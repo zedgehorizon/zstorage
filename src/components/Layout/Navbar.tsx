@@ -84,16 +84,16 @@ export const Navbar: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
+          <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
             {isLoggedIn ? (
               <Link to={"/"}>
-                <div className="" onClick={handleLogout}>
+                <p className="px-8 py-2" onClick={handleLogout}>
                   Logout
-                </div>
+                </p>
               </Link>
             ) : (
               <Link to={"/unlock"}>
-                <p className="">Login</p>{" "}
+                <p className="px-8 py-2">Login</p>{" "}
               </Link>
             )}
           </div>
