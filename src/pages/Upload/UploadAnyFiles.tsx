@@ -39,7 +39,7 @@ const UploadAnyFiles: React.FC = () => {
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
@@ -137,7 +137,10 @@ const UploadAnyFiles: React.FC = () => {
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
-
+    if (response.response && response.response.data.statusCode === 402) {
+      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+      return undefined;
+    }
     return response;
   }
 
@@ -219,6 +222,10 @@ const UploadAnyFiles: React.FC = () => {
       formDataFormat.append("category", CATEGORIES[currentCategory]);
 
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      if (response.response && response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      }
 
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;

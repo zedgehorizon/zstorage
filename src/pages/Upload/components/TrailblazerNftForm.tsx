@@ -61,7 +61,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       file_mimeType: "",
     },
   });
-
   useEffect(() => {
     form.setValue("date", new Date().toISOString().split("T")[0]);
   }, []);
@@ -111,7 +110,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   }, [props.itemData]);
 
   useEffect(() => {
-    // if (imageURL) form.setValue("file_preview_img", imageURL);
+    if (imageURL) form.setValue("file_preview_img", imageURL);
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -132,9 +131,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   function deleteItem() {
     props.swapFunction(Number(props.index), -1);
   }
-
-  console.log("form.formState.errors");
-  console.log(form.formState.errors);
 
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
@@ -178,7 +174,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent">
               <select
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("category")}>

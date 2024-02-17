@@ -14,7 +14,6 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "../../components/Modal";
 import { AudioPlayerPreview } from "../../components/AudioPlayerPreview";
 import MintDataNftModal from "./components/modals/MintDataNftModal";
-import { error } from "console";
 
 type SongData = {
   date: string;
@@ -51,7 +50,7 @@ export const UploadMusicData: React.FC = () => {
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -145,6 +144,10 @@ export const UploadMusicData: React.FC = () => {
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    if (response.response && response.response.data.statusCode === 402) {
+      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+      return undefined;
+    }
     return response;
   }
 
@@ -269,6 +272,10 @@ export const UploadMusicData: React.FC = () => {
 
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
+      if (response.response && response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      }
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);

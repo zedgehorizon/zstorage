@@ -64,7 +64,7 @@ export const UploadTrailblazerData: React.FC = () => {
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -161,6 +161,10 @@ export const UploadTrailblazerData: React.FC = () => {
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    if (response.response && response.response.data.statusCode === 402) {
+      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+      return undefined;
+    }
     return response;
   }
 
@@ -196,7 +200,6 @@ export const UploadTrailblazerData: React.FC = () => {
               if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
           }
-
           const condensedObject: any = {
             idx: index + 1,
             date: new Date(itemObj?.date).toISOString(),
@@ -284,8 +287,6 @@ export const UploadTrailblazerData: React.FC = () => {
         return;
       }
 
-      if (progressBar < 80) setProgressBar(80);
-
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[currentCategory],
@@ -311,7 +312,10 @@ export const UploadTrailblazerData: React.FC = () => {
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
-
+      if (response.response && response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      }
       if (response && response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
