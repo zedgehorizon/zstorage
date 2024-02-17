@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { AuthenticatedRoutesWrapper, DappProvider } from "@multiversx/sdk-dapp/wrappers";
 import { NotificationModal, SignTransactionsModals, TransactionsToastList } from "@multiversx/sdk-dapp/UI";
 import { apiTimeout, walletConnectV2ProjectId } from "./config";
 import { Navbar } from "./components/Layout/Navbar";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
@@ -77,6 +77,12 @@ const routes = [
 ];
 
 function App() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <DappProvider
       environment={ELROND_NETWORK}
