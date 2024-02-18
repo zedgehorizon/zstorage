@@ -16,7 +16,6 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-
   useEffect(() => {
     if (imagePreview) {
       setPreviewSrc(imagePreview);
@@ -48,6 +47,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
 
     handleFileChange(e.dataTransfer.files[0]);
   };
+
   const handleFileChange = (file: File) => {
     if (file && file.type.startsWith("image/")) {
       setFile(file);
@@ -77,6 +77,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
     };
   };
 
+  /// TODO REFACTOR THE NAMES OF component and calassName
   return (
     <div
       className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", className)}
@@ -92,25 +93,23 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
               {setImagePreview ? <ImagePlus className="w-8 h-8 text-accent" /> : <File className="w-8 h-8 text-accent" />}
             </div>
 
-            <label htmlFor="file-upload" className="relative text-accent/70 mx-2 text-center cursor-pointer">
+            <label htmlFor="file-upload" className="relative text-accent/70 mx-2 text-center">
               Drag & drop file here, or
-              <span className=" mx-2 text-accent text-center underline ">select </span>
+              <span className=" mx-2 text-accent text-center underline  cursor-pointer">select </span>
               from your computer.
-              <input
-                type="file"
-                accept={setImagePreview ? "image/*" : ""}
-                id="file-upload"
-                name="file-upload"
-                className="sr-only "
-                ref={inputRef}
-                onChange={handleInputChange}
-              />
             </label>
+            <input
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              type="file"
+              name="file-upload"
+              accept={setImagePreview ? "image/*" : ""}
+              onChange={handleInputChange}
+            />
           </>
         )}
       </div>
       {previewSrc && (
-        <img src={previewSrc} className="z-0 absolute rounded-xl max-h-[15rem] max-w-[15rem] border-[2px] border-accent  " id="preview" alt="Preview" />
+        <img src={previewSrc} className="z-0 absolute rounded-xl max-h-[15rem] max-w-[15rem] border-[2px] border-accent" id="preview" alt="Preview" />
       )}
       {previewSrc && (
         <div className="z-8 w-full h-full absolute bg-background/50  rounded-xl opacity-0 hover:opacity-100">
@@ -123,8 +122,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
           <input
             type="file"
             accept={setImagePreview ? "image/*" : ""}
-            className="mx-auto w-full h-full rounded-xl cursor-pointer   absolute inset-0   opacity-0 z-50"
-            ref={inputRef}
+            className="mx-auto w-full h-full rounded-xl cursor-pointer absolute inset-0   opacity-0 z-50"
             onChange={handleInputChange}
           />
         </div>
