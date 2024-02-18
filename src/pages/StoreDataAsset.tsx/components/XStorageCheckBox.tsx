@@ -20,7 +20,6 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
   useEffect(() => {
     if (currentOption) setSelectedOption(currentOption);
   }, []);
-  //TODO think about a new way of doing this using a grid maybe
   return (
     <div className="p-4 w-[70%] flex flex-col gap-6">
       <b className="font-thin text-2xl text-foreground  "> {props.title}</b>
