@@ -3,16 +3,16 @@ import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "reac
 import toast from "react-hot-toast";
 import { cn } from "@utils/functions";
 
-interface DragAndDropImageFilesProps {
+interface DragAndDropZoneProps {
   idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
-  className?: string;
+  dropZoneStyles?: string;
 }
 
-const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
-  const { idxId, setFile, setImagePreview, imagePreview, className } = props;
+const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
+  const { idxId, setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
@@ -80,7 +80,7 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
   /// TODO REFACTOR THE NAMES OF component and calassName
   return (
     <div
-      className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", className)}
+      className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", dropZoneStyles)}
       id={`dropzone-${idxId}`}
       ref={dropzoneRef}
       onDragOver={handleDragOver}
@@ -131,4 +131,4 @@ const DragAndDropImageFiles: React.FC<DragAndDropImageFilesProps> = (props) => {
   );
 };
 
-export default DragAndDropImageFiles;
+export default DragAndDropZone;

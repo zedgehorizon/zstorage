@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import UploadHeader from "./components/UploadHeader";
 import { useLocation } from "react-router-dom";
-import DragAndDropImageFiles from "./components/DragAndDropImageFiles";
+import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import toast from "react-hot-toast";
@@ -265,7 +265,7 @@ const UploadAnyFiles: React.FC = () => {
   return (
     <div className="flex  flex-col  h-full pb-16 ">
       <UploadHeader
-        title={manifestFileIpfsUrl ? "Update" : "Upload" + " Data"}
+        title={manifestFile ? "Update" : "Upload" + " Data"}
         name={name}
         creator={creator}
         createdOn={createdOn}
@@ -277,7 +277,7 @@ const UploadAnyFiles: React.FC = () => {
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
       />
-      <DragAndDropImageFiles idxId={1} setFile={addNewFile} className="w-full" />
+      <DragAndDropZone idxId={1} setFile={addNewFile} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
