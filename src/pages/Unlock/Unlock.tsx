@@ -45,8 +45,6 @@ export const Unlock: React.FC = () => {
     },
   };
 
-  console.log("commonProps", commonProps);
-
   if (ELROND_NETWORK === "devnet") {
     xAliasEnv = "https://devnet.xalias.com";
   }

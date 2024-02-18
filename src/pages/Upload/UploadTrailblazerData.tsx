@@ -47,7 +47,7 @@ type FilePair = {
 export const UploadTrailblazerData: React.FC = () => {
   const location = useLocation();
   const currentCategory = 2; // trailblazer
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid } = location.state || {};
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -60,7 +60,6 @@ export const UploadTrailblazerData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
@@ -126,7 +125,14 @@ export const UploadTrailblazerData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "image" +
+                "_" +
+                onlyAlphaNumericChars(mediaData.title) +
+                "." +
+                filePairs[idx + 1].image.name.split(".")[1]
             );
           }
 
@@ -134,7 +140,14 @@ export const UploadTrailblazerData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].media,
-              generateRandomString() + "." + "media" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].media.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "media" +
+                "_" +
+                onlyAlphaNumericChars(mediaData.title) +
+                "." +
+                filePairs[idx + 1].media.name.split(".")[1]
             );
           }
         }
@@ -189,13 +202,13 @@ export const UploadTrailblazerData: React.FC = () => {
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
               matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(itemObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.image_${onlyAlphaNumericChars(itemObj.title)}`)
               );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Preview Image CID could not be found ");
             }
             if (fileObj.media && fileObj.media.name) {
               matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.media_${onlyAlphaNumericChars(itemObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.media_${onlyAlphaNumericChars(itemObj.title)}`)
               );
               if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
@@ -318,7 +331,6 @@ export const UploadTrailblazerData: React.FC = () => {
       }
       if (response && response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);

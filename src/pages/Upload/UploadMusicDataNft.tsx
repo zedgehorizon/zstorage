@@ -33,7 +33,7 @@ type FilePair = {
 export const UploadMusicData: React.FC = () => {
   const location = useLocation();
   const currentCategory = 1; // musicplaylist
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -46,7 +46,6 @@ export const UploadMusicData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
@@ -112,14 +111,28 @@ export const UploadMusicData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "image" +
+                "_" +
+                onlyAlphaNumericChars(songData.title) +
+                "." +
+                filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.audio) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              generateRandomString() + "." + "audio" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "audio" +
+                "_" +
+                onlyAlphaNumericChars(songData.title) +
+                "." +
+                filePairs[idx + 1].audio.name.split(".")[1]
             );
           }
         }
@@ -169,14 +182,14 @@ export const UploadMusicData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(songObj.title)}`)
+              matchingObjImage = responseDataCIDs.find(
+                (uploadedFileObj: any) => uploadedFileObj.fileName.includes(`${index + 1}.image_${onlyAlphaNumericChars(songObj.title)}`) // have to do the filtering because the responseDataCids does not come in the same order as uploaded
               );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
               matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.audio_${onlyAlphaNumericChars(songObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.audio_${onlyAlphaNumericChars(songObj.title)}`)
               );
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
@@ -278,7 +291,6 @@ export const UploadMusicData: React.FC = () => {
       }
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
