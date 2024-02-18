@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
-import { Button } from "../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";

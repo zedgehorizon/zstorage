@@ -1,7 +1,7 @@
 import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { cn } from "../../../utils/utils";
+import { cn } from "@utils/functions";
 
 interface DragAndDropImageFilesProps {
   idxId: number;

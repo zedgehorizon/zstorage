@@ -1,7 +1,7 @@
 import { CopyIcon, Lightbulb } from "lucide-react";
 import React from "react";
-import step2Img from "../../assets/img/next-steps-cname.png";
-import step4Img from "../../assets/img/next-steps-txt-record.png";
+import step2Img from "@assets/img/next-steps-cname.png";
+import step4Img from "@assets/img/next-steps-txt-record.png";
 interface NextStepsListProps {
   manifestCid: string;
 }

@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_VERSION } from "../../../utils/constants";
+import { API_VERSION } from "@utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
-import { CATEGORIES } from "../../../utils/constants";
+import { CATEGORIES } from "@utils/constants";
 interface DataStream {
   name: string;
   category: string;

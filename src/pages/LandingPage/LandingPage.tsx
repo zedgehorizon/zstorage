@@ -1,7 +1,7 @@
 import React from "react";
-import vault from "../../assets/img/illustration-vault.png";
-import hands from "../../assets/img/hands.png";
-import folders from "../../assets/img/folder-storage.png";
+import vault from "@assets/img/illustration-vault.png";
+import hands from "@assets/img/hands.png";
+import folders from "@assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
 import KeyFeatures from "./components/KeyFeatures";
 import { Footer } from "../../components/Layout/Footer";

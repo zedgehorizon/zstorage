@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { Modal } from "../../../components/Modal";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "../../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-import { Progress } from "../../../libComponents/Progress";
+import { Progress } from "@libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
 import NextStepsList from "../../../components/Lists/NextStepsList";
-import { Button } from "../../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];

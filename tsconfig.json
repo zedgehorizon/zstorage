@@ -15,7 +15,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "./src",
+    "paths": {
+      "@assets/*": ["assets/*"],
+      "@libComponents/*": ["libComponents/*"],
+      "@utils/*": ["utils/*"]
+    }
   },
-  "include": ["src","src/**/*.abi.json"]
+  "include": ["src", "src/**/*.abi.json"]
 }

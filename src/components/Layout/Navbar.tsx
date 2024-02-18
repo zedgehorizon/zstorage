@@ -1,11 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
-import logo from "../../assets/logo/logo.png";
+import logo from "@assets/logo/logo.png";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { Dot, Home, Menu } from "lucide-react";
-import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "../../libComponents/DropdownMenu";
-import { Button } from "../../libComponents/Button";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
+import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export const Navbar: React.FC = () => {

@@ -6,9 +6,9 @@ import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import toast from "react-hot-toast";
 import { Lightbulb, XCircle } from "lucide-react";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
 type FileData = {
   idx: number;

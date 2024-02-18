@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { cn } from "../../../utils/utils";
+import { cn } from "@utils/functions";
 
 type XStorageCheckBoxProps = {
   title: string;

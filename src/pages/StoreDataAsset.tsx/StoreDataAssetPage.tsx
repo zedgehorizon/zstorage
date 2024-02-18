@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import zImageHalf from "../../assets/img/z-image-half.png";
+import zImageHalf from "@assets/img/z-image-half.png";
 import { Heart, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
 import { XStorageCheckBox } from "./components/XStorageCheckBox";
-import { Button } from "../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { Footer } from "../../components/Layout/Footer";
 import { useNavigate } from "react-router-dom";
 

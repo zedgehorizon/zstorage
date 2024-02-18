@@ -3,15 +3,15 @@ import { ExtensionLoginButton, LedgerLoginButton, WalletConnectLoginButton, WebW
 import { useNavigate } from "react-router-dom";
 import { useGetNetworkConfig } from "@multiversx/sdk-dapp/hooks";
 import { NativeAuthConfigType } from "@multiversx/sdk-dapp/types";
-import { getApi } from "../../utils/misc";
+import { getApi } from "@utils/misc";
 import { walletConnectV2ProjectId } from "../../config";
-import zImageHalf from "../../assets/img/z-image-half.png";
+import zImageHalf from "@assets/img/z-image-half.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ELROND_NETWORK } from "../../utils/constants";
+import { ELROND_NETWORK } from "@utils/constants";
 import { Modal } from "../../components/Modal";
-import xAliasIssue from "../../assets/img/xalias-issue-dashboard.png";
-import { Button } from "../../libComponents/Button";
+import xAliasIssue from "@assets/img/xalias-issue-dashboard.png";
+import { Button } from "@libComponents/Button";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();

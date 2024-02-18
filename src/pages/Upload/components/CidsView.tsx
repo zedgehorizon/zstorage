@@ -1,6 +1,6 @@
 import { CopyIcon, ExternalLink } from "lucide-react";
 import React from "react";
-import { IPFS_GATEWAY } from "../../../utils/constants";
+import { IPFS_GATEWAY } from "@utils/constants";
 
 interface CidsViewProps {
   folderCid?: string;

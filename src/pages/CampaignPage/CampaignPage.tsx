@@ -1,5 +1,5 @@
 import React from "react";
-import vault from "../../assets/img/illustration-vault.png";
+import vault from "@assets/img/illustration-vault.png";
 import { Link } from "react-router-dom";
 import { Footer } from "../../components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
