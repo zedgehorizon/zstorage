@@ -20,7 +20,8 @@
     "paths": {
       "@assets/*": ["assets/*"],
       "@libComponents/*": ["libComponents/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@components/*": ["components/*"]
     }
   },
   "include": ["src", "src/**/*.abi.json"]

@@ -8,7 +8,7 @@ import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 

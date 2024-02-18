@@ -6,7 +6,7 @@ import { Button } from "@libComponents/Button";
 import { ArrowUp, ArrowDown, CheckCircleIcon, Loader2, Upload, Lightbulb } from "lucide-react";
 import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
-import DragAndDropImageFiles from "./DragAndDropImageFiles";
+import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
 
 const formSchema = z
@@ -206,7 +206,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropImageFiles idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>

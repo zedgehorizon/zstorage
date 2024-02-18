@@ -2,7 +2,6 @@ import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@libComponents/Dialog";
 import { cn } from "@utils/functions";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { Button } from "@libComponents/Button";
 
 type ModalProps = {
   openTrigger: React.ReactNode;

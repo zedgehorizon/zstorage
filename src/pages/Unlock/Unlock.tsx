@@ -9,7 +9,7 @@ import zImageHalf from "@assets/img/z-image-half.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ELROND_NETWORK } from "@utils/constants";
-import { Modal } from "../../components/Modal";
+import { Modal } from "@components/Modal";
 import xAliasIssue from "@assets/img/xalias-issue-dashboard.png";
 import { Button } from "@libComponents/Button";
 

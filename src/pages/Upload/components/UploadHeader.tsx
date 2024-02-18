@@ -2,8 +2,8 @@ import React from "react";
 import { DatePicker } from "@libComponents/DatePicker";
 import CidsView from "./CidsView";
 import { format } from "date-fns";
-import { Modal } from "../../../components/Modal";
-import NextStepsList from "../../../components/Lists/NextStepsList";
+import { Modal } from "@components/Modal";
+import NextStepsList from "@components/Lists/NextStepsList";
 import { Button } from "@libComponents/Button";
 
 interface UploadHeaderProps {

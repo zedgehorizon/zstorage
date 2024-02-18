@@ -1,8 +1,8 @@
 import { Edit2, PlaySquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@libComponents/Button";
-import { Modal } from "../../../components/Modal";
-import { AudioPlayerPreview } from "../../../components/AudioPlayerPreview";
+import { Modal } from "@components/Modal";
+import { AudioPlayerPreview } from "@components/AudioPlayerPreview";
 import MintDataNftModal from "../../Upload/components/modals/MintDataNftModal";
 
 interface DataAsset {

@@ -8,11 +8,11 @@ import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
-import { Modal } from "../../components/Modal";
-import { AudioPlayerPreview } from "../../components/AudioPlayerPreview";
+import { Modal } from "@components/Modal";
+import { AudioPlayerPreview } from "@components/AudioPlayerPreview";
 import MintDataNftModal from "./components/modals/MintDataNftModal";
 
 type SongData = {

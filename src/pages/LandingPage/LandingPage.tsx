@@ -4,7 +4,7 @@ import hands from "@assets/img/hands.png";
 import folders from "@assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
 import KeyFeatures from "./components/KeyFeatures";
-import { Footer } from "../../components/Layout/Footer";
+import { Footer } from "@components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
