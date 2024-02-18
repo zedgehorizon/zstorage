@@ -227,7 +227,6 @@ const UploadAnyFiles: React.FC = () => {
       }
 
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
