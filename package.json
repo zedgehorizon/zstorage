@@ -1,7 +1,7 @@
 {
   "name": "zstorage-dapp",
   "description": "Decentralized Storage Application",
-  "version": "1.12.2",
+  "version": "1.12.4",
   "author": "Zedge Horizon",
   "private": true,
   "dependencies": {

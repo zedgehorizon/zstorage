@@ -5,15 +5,13 @@ import updateIcon from "../../assets/logo/ic_baseline-updateupdate.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-let urlHashVal = "";
-let storeNewRoute = "/storage";
-
 export const Start: React.FC = () => {
-  if (document?.location?.hash.includes("#r=")) {
-    const rVal = document.location.hash.split("#r=")[1];
-    urlHashVal += `#r=${rVal}`;
+  let urlHashVal = "";
+  let storeNewRoute = "/storage";
 
-    storeNewRoute = "/upload-music#r=itheum-music-data-nft";
+  if (document?.location?.search.includes("?r=itheum-music-data-nft")) {
+    urlHashVal = `?r=itheum-music-data-nft`;
+    storeNewRoute = "/upload-music?r=itheum-music-data-nft";
   }
 
   return (

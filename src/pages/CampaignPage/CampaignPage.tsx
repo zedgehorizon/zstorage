@@ -19,13 +19,13 @@ const CampaignPage: React.FC = () => {
           <div className="mt-3">
             {(isLoggedIn && (
               <Link
-                to={"/data-bunker#r=itheum-music-data-nft"}
-                className="scale-75 xl:scale-100 font-bold text-accent-foreground bg-accent rounded-full px-4 lg:px-20 py-5 flex justify-center">
+                to={"/data-bunker?r=itheum-music-data-nft"}
+                className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center">
                 Access Your Data Bunker
               </Link>
             )) || (
               <Link
-                to={"/unlock#r=itheum-music-data-nft"}
+                to={"/unlock?r=itheum-music-data-nft"}
                 className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center text-xl">
                 <p className="">Get Started</p>{" "}
               </Link>

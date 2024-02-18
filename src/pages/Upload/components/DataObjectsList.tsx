@@ -89,7 +89,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
             <Progress className="bg-background w-[40rem]" value={progressValue} />
-            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Amost there...") : "Uploading files..."}</span>
+            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {manifestCid && (
               <div className="flex flex-col items-center justify-center mb-8 ">
