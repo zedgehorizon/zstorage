@@ -9,11 +9,10 @@ let urlHashVal = "";
 let storeNewRoute = "/storage";
 
 export const Start: React.FC = () => {
-  if (document?.location?.hash.includes("#r=")) {
-    const rVal = document.location.hash.split("#r=")[1];
-    urlHashVal += `#r=${rVal}`;
-
-    storeNewRoute = "/upload-music#r=itheum-music-data-nft";
+  if (document?.location?.search.includes("?r=")) {
+    const rVal = document.location.search.split("?r=")[1];
+    urlHashVal += `?r=${rVal}`;
+    storeNewRoute = "/upload-music?r=itheum-music-data-nft";
   }
 
   return (
