@@ -11,16 +11,13 @@ import { Link } from "react-router-dom";
 import { ELROND_NETWORK } from "../../utils/constants";
 import { Modal } from "../../components/Modal";
 import xAliasIssue from "../../assets/img/xalias-issue-dashboard.png";
-
-let onCloseReturnRoute = "/";
-let loginCallbackRoute = "/start";
-let xAliasEnv = "https://xalias.com";
+import { Button } from "../../libComponents/Button";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
 
   const buttonStyles = useMemo(() => {
-    return "hover:!bg-accent/25 focus:!bg-accent/75  focus:!border-0 !bg-muted-foreground/5 !rounded-2xl !py-3 !border-accent/25 !text-center !text-foreground/75 !text-base !font-medium !leading-relaxed";
+    return "hover:!bg-accent/25 focus:!bg-accent/75 focus:!border-0 !bg-muted-foreground/5 !rounded-2xl !py-3 !border-accent/25 !text-center !text-foreground/75 !text-base !font-medium !leading-relaxed";
   }, []);
 
   const { chainID } = useGetNetworkConfig();
@@ -31,10 +28,13 @@ export const Unlock: React.FC = () => {
     expirySeconds: 3000,
   };
 
-  if (document?.location?.search.includes("?r=")) {
-    const rVal = document.location.search.split("?r=")[1];
-    onCloseReturnRoute = `/${rVal}`;
-    loginCallbackRoute += `?r=${rVal}`;
+  let onCloseReturnRoute = "/";
+  let loginCallbackRoute = "/start";
+  let xAliasEnv = "https://xalias.com";
+
+  if (document?.location?.search.includes("?r=itheum-music-data-nft")) {
+    onCloseReturnRoute += `?r=itheum-music-data-nft`;
+    loginCallbackRoute += `?r=itheum-music-data-nft`;
   }
 
   const commonProps = {
@@ -45,15 +45,17 @@ export const Unlock: React.FC = () => {
     },
   };
 
+  console.log("commonProps", commonProps);
+
   if (ELROND_NETWORK === "devnet") {
     xAliasEnv = "https://devnet.xalias.com";
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full gap-4 bg-background z-[-2]">
+    <div className="p-8 flex flex-col items-center justify-center w-full h-full gap-4 bg-background z-[-2] min-h-[100svh]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
-      <div className="w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
+      <div className="w-full lg:w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
         <div className="flex flex-col w-full gap-2">
           <Link to={onCloseReturnRoute} className="bg-muted rounded-r-2xl flex items-center pr-4 absolute right-0">
             <XCircle className="w-6 h-6 text-foreground cursor-pointer" />
@@ -66,11 +68,12 @@ export const Unlock: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-xs flex justify-center mt-3">Use your Google Account to generate your sovereign digital wallet.</p>
-          <div className="text-sm text-center mt-3 text-red-400">
+          <p className="text-xs flex justify-center mt-2">Use your Google Account to generate your sovereign digital wallet.</p>
+          <div className="text-sm text-center text-red-400">
             Google Login is in BETA; You may have some issues logging in :
             <Modal
               modalClassName="w-[70%] border-accent/50"
+              footerContent={<Button className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</Button>}
               openTrigger={
                 <a href="#" className="text-accent hover:underline ml-1">
                   Learn more
@@ -80,7 +83,7 @@ export const Unlock: React.FC = () => {
               {
                 <div className=" relative z-10 p-4 text-sm leading-relaxed text-white b rounded-3xl shadow-md">
                   <div className="flex flex-row w-full justify-center items-center pb-4 border-b border-accent mb-4">
-                    <span className="font-bold text-lg  text-center">Using "Login With Google" in BETA Mode</span>
+                    <span className="font-bold text-lg text-center">Using "Login With Google" in BETA Mode</span>
                   </div>
                   <span className="font-bold text-lg  text-center justify-center">
                     The "Login with Google" feature is provided by{" "}

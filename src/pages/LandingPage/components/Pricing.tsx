@@ -11,7 +11,7 @@ const Pricing: React.FC = () => {
           adjust your subscription according to your requirements.
         </span>
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <PriceCard
           plan="BASIC"
           title="Go Basic"

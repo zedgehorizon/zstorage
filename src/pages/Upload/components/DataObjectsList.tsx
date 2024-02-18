@@ -6,6 +6,7 @@ import { Progress } from "../../../libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
 import NextStepsList from "../../../components/Lists/NextStepsList";
+import { Button } from "../../../libComponents/Button";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -16,16 +17,27 @@ interface DataObjectsListProps {
   manifestCid?: string;
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
+  errorMessage?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
-  const { isUploadButtonDisabled, addButton, progressBar, DataObjectsComponents, manifestCid, recentlyUploadedManifestFileName, folderHash, uploadFileToIpfs } =
-    props;
+  const {
+    isUploadButtonDisabled,
+    addButton,
+    progressBar,
+    DataObjectsComponents,
+    manifestCid,
+    recentlyUploadedManifestFileName,
+    folderHash,
+    uploadFileToIpfs,
+    errorMessage,
+  } = props;
+
   const [progressValue, setProgressValue] = React.useState(0);
 
   // useEffect hook to load the progress bar smoothly to 100 in 10 seconds
   useEffect(() => {
-    if (progressValue > 0 && progressValue < 99) {
+    if (progressValue > 0 && progressValue < 99 && !errorMessage) {
       const interval = 100; // Time interval in milliseconds
       const totalTime = 10000; // Total time for the progress to reach 100 (in milliseconds) - 10 seconds
       const steps = 100 / (totalTime / interval);
@@ -64,17 +76,21 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             id="uploadButton"
             onClick={uploadFileToIpfs}
             disabled={isUploadButtonDisabled || progressBar === 100}
-            className={"bg-accent text-accent-foreground w-full font-medium  p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
+            className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
             Upload Data
           </button>
         }
-        modalClassName={"bg-background bg-muted !max-w-[60%] h-full items-center justify-center border-accent/50"}
+        modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
+        footerContent={
+          errorMessage && <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
+        }
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
-            <Progress className="bg-background w-[40rem]" value={progressValue}></Progress>
-            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Amost there...") : "Uploading files..."}</span>
+            <Progress className="bg-background w-[40rem]" value={progressValue} />
+            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
+            {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {manifestCid && (
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressBar === 100 && (
@@ -93,6 +109,9 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                           <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                             Update your DNS
                           </button>
+                        }
+                        footerContent={
+                          <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
                         }
                         closeOnOverlayClick={true}>
                         {<NextStepsList manifestCid={manifestCid} />}

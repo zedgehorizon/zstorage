@@ -33,7 +33,7 @@ const CampaignPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="-mt-12 z-2  ">
+      <div className="lg:-mt-12 z-2 mb-4 ">
         <img src={vault}></img>
       </div>
       <Footer />
