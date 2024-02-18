@@ -49,7 +49,8 @@ export const UploadMusicData: React.FC = () => {
   const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
-  const [folderHash, setFolderHash] = useState<string>();
+  const [folderHash, setFolderHash] = useState();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -69,6 +70,7 @@ export const UploadMusicData: React.FC = () => {
         );
         setSongsData(songsDataMap);
       } catch (err: any) {
+        setErrorMessage("Error parsing manifest file : " + (err instanceof Error) ? err.message : "");
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
           icon: (
@@ -123,6 +125,7 @@ export const UploadMusicData: React.FC = () => {
         }
       });
     } catch (error: any) {
+      setErrorMessage("Error iterating through songs Data : " + (error instanceof Error) ? error.message : "");
       console.error("ERROR iterating through songs Data : ", error);
       toast.error(
         "Error iterating through songs Data : " +
@@ -141,6 +144,10 @@ export const UploadMusicData: React.FC = () => {
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    if (response.response && response.response.data.statusCode === 402) {
+      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+      return undefined;
+    }
     return response;
   }
 
@@ -189,6 +196,7 @@ export const UploadMusicData: React.FC = () => {
       });
       return transformedData.filter((song: any) => song !== null);
     } catch (error: any) {
+      setErrorMessage("Error transforming the data : " + (error instanceof Error) ? error.message : "");
       toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
@@ -264,6 +272,10 @@ export const UploadMusicData: React.FC = () => {
 
       const response = await uploadFilesRequest(formDataFormat, theToken || "");
 
+      if (response.response && response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      }
       if (response[0]) {
         const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
         setManifestFileIpfsUrl(ipfs);
@@ -284,6 +296,7 @@ export const UploadMusicData: React.FC = () => {
         throw new Error("The manifest file has not been uploaded correctly ");
       }
     } catch (error: any) {
+      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
       toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
         icon: (
           <button onClick={() => toast.dismiss()}>
@@ -477,6 +490,7 @@ export const UploadMusicData: React.FC = () => {
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
+            errorMessage={errorMessage}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>

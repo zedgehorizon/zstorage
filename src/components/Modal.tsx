@@ -13,7 +13,6 @@ type ModalProps = {
   description?: string;
   closeOnOverlayClick?: boolean; //when false it prevents the closing of the modal when clicking outside the modal
   children?: React.ReactNode;
-
   footerContent?: React.ReactNode;
 };
 

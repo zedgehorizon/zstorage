@@ -38,7 +38,7 @@ export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToke
     if (error?.response.data.statusCode === 402) {
       toast("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
     }
-
     toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
+    return error;
   }
 }
