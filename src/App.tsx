@@ -81,6 +81,12 @@ function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    document.body.style.height = `${window.innerHeight}px`;
+
+    return () => {
+      document.body.style.height = "";
+    };
   }, [pathname]);
 
   return (
