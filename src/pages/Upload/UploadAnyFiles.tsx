@@ -30,6 +30,7 @@ const UploadAnyFiles: React.FC = () => {
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+  const [stream, setStream] = useState(true);
   const [progressBar, setProgressBar] = useState(0);
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
@@ -50,6 +51,7 @@ const UploadAnyFiles: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setTotalItems(dataStream.marshalManifest.totalItems);
+        setStream(dataStream.marshalManifest.nestedStream);
         setNextIndex(dataStream.marshalManifest.totalItems + 1);
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
@@ -204,7 +206,7 @@ const UploadAnyFiles: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": totalItems,
-            "nestedStream": "true",
+            "nestedStream": stream,
           },
         },
         "data": data,
@@ -270,6 +272,8 @@ const UploadAnyFiles: React.FC = () => {
         creator={creator}
         createdOn={createdOn}
         modifiedOn={modifiedOn}
+        stream={stream}
+        setStream={setStream}
         setName={setName}
         setCreator={setCreator}
         setCreatedOn={setCreatedOn}

@@ -59,6 +59,7 @@ export const UploadTrailblazerData: React.FC = () => {
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+  const [stream, setStream] = useState(true);
   const [progressBar, setProgressBar] = useState(0);
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
@@ -74,6 +75,8 @@ export const UploadTrailblazerData: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
+        setStream(dataStream.marshalManifest.nestedStream);
+
         const itemDataMap = manifestFile.data.reduce(
           (acc: any, itemData: any) => {
             if (itemData) acc[itemData.idx] = itemData;
@@ -309,7 +312,7 @@ export const UploadTrailblazerData: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfItems - 1,
-            "nestedStream": "true", // set to true for MUSIC DATA NFTs
+            "nestedStream": stream,
           },
         },
         "data": data,
@@ -365,7 +368,6 @@ export const UploadTrailblazerData: React.FC = () => {
     setNumberOfItems((prev) => prev + 1);
     setUnsavedChanges((prev) => ({ ...prev, [numberOfItems]: true }));
   };
-
   function deleteItem(index: number) {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
@@ -453,7 +455,6 @@ export const UploadTrailblazerData: React.FC = () => {
     }
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
-
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -465,6 +466,8 @@ export const UploadTrailblazerData: React.FC = () => {
             createdOn={createdOn}
             modifiedOn={modifiedOn}
             setName={setName}
+            stream={stream}
+            setStream={setStream}
             setCreator={setCreator}
             setCreatedOn={setCreatedOn}
             folderCid={folderCid}

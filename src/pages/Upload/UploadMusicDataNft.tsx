@@ -267,7 +267,7 @@ export const UploadMusicData: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfSongs - 1,
-            "nestedStream": "true", // set to true for MUSIC DATA NFTs
+            "nestedStream": true, // set always true for MUSIC DATA NFTs
           },
         },
         "data": data,
@@ -423,8 +423,6 @@ export const UploadMusicData: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
-
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
