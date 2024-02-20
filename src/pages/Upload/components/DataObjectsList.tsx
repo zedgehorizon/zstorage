@@ -90,10 +90,10 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
                     <CidsView
-                      ipnsHash={ipnsHash}
                       currentManifestFileCID={manifestCid}
                       folderCid={folderHash}
                       manifestFileName={recentlyUploadedManifestFileName}
+                      ipnsHash={ipnsHash}
                     />
 
                     <div className="flex flex-row justify-center items-center gap-4">

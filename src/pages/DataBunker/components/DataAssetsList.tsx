@@ -57,6 +57,8 @@ export const DataAssetList: React.FC = () => {
   const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [ipnsIsLoading, setIpnsIsLoading] = useState(true);
+
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
     [CATEGORIES[0]]: [],
     [CATEGORIES[1]]: [],
@@ -93,6 +95,8 @@ export const DataAssetList: React.FC = () => {
 
       // if (response.data.length === 0) setIsLoading(false);
       // // if no data assets, stop loading
+      console.log(response.data, "ipnsResponse");
+
       setIpnsResponse(response.data);
     } catch (error: any) {
       console.error("Error fetching ipns data assets", error);
@@ -115,15 +119,17 @@ export const DataAssetList: React.FC = () => {
       try {
         await Promise.all(
           ipnsResponse.map((ipnsObject: IpnsResponseStruct) => {
-            downloadTheManifestFile("-", "-", ipnsObject.pointingHash, ipnsObject.hash, ipnsObject.key);
+            downloadTheManifestFile(undefined, undefined, ipnsObject.pointingHash, ipnsObject.hash, ipnsObject.key);
           })
         );
+        setIpnsIsLoading(false);
       } catch (error) {
         throw error;
       }
       //setIsLoading(false);
     };
     if (ipnsResponse.length > 0) {
+      console.log("downloading manifest from ipns ");
       downloadManifestFilesFromIpns();
     }
     if (ipnsResponse.length === 0) return;
@@ -142,6 +148,7 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${theToken}`,
         },
       });
+      console.log(response.data, "DATA ASSSETS");
       setStoredDataAssets(response.data);
       if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
     } catch (error: any) {
@@ -157,18 +164,24 @@ export const DataAssetList: React.FC = () => {
           icon: <Lightbulb color="yellow"></Lightbulb>,
         });
       }
-      throw error; // error to be caught by toast.promise
+      throw error; //error to be caught by toast.promise
     }
   }
 
   async function fetchAllDataAssetsOfAnAddress() {
-    await fetchAllManifestsOfAnAddress();
     await fetchAllIpnsKeysOfAnAddress();
+    await fetchAllManifestsOfAnAddress();
     // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
-  // download the manifest file for the corresponding CID
-  async function downloadTheManifestFile(folderHash: string, manifestFileName: string, manifestCid: string, ipnsHash?: string, ipnsKey?: string) {
+  //download the manifest file for the corresponding CID
+  async function downloadTheManifestFile(
+    folderHash: string | undefined,
+    manifestFileName: string | undefined,
+    manifestCid: string,
+    ipnsHash?: string,
+    ipnsKey?: string
+  ) {
     const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid;
     try {
       const response = await axios.get(apiUrlDownloadFile, {
@@ -186,12 +199,20 @@ export const DataAssetList: React.FC = () => {
         ...response.data,
         manifestFileName: manifestFileName,
         hash: manifestCid,
-        folderHash: folderHash,
+        folderCid: folderHash,
         ipnsHash: ipnsHash,
         ipnsKey: ipnsKey,
       };
+      console.log("all DEtails", allDetailsStampedManifestFile);
 
-      setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
+      if (!(folderHash || manifestFileName)) {
+        const index: number = manifestFiles.findIndex((manifestFile) => manifestFile.hash === allDetailsStampedManifestFile.hash);
+        console.log("mathching ", index);
+        if (index != -1 && ipnsKey && ipnsHash) handleManifestUpdateWithIpnsInformationFromIndex(index, ipnsKey, ipnsHash);
+        else setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
+      } else {
+        setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
+      }
     } catch (error) {
       console.error("Error downloading manifest files:", manifestCid, error);
       toast("Wait some more time for the manifest file to get pinned and try again if you can't find the one you are looking for", {
@@ -200,7 +221,14 @@ export const DataAssetList: React.FC = () => {
       });
     }
   }
-
+  function handleManifestUpdateWithIpnsInformationFromIndex(index: number, ipnsKey: string, ipnsHash: string) {
+    let items: ManifestFile[] = [...manifestFiles];
+    let item = { ...items[index] };
+    item.ipnsKey = ipnsKey;
+    item.ipnsHash = ipnsHash;
+    items[index] = item;
+    setManifestFiles(items);
+  }
   useEffect(() => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
@@ -212,12 +240,10 @@ export const DataAssetList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let count = 0;
-    if (isLoading === true) return;
+    if (isLoading === true || ipnsIsLoading === true) return;
     // if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;    TODO check why I placed this here?
     manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
-        count += 1;
         setCategoryManifestFiles((prev) => ({
           ...prev,
           [manifest.data_stream.category]: Array.isArray(prev[manifest.data_stream.category]) ? [...prev[manifest.data_stream.category], manifest] : [manifest],
@@ -225,7 +251,7 @@ export const DataAssetList: React.FC = () => {
       }
     });
     setShowCategories(true);
-  }, [isLoading]);
+  }, [isLoading, ipnsIsLoading]);
 
   useEffect(() => {
     const downloadAllTheManifestFiles = async () => {

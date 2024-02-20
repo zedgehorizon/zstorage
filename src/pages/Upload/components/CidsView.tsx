@@ -11,7 +11,8 @@ interface CidsViewProps {
 
 const CidsView: React.FC<CidsViewProps> = (props) => {
   const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash } = props;
-
+  console.log("CidsViewProps", props);
+  console.log(ipnsHash);
   return (
     <div>
       {folderCid && (

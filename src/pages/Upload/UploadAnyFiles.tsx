@@ -14,6 +14,7 @@ import pdfFile from "../../assets/logo/document-type/pdf.png";
 import docFile from "../../assets/logo/document-type/doc.png";
 import imageFile from "../../assets/logo/document-type/music.png";
 import musicFile from "../../assets/logo/document-type/music.png";
+import { set } from "date-fns";
 
 type FileData = {
   idx: number;
@@ -56,6 +57,7 @@ const UploadAnyFiles: React.FC = () => {
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setTotalItems(dataStream.marshalManifest.totalItems);
         setNextIndex(dataStream.marshalManifest.totalItems + 1);
+        setIpnsHash(manifestFile.ipnsHash);
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
             if (file) acc[file.idx] = file;
@@ -226,7 +228,7 @@ const UploadAnyFiles: React.FC = () => {
           ),
         });
 
-        if (decentralized.includes("IPNS")) {
+        if ((decentralized && decentralized.includes("IPNS")) || manifestFile?.ipnsKey) {
           const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
 
           if (ipnsResponse) {
