@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "@utils/constants";
@@ -115,6 +114,7 @@ export const DataAssetList: React.FC = () => {
         },
       });
       if (!response.data?.data_stream) {
+        console.error("empty manifest file or wrong format");
         /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
@@ -133,8 +133,8 @@ export const DataAssetList: React.FC = () => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all your digital bunker data assets...",
-        success: <b>Fetched all your digital bunker data assets!</b>,
-        error: <b>The data assets could not be fetched. </b>,
+        success: "Fetched all your digital bunker data assets!",
+        error: "The data assets could not be fetched.",
       });
     }
   }, []);
@@ -142,7 +142,7 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     let count = 0;
     if (isLoading === true) return;
-    if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;
+    //if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;
     manifestFiles.map((manifest: ManifestFile, index) => {
       if (manifest.data_stream.category) {
         count += 1;
@@ -157,6 +157,11 @@ export const DataAssetList: React.FC = () => {
 
   useEffect(() => {
     const downloadLatestVersionsManifestFiles = async () => {
+      if (storedDataAssets.length === 0) {
+        toast.error("No data assets found", { icon: <Lightbulb color="yellow"></Lightbulb> });
+        setIsLoading(false);
+        return;
+      }
       try {
         await Promise.all(
           storedDataAssets.map(async (manifestAsset) => {

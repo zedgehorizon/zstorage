@@ -18,7 +18,7 @@ const FeatureCard: React.FC<FeatureCardProps> = (props) => {
       <div className="p-8 pt-12">
         <img className="mb-4 bg-foreground/10 p-3 rounded-2xl border-[1px] border-accent " src={logo}></img>
         <CardTitle className="mb-4 text-xl text-foreground">{title}</CardTitle>
-        <CardDescription className="text-foreground/75 max-w-[20rem]">{description}</CardDescription>
+        <CardDescription className="text-foreground/75 max-w-[20rem] lg:max-w-[30rem]">{description}</CardDescription>
       </div>
       <CardContent className="p-0 ">
         <img className="rounded-b-2xl " src={image}></img>
