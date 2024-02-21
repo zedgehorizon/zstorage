@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "./components/MusicDataNftForm";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -33,7 +33,7 @@ type FilePair = {
 export const UploadMusicData: React.FC = () => {
   const location = useLocation();
   const currentCategory = 1; // musicplaylist
-  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid } = location.state || {};
+  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid, decentralized } = location.state || {};
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
@@ -50,6 +50,7 @@ export const UploadMusicData: React.FC = () => {
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [ipnsHash, setIpnsHash] = useState();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -60,6 +61,8 @@ export const UploadMusicData: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setIpnsHash(manifestFile.ipnsHash);
+
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
             if (song) acc[song.idx] = song;
@@ -301,6 +304,20 @@ export const UploadMusicData: React.FC = () => {
             </button>
           ),
         });
+        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
+          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
 
         setProgressBar(100);
       } else {
@@ -436,6 +453,7 @@ export const UploadMusicData: React.FC = () => {
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
+            ipnsHash={ipnsHash}
           />
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
@@ -500,6 +518,7 @@ export const UploadMusicData: React.FC = () => {
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
             errorMessage={errorMessage}
+            ipnsHash={ipnsHash}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>

@@ -18,6 +18,7 @@ interface DataObjectsListProps {
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
   errorMessage?: string;
+  ipnsHash?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
@@ -31,6 +32,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     folderHash,
     uploadFileToIpfs,
     errorMessage,
+    ipnsHash,
   } = props;
 
   const [progressValue, setProgressValue] = React.useState(0);
@@ -95,27 +97,32 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
-                    <CidsView currentManifestFileCID={manifestCid} folderCid={folderHash} manifestFileName={recentlyUploadedManifestFileName} />
-
+                    <CidsView
+                      ipnsHash={ipnsHash}
+                      currentManifestFileCID={manifestCid}
+                      folderCid={folderHash}
+                      manifestFileName={recentlyUploadedManifestFileName}
+                    />
                     <div className="flex flex-row justify-center items-center gap-4">
                       <Link
                         to={"/data-bunker"}
                         className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                         View stored files
                       </Link>
-                      <Modal
-                        modalClassName="w-[70%] border-accent/50"
-                        openTrigger={
-                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                            Update your DNS
-                          </button>
-                        }
-                        footerContent={
-                          <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
-                        }
-                        closeOnOverlayClick={true}>
-                        {<NextStepsList manifestCid={manifestCid} />}
-                      </Modal>
+                      {ipnsHash ? (
+                        <></>
+                      ) : (
+                        <Modal
+                          modalClassName="w-[40%] border-accent/50"
+                          openTrigger={
+                            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                              Update your DNS
+                            </button>
+                          }
+                          closeOnOverlayClick={true}>
+                          {<NextStepsList manifestCid={manifestCid} />}
+                        </Modal>
+                      )}
                     </div>
                   </div>
                 )}

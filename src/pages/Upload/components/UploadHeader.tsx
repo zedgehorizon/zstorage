@@ -22,6 +22,7 @@ interface UploadHeaderProps {
   folderCid?: string;
   currentManifestFileCID?: string;
   manifestFileName?: string;
+  ipnsHash?: string;
 }
 
 const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
@@ -39,6 +40,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
     currentManifestFileCID,
     folderCid,
     manifestFileName,
+    ipnsHash,
   } = props;
 
   return (
@@ -105,7 +107,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      {currentManifestFileCID && folderCid && (
+      {currentManifestFileCID && folderCid && !ipnsHash && (
         <Modal
           modalClassName="w-[70%] border-accent/50"
           openTrigger={
@@ -118,7 +120,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
         </Modal>
       )}
-      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} />
+      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} ipnsHash={ipnsHash} />
     </div>
   );
 };

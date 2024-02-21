@@ -6,10 +6,11 @@ interface CidsViewProps {
   folderCid?: string;
   currentManifestFileCID?: string;
   manifestFileName?: string;
+  ipnsHash?: string;
 }
 
 const CidsView: React.FC<CidsViewProps> = (props) => {
-  const { folderCid, currentManifestFileCID, manifestFileName } = props;
+  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash } = props;
 
   return (
     <div>
@@ -31,6 +32,16 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
           <h3>Manifest File Name - {manifestFileName} </h3>{" "}
           <CopyIcon onClick={() => navigator.clipboard.writeText(manifestFileName)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
           <a href={IPFS_GATEWAY + "ipfs/" + folderCid + "/" + manifestFileName} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
+            <ExternalLink className="text-accent" />
+          </a>
+        </div>
+      )}
+
+      {ipnsHash && (
+        <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
+          <h3>Ipns Hash - {ipnsHash} </h3>{" "}
+          <CopyIcon onClick={() => navigator.clipboard.writeText(ipnsHash)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+          <a href={IPFS_GATEWAY + "ipns/" + ipnsHash} target="_blank" className=" ml-4 font-semibold underline ">
             <ExternalLink className="text-accent" />
           </a>
         </div>
