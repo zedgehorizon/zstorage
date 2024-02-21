@@ -4,7 +4,7 @@ import { AuthenticatedRoutesWrapper, DappProvider } from "@multiversx/sdk-dapp/w
 import { NotificationModal, SignTransactionsModals, TransactionsToastList } from "@multiversx/sdk-dapp/UI";
 import { apiTimeout, walletConnectV2ProjectId } from "./config";
 import { Navbar } from "./components/Layout/Navbar";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Start } from "./pages/Start/Start";
 import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
@@ -82,6 +82,12 @@ function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    document.body.style.height = `${window.innerHeight}px`;
+
+    return () => {
+      document.body.style.height = "";
+    };
   }, [pathname]);
 
   return (
@@ -102,12 +108,12 @@ function App() {
             reverseOrder={false}
             containerStyle={{
               position: "sticky",
-              zIndex: 9999,
+              zIndex: 1000,
               width: "100%",
             }}
             toastOptions={{
               className: "",
-              duration: 5000,
+              duration: 10000,
               style: {
                 background: "#363636",
                 color: "#fff",

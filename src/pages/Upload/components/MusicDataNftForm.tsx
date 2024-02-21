@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "../../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
-import { DatePicker } from "../../../libComponents/DatePicker";
-import { Input } from "../../../libComponents/Input";
-import DragAndDropImageFiles from "./DragAndDropImageFiles";
+import { DatePicker } from "@libComponents/DatePicker";
+import { Input } from "@libComponents/Input";
+import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
 
 const formSchema = z.object({
@@ -74,6 +74,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
   };
 
+  useEffect(() => {
+    form.setValue("date", new Date().toISOString().split("T")[0]);
+  }, []);
+
   // populate the form
   useEffect(() => {
     form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
@@ -88,6 +92,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     } else {
       setImageURL("");
     }
+
     if (props.song["file"]) {
       form.setValue("file", props.song["file"]);
       setAudioURL(props.song["file"]);
@@ -95,6 +100,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setwantToEditAudio(false);
       setAudioURL("");
     }
+
     setImageFile(undefined);
     setAudioFile(undefined);
   }, [props.song]);
@@ -213,7 +219,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Cover Art Image</span>
 
-            <DragAndDropImageFiles setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
             {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
 
             <div>

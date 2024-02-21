@@ -1,7 +1,7 @@
 import React from "react";
-import arrowRight from "../../../assets/img/arrow1.png";
-import arrowDownRight from "../../../assets/img/arrow2.png";
-import { cn } from "../../../utils/utils";
+import arrowRight from "@assets/img/arrow1.png";
+import arrowDownRight from "@assets/img/arrow2.png";
+import { cn } from "@utils/functions";
 
 interface IStoreDataAssetProgressProps {
   currentStep: number;

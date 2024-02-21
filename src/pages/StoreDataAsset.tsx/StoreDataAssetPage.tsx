@@ -1,18 +1,14 @@
 import React, { useState } from "react";
-import zImageHalf from "../../assets/img/z-image-half.png";
-import { Heart, XCircle } from "lucide-react";
+import zImageHalf from "@assets/img/z-image-half.png";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
 import { XStorageCheckBox } from "./components/XStorageCheckBox";
-import { Button } from "../../libComponents/Button";
-import { Footer } from "../../components/Layout/Footer";
+import { Button } from "@libComponents/Button";
 import { useNavigate } from "react-router-dom";
-
-interface IStoreDataAssetProps {}
 
 const StoreDataAsset: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [dataAssetAction, setDataAssetAction] = useState("");
+  // const [dataAssetAction, setDataAssetAction] = useState("");
   const [storageType, setStorageType] = useState();
   const [template, setTemplate] = useState("");
   const [storagePreference, setStoragePreference] = useState();
@@ -37,7 +33,7 @@ const StoreDataAsset: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2] pb-16">
+    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Store Data Asset</span>
@@ -62,7 +58,7 @@ const StoreDataAsset: React.FC = () => {
           <XStorageCheckBox
             title="What type of data asset would you like to store?"
             // description="OR choose any specific Itheum Data Stream template that you would like to use"
-            options={["Upload My Files", "Music Data NFT", "Trailblazer data NFT"]}
+            options={["Upload My Files", "Music Data NFT", "Trailblazer Data NFT"]}
             currentOption={template}
             descriptions={[
               "Upload and store a single file or multiple files.",
@@ -94,11 +90,11 @@ const StoreDataAsset: React.FC = () => {
             options={["DNS + IPFS", "IPNS + IPFS", "Arweave", "Ceramic"]}
             currentOption={storageOption}
             setterFunction={setStorageOption}
-            disabled={[false, true, true, true]}
+            disabled={[false, false, true, true]}
           />
         )}
 
-        <div className="flex justify-between w-[70%] text-2xl">
+        <div className="flex justify-between w-[70%] text-2xl pb-16">
           <Button
             className=" font-normal text-base p-4 px-8 rounded-full border border-accent text-foreground"
             disabled={currentStep === 1}
@@ -109,9 +105,9 @@ const StoreDataAsset: React.FC = () => {
 
           {currentStep === 4 ? (
             <Link
-              to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer data NFT") ? "/upload-trailblazer" : "/upload-music"}
+              to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer Data NFT") ? "/upload-trailblazer" : "/upload-music"}
               state={{
-                action: dataAssetAction,
+                // action: dataAssetAction,
                 type: storageType,
                 template: template,
                 storage: storagePreference,

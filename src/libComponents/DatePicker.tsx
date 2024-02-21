@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "../utils/utils";
+import { cn } from "@utils/functions";
 import { Button } from "./Button";
 import { Calendar } from "./Calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";

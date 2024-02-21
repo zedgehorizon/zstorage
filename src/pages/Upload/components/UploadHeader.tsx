@@ -1,7 +1,12 @@
 import React from "react";
-import { DatePicker } from "../../../libComponents/DatePicker";
+import { DatePicker } from "@libComponents/DatePicker";
 import CidsView from "./CidsView";
 import { format } from "date-fns";
+import { Modal } from "@components/Modal";
+import NextStepsList from "@components/Lists/NextStepsList";
+import { Button } from "@libComponents/Button";
+import { Switch } from "@libComponents/Switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
 
 interface UploadHeaderProps {
   title: string;
@@ -9,22 +14,54 @@ interface UploadHeaderProps {
   creator?: string;
   modifiedOn: string;
   createdOn?: string;
+  stream?: boolean;
   setName: (name: string) => void;
   setCreator: (creator: string) => void;
   setCreatedOn: (createdOn: string) => void;
-
+  setStream?: (stream: boolean) => void;
   folderCid?: string;
   currentManifestFileCID?: string;
   manifestFileName?: string;
+  ipnsHash?: string;
 }
 
 const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
-  const { title, name, creator, createdOn, modifiedOn, setName, setCreator, setCreatedOn, currentManifestFileCID, folderCid, manifestFileName } = props;
+  const {
+    title,
+    name,
+    creator,
+    createdOn,
+    modifiedOn,
+    stream,
+    setName,
+    setCreator,
+    setCreatedOn,
+    setStream,
+    currentManifestFileCID,
+    folderCid,
+    manifestFileName,
+    ipnsHash,
+  } = props;
 
   return (
     <div className="flex flex-col mx-auto">
-      <h1 className="text-4xl text-accent font- pt-16 pb-8">{title} </h1>
+      <div className="flex flex-row pt-16 pb-8 justify-between">
+        <h1 className="text-4xl text-accent">{title} </h1>
+        <div className="flex flex-col">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <label className="block text-foreground mb-2 cursor-help ">Stream</label>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Data Stream will be "dynamic" where it can evolve to have its data change</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
+          <Switch disabled={setStream ? false : true} checked={stream} defaultChecked={true} onCheckedChange={setStream} className=" mx-auto" />
+        </div>
+      </div>
       <div className="flex gap-x-4">
         <div className="mb-4  ">
           <label htmlFor="name" className="block text-foreground font-thin mb-2">
@@ -70,7 +107,20 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} />
+      {currentManifestFileCID && folderCid && !ipnsHash && (
+        <Modal
+          modalClassName="w-[70%] border-accent/50"
+          openTrigger={
+            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+              Instructions to Update your DNS
+            </button>
+          }
+          footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
+          closeOnOverlayClick={true}>
+          {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+        </Modal>
+      )}
+      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} ipnsHash={ipnsHash} />
     </div>
   );
 };

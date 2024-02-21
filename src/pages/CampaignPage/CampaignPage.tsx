@@ -1,7 +1,7 @@
 import React from "react";
-import vault from "../../assets/img/illustration-vault.png";
+import vault from "@assets/img/illustration-vault.png";
 import { Link } from "react-router-dom";
-import { Footer } from "../../components/Layout/Footer";
+import { Footer } from "@components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 const CampaignPage: React.FC = () => {
@@ -19,13 +19,13 @@ const CampaignPage: React.FC = () => {
           <div className="mt-3">
             {(isLoggedIn && (
               <Link
-                to={"/data-bunker#r=itheum-music-data-nft"}
+                to={"/data-bunker?r=itheum-music-data-nft"}
                 className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center">
                 Access Your Data Bunker
               </Link>
             )) || (
               <Link
-                to={"/unlock#r=itheum-music-data-nft"}
+                to={"/unlock?r=itheum-music-data-nft"}
                 className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center text-xl">
                 <p className="">Get Started</p>{" "}
               </Link>
@@ -33,7 +33,7 @@ const CampaignPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="-mt-12 z-2  ">
+      <div className="lg:-mt-12 z-2 mb-4 ">
         <img src={vault}></img>
       </div>
       <Footer />

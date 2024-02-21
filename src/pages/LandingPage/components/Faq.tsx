@@ -29,12 +29,12 @@ const Faq: React.FC = () => {
     },
   ];
   return (
-    <div className="flex justify-between py-16">
-      <div className="flex flex-col px-16">
+    <div className="flex flex-col lg:flex-row justify-between py-16">
+      <div className="flex flex-col px-8 lg:px-16 mb-8 items-start">
         <span className="text-foreground text-4xl mb-4">FAQs</span>
         <span className="text-base text-foreground/50 max-w-[20rem]">Explore our frequently asked questions and answers.</span>
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 justify-center items-center ">
         {questions.map((pair, index) => (
           <QuestionCard key={index} question={pair.question} answer={pair.answer} />
         ))}
