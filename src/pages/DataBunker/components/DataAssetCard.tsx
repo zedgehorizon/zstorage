@@ -49,7 +49,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
             }
             footerContent={
               <div className="flex flex-row p-2 gap-8 justify-center items-center w-full -mt-16 ">
-                <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back</Button>
+                <p className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back</p>
                 <Link
                   to={"/upload-music"}
                   state={{
@@ -59,7 +59,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
                     manifestFileName: manifest.manifestFileName,
                     folderCid: manifest.folderHash,
                   }}>
-                  <div className="px-8 mt-8 p-2 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent">Start edit</div>
+                  <div className="px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent">Start edit</div>
                 </Link>
               </div>
             }>
@@ -102,12 +102,6 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
           to={paths[category]}
           state={{
             manifestFile: manifest,
-            action: "Update Asset",
-            currentManifestFileCID: manifest.hash, /// todo remove
-            manifestFileName: manifest.manifestFileName,
-            folderCid: manifest.folderHash,
-            // ipnsHash: manifest.ipnsHash,
-            // ipnsKey: manifest.ipnsKey,
           }}>
           <div className="hover:scale-125 transition border border-accent p-2 rounded-full flex items-center justify-center">
             <Edit2 className="text-accent w-4  h-4" />

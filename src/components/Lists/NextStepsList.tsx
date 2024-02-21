@@ -33,13 +33,13 @@ const NextStepsList: React.FC<NextStepsListProps> = (props) => {
           </li>
           <li className="mb-4">
             <p className="font-bold">CNAME Record Setup:</p>
-            <p>
+            <div>
               Add a new CNAME record for your domain. Specify the subdomain you wish to use. Point this subdomain to a supported public IPFS gateway, like :
               <div className="text-accent text-sm mb-3 flex">
                 ipfs.namebase.io.{" "}
                 <CopyIcon className="ml-5 h-5 w-5 cursor-pointer text-accent" onClick={() => navigator.clipboard.writeText("ipfs.namebase.io.")} />
               </div>
-            </p>
+            </div>
             <img src={step2Img} alt="Step 2" className="w-[300px] h-[40px]" />
           </li>
           <li className="mb-4">

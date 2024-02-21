@@ -45,7 +45,6 @@ export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
-  const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
@@ -61,7 +60,7 @@ export const DataAssetList: React.FC = () => {
 
   //     const response = await axios.get(apiUrlGet, {
   //       headers: {
-  //         "authorization": `Bearer ${theToken}`,
+  //         "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
   //       },
   //     });
 
@@ -78,7 +77,7 @@ export const DataAssetList: React.FC = () => {
     try {
       const response = await axios.get(apiUrlGet, {
         headers: {
-          "authorization": `Bearer ${theToken}`,
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
       setStoredDataAssets(response.data);
@@ -111,7 +110,7 @@ export const DataAssetList: React.FC = () => {
     try {
       const response = await axios.get(apiUrlDownloadFile, {
         headers: {
-          "authorization": `Bearer ${theToken}`,
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
       if (!response.data?.data_stream) {

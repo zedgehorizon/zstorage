@@ -10,7 +10,7 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
   return (
     <Modal
       closeOnOverlayClick={true}
-      modalClassName="w-[60%] border-accent/50 max-h-[90svh]"
+      modalClassName="w-[60%] border-accent/50 overflow-y-auto max-h-[80svh]"
       title=" Just one final step before you can mint your Itheum Music Data NFT !"
       titleClassName="p-6 pb-0 mt-3 text-accent text-2xl font-bold"
       openTrigger={triggerElement}>

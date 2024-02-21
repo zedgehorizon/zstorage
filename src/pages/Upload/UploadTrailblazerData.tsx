@@ -45,15 +45,18 @@ type FilePair = {
 };
 
 export const UploadTrailblazerData: React.FC = () => {
-  const location = useLocation();
   const currentCategory = 2; // trailblazer
-  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid, decentralized } = location.state || {};
+  const location = useLocation();
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
+
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
@@ -106,7 +109,6 @@ export const UploadTrailblazerData: React.FC = () => {
     let hasUnsavedChanges = false;
 
     if (numberOfItems > 1 && itemsData[1].title) {
-      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
@@ -178,7 +180,7 @@ export const UploadTrailblazerData: React.FC = () => {
 
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -329,7 +331,7 @@ export const UploadTrailblazerData: React.FC = () => {
       );
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
@@ -347,7 +349,7 @@ export const UploadTrailblazerData: React.FC = () => {
           ),
         });
         if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
 
           if (ipnsResponse) {
             setIpnsHash(ipnsResponse.hash);

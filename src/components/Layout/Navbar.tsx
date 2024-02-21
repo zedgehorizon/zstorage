@@ -129,11 +129,16 @@ export const Navbar: React.FC = () => {
                     <DropdownMenuItem>Pricing </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
+                <DropdownMenuGroup>
+                  <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
+                    <DropdownMenuItem>Music Data NFT Storage </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuGroup>
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>
-                      <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
-                        <DropdownMenuItem>Music Data NFT Storage </DropdownMenuItem>
+                      <Link className=" cursor-pointer group " to={"/data-bunker"}>
+                        <DropdownMenuItem>My Data Bunker </DropdownMenuItem>
                       </Link>
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>

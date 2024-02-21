@@ -31,16 +31,19 @@ type FilePair = {
 };
 
 export const UploadMusicData: React.FC = () => {
-  const location = useLocation();
   const currentCategory = 1; // musicplaylist
-  const { currentManifestFileCID, manifestFile, manifestFileName, folderCid, decentralized } = location.state || {};
+  const location = useLocation();
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
+
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
+  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(false);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
@@ -90,7 +93,6 @@ export const UploadMusicData: React.FC = () => {
     let hasUnsavedChanges = false;
 
     if (numberOfSongs > 1 && songsData[1].title) {
-      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
@@ -159,7 +161,7 @@ export const UploadMusicData: React.FC = () => {
     filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -286,7 +288,7 @@ export const UploadMusicData: React.FC = () => {
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
 
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
 
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
@@ -305,7 +307,7 @@ export const UploadMusicData: React.FC = () => {
           ),
         });
         if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
 
           if (ipnsResponse) {
             setIpnsHash(ipnsResponse.hash);
@@ -481,17 +483,17 @@ export const UploadMusicData: React.FC = () => {
                   titleClassName="px-8 mt-3"
                   footerContent={
                     <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
-                      <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</Button>
-                      <Button
+                      <p className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</p>
+                      <p
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
                         onClick={handleModalUploadButton}>
                         Upload Data
-                      </Button>
-                      <Button
+                      </p>
+                      <p
                         onClick={handleOpenMintModal}
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>
                         Mint Data NFT
-                      </Button>
+                      </p>
                     </div>
                   }
                   openTrigger={

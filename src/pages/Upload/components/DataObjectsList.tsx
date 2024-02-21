@@ -83,9 +83,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           </button>
         }
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
-        footerContent={
-          errorMessage && <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
-        }
+        footerContent={errorMessage && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">

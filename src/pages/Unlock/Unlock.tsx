@@ -71,7 +71,7 @@ export const Unlock: React.FC = () => {
             Google Login is in BETA; You may have some issues logging in :
             <Modal
               modalClassName="w-[70%] border-accent/50"
-              footerContent={<Button className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</Button>}
+              footerContent={<p className={"px-8 -mt-2 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>}
               openTrigger={
                 <a href="#" className="text-accent hover:underline ml-1">
                   Learn more

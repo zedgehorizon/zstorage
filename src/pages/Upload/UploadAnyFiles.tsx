@@ -23,8 +23,11 @@ const UploadAnyFiles: React.FC = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
-  const { manifestFile, currentManifestFileCID, manifestFileName, folderCid, decentralized } = location.state || {};
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
+
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
@@ -139,7 +142,7 @@ const UploadAnyFiles: React.FC = () => {
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -224,7 +227,7 @@ const UploadAnyFiles: React.FC = () => {
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
 
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
@@ -242,7 +245,7 @@ const UploadAnyFiles: React.FC = () => {
           ),
         });
         if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(theToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
 
           if (ipnsResponse) {
             setIpnsHash(ipnsResponse.hash);
