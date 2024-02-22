@@ -52,7 +52,6 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[1]]: [],
     [CATEGORIES[2]]: [],
   });
-
   // async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
   //   try {
   //     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;

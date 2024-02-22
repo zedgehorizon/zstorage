@@ -17,7 +17,6 @@ import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
 import { ELROND_NETWORK } from "./utils/constants";
-import { useLocation } from "react-router-dom";
 
 const routes = [
   {

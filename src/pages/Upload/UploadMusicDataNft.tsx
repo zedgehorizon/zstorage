@@ -91,30 +91,35 @@ export const UploadMusicData: React.FC = () => {
   }, [manifestFile]);
 
   // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
+  // useEffect(() => {
+  //   let hasUnsavedChanges = false;
 
-    if (numberOfSongs > 1 && songsData[1].title) {
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
-      });
-    } else {
-      hasUnsavedChanges = true;
-    }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [songsData, unsavedChanges, name, creator, createdOn]);
+  //   if (numberOfSongs > 1 && songsData[1].title) {
+  //     Object.values(unsavedChanges).forEach((item) => {
+  //       if (item === true) {
+  //         hasUnsavedChanges = true;
+  //       }
+  //     });
+  //   } else {
+  //     hasUnsavedChanges = true;
+  //   }
+  //   hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
+  //   setIsUploadButtonDisabled(hasUnsavedChanges);
+  // }, [songsData, unsavedChanges, name, creator, createdOn]);
 
   function validateData() {
     console.log(songsData, "songsData");
     console.log("validation ERRROrS", validationErrors);
+    verifyHeaderFields();
+    let isValid = true;
     if (songsData) {
       Object.keys(songsData).forEach((index: any) => {
-        dataAssetObjectValidation(Number(index));
+        isValid = isValid && dataAssetObjectValidation(Number(index));
       });
+    } else {
+      isValid = false;
     }
+    return isValid;
   }
 
   // upload the audio and images of all the songs
@@ -240,13 +245,13 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
       return false;
     }
     return true;
@@ -262,7 +267,16 @@ export const UploadMusicData: React.FC = () => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
-    validateData();
+    if (validateData() === false) {
+      toast.error("Please fill all the fields from the forms", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <XCircle color="red" />
+          </button>
+        ),
+      });
+      return;
+    }
     setProgressBar(12);
 
     if (!verifyHeaderFields()) {
@@ -362,20 +376,24 @@ export const UploadMusicData: React.FC = () => {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
+    const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
+      variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
     delete variableUnsavedChanges[numberOfSongs - 1];
+    delete variableValidationErrors[numberOfSongs - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
+    setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
   }
 
@@ -396,7 +414,7 @@ export const UploadMusicData: React.FC = () => {
       return;
     }
 
-    if (unsavedChanges[first] || unsavedChanges[second]) {
+    if (validateData() === false) {
       toast.error("Please save all the changes before swapping the songs", {
         icon: (
           <button onClick={() => toast.dismiss()}>
@@ -424,6 +442,11 @@ export const UploadMusicData: React.FC = () => {
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
     console.log("received info", index, formInputs, image, audio);
+    console.log(validationErrors, "validationErrors");
+
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      validateData();
+    }
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -483,7 +506,7 @@ export const UploadMusicData: React.FC = () => {
   };
 
   const handleModalUploadButton = () => {
-    document.getElementById("uploadButton")?.click();
+    document.getElementById("validateUploadButton")?.click();
   };
 
   const handleOpenMintModal = () => {
@@ -528,9 +551,6 @@ export const UploadMusicData: React.FC = () => {
                   onClick={handleAddMoreSongs}>
                   Add song
                 </Button>
-                <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"} onClick={validateData}>
-                  Validate data
-                </Button>
                 <Modal
                   closeOnOverlayClick={true}
                   modalClassName="p-0 m-0 max-w-[80%] "
@@ -568,9 +588,10 @@ export const UploadMusicData: React.FC = () => {
                 </Modal>
               </div>
             }
-            isUploadButtonDisabled={isUploadButtonDisabled}
+            isUploadButtonDisabled={false}
             progressBar={progressBar}
             uploadFileToIpfs={generateManifestFile}
+            validateDataObjects={validateData}
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}

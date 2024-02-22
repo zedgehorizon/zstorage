@@ -95,7 +95,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
 
         <div className="flex flex-col mb-4">
           <label className="text-foreground mb-2 ">Created On:</label>
-          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : undefined} />
+          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : ""} />
         </div>
 
         <div className="mb-4">

@@ -13,7 +13,8 @@ const MintDataNftModal: React.FC<MintDataNftModalProps> = ({ triggerElement }) =
       modalClassName="w-[60%] border-accent/50 overflow-y-auto max-h-[80svh]"
       title=" Just one final step before you can mint your Itheum Music Data NFT !"
       titleClassName="p-6 pb-0 mt-3 text-accent text-2xl font-bold"
-      openTrigger={triggerElement}>
+      openTrigger={triggerElement}
+      footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
       <div className="bg-background  rounded-lg shadow-md p-6">
         <div className="mb-4">
           Itheum Data NFT Minting is currently in "whitelist" mode, which means that you need to go through a simple whitelist process to ensure your NFT

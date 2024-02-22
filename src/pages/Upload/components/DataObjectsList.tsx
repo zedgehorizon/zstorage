@@ -14,6 +14,7 @@ interface DataObjectsListProps {
   isUploadButtonDisabled: boolean;
   progressBar: number;
   uploadFileToIpfs: () => void;
+  validateDataObjects: () => boolean;
   manifestCid?: string;
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
@@ -31,6 +32,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     recentlyUploadedManifestFileName,
     folderHash,
     uploadFileToIpfs,
+    validateDataObjects,
     errorMessage,
     ipnsHash,
   } = props;
@@ -61,6 +63,13 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     setProgressValue(progressBar);
   }, [progressBar]);
 
+  function handleUploadFileToIpfs() {
+    if (validateDataObjects() === false) return; /// show a toast?
+    document.getElementById("uploadButton")?.click();
+
+    uploadFileToIpfs();
+  }
+
   return (
     <div className="flex w-full flex-col">
       <ErrorBoundary
@@ -71,17 +80,15 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           {addButton}
         </div>
       </ErrorBoundary>
-
+      <button
+        id="validateUploadButton"
+        onClick={handleUploadFileToIpfs}
+        disabled={isUploadButtonDisabled || progressBar === 100}
+        className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
+        Upload Data
+      </button>
       <Modal
-        openTrigger={
-          <button
-            id="uploadButton"
-            onClick={uploadFileToIpfs}
-            disabled={isUploadButtonDisabled || progressBar === 100}
-            className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-            Upload Data
-          </button>
-        }
+        openTrigger={<button id="uploadButton"></button>}
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
         footerContent={errorMessage && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
         closeOnOverlayClick={false}>
@@ -89,7 +96,15 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
             <Progress className="bg-background w-[40rem]" value={progressValue} />
-            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
+            <span className="">
+              {errorMessage
+                ? "Uploading has stopped because of an error"
+                : progressValue > 60
+                  ? progressValue === 100
+                    ? "Upload completed!"
+                    : "Almost there..."
+                  : "Uploading files..."}
+            </span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {manifestCid && (
               <div className="flex flex-col items-center justify-center mb-8 ">
@@ -111,13 +126,14 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                         <></>
                       ) : (
                         <Modal
-                          modalClassName="w-[40%] border-accent/50"
+                          modalClassName="w-[60%] border-accent/50"
                           openTrigger={
                             <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                               Update your DNS
                             </button>
                           }
-                          closeOnOverlayClick={true}>
+                          closeOnOverlayClick={true}
+                          footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
                           {<NextStepsList manifestCid={manifestCid} />}
                         </Modal>
                       )}

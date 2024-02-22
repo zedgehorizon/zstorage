@@ -40,7 +40,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const { validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
-    mode: "onChange",
+    mode: "onBlur",
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
@@ -58,6 +58,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageFile, setImageFile] = useState<File>();
   const [audioFile, setAudioFile] = useState<File>();
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -74,13 +75,15 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
   };
 
-  useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
+  // useEffect(() => {
+  //   form.setValue("date", new Date().toISOString().split("T")[0]);
+  //   console.log("form reset", form.getValues());
+  // }, []);
 
   // populate the form
   useEffect(() => {
-    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
+    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    setDate(props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
     form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
@@ -109,12 +112,20 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     if (imageURL) form.setValue("cover_art_url", imageURL);
   }, [imageURL]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // console.log(imageFile, audioFile);
-    // console.log(values, "values");
-    props.setterFunction(props.index, values, imageFile, audioFile);
-    //props.setUnsavedChanges(props.index, false);
-  }
+  useEffect(() => {
+    if (imageFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+  }, [imageFile]);
+
+  useEffect(() => {
+    if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
+    //props.setterFunction(props.index, { date: date }, imageFile, audioFile);
+  }, [date]);
+  // function onSubmit(values: z.infer<typeof formSchema>) {
+  //   // console.log(imageFile, audioFile);
+  //   // console.log(values, "values");
+  //   props.setterFunction(props.index, values, imageFile, audioFile);
+  //   //props.setUnsavedChanges(props.index, false);
+  // }
 
   function handleMoveUp() {
     if (props.index == 1) return;
@@ -161,7 +172,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         // }}
         onBlur={() => {
           console.log("onBlur song Object ");
-          // console.log(form.getValues(), "form values");
+          console.log(form.getValues(), "form values");
           props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
         }}
         // onSubmit={form.handleSubmit(onSubmit)}
@@ -212,7 +223,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
+              <DatePicker setterFunction={setDate} previousDate={date} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
