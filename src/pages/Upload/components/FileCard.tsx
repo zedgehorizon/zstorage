@@ -1,7 +1,7 @@
 import { Edit2, File, Trash2 } from "lucide-react";
 import React from "react";
-import { Progress } from "../../../libComponents/Progress";
-import { Button } from "../../../libComponents/Button";
+import { Progress } from "@libComponents/Progress";
+import { Button } from "@libComponents/Button";
 
 interface FileCardProps {
   index: number;

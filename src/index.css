@@ -74,6 +74,22 @@
 
     --radius: 0.5rem;
   }
+
+  ::-webkit-scrollbar {
+    @apply w-3;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply rounded-md bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-accent/60 rounded-lg;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent;
+  }
 }
 
 @layer base {
