@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_VERSION } from "../../../utils/constants";
+import { API_VERSION } from "@utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import toast from "react-hot-toast";
 import { Lightbulb, Loader2 } from "lucide-react";
-import { CATEGORIES } from "../../../utils/constants";
+import { CATEGORIES } from "@utils/constants";
 interface DataStream {
   name: string;
   category: string;
@@ -22,12 +21,12 @@ interface DataStream {
 interface ManifestFile {
   data_stream: DataStream;
   data: [];
-  version: number;
   manifestFileName: string;
   folderCid: string;
-  cidv1: string;
   hash: string;
   folderHash: string;
+  ipnsHash?: string;
+  ipnsKey?: string;
 }
 
 type DataAsset = {
@@ -35,17 +34,17 @@ type DataAsset = {
   id: string;
   folderCid: string;
   cid: string;
-  cidv1: string;
   mimeType: string;
   hash: string;
   folderHash: string;
+  ipnsHash?: string;
+  ipnsKey?: string;
 };
 
 export const DataAssetList: React.FC = () => {
   const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
-  const theToken = tokenLogin?.nativeAuthToken;
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
@@ -61,7 +60,7 @@ export const DataAssetList: React.FC = () => {
 
   //     const response = await axios.get(apiUrlGet, {
   //       headers: {
-  //         "authorization": `Bearer ${theToken}`,
+  //         "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
   //       },
   //     });
 
@@ -78,7 +77,7 @@ export const DataAssetList: React.FC = () => {
     try {
       const response = await axios.get(apiUrlGet, {
         headers: {
-          "authorization": `Bearer ${theToken}`,
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
       setStoredDataAssets(response.data);
@@ -106,22 +105,31 @@ export const DataAssetList: React.FC = () => {
   }
 
   // download the manifest file for the corresponding CID
-  async function downloadTheManifestFile(folder: string, manifestFileName: string, manifest: string) {
-    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifest;
+  async function downloadTheManifestFile(folderHash: string, manifestFileName: string, manifestCid: string, ipnsHash?: string, ipnsKey?: string) {
+    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid;
     try {
       const response = await axios.get(apiUrlDownloadFile, {
         headers: {
-          "authorization": `Bearer ${theToken}`,
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
       if (!response.data?.data_stream) {
+        console.error("empty manifest file or wrong format");
         /// empty manifest file or wrong format might happen only with older versions of manifest file
         return undefined;
       }
-      const versionStampedManifestFile = { ...response.data, manifestFileName: manifestFileName, hash: manifest, folderHash: folder };
-      setManifestFiles((prev) => [...prev, versionStampedManifestFile]);
+      const allDetailsStampedManifestFile = {
+        ...response.data,
+        manifestFileName: manifestFileName,
+        hash: manifestCid,
+        folderHash: folderHash,
+        ipnsHash: ipnsHash,
+        ipnsKey: ipnsKey,
+      };
+
+      setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
     } catch (error) {
-      console.error("Error downloading manifest files:", manifest, error);
+      console.error("Error downloading manifest files:", manifestCid, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
@@ -133,19 +141,44 @@ export const DataAssetList: React.FC = () => {
     if (storedDataAssets.length === 0) {
       toast.promise(fetchAllDataAssetsOfAnAddress(), {
         loading: "Fetching all your digital bunker data assets...",
-        success: <b>Fetched all your digital bunker data assets!</b>,
-        error: <b>The data assets could not be fetched. </b>,
+        success: "Fetched all your digital bunker data assets!",
+        error: "The data assets could not be fetched.",
       });
     }
   }, []);
 
   useEffect(() => {
-    let count = 0;
+    console.log(storedDataAssets, "storedDataAssets");
+    const downloadAllTheManifestFiles = async () => {
+      if (storedDataAssets.length === 0) {
+        toast.error("No data assets found", { icon: <Lightbulb color="yellow"></Lightbulb> });
+        setIsLoading(false);
+        return;
+      }
+      try {
+        await Promise.all(
+          storedDataAssets.map(async (manifestAsset) => {
+            await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash, manifestAsset.ipnsHash, manifestAsset.ipnsKey);
+          })
+        );
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        throw error;
+      }
+    };
+
+    if (storedDataAssets.length > 0) {
+      downloadAllTheManifestFiles();
+    }
+  }, [storedDataAssets]);
+
+  useEffect(() => {
+    console.log("manifest files", manifestFiles);
     if (isLoading === true) return;
-    if (categoryManifestFiles[CATEGORIES[0]].length > 0) return;
-    manifestFiles.map((manifest: ManifestFile, index) => {
+    //if (categoryManifestFiles[CATEGORIES[0]].length > 0) return; //TODO check if needed
+    manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
-        count += 1;
         setCategoryManifestFiles((prev) => ({
           ...prev,
           [manifest.data_stream.category]: Array.isArray(prev[manifest.data_stream.category]) ? [...prev[manifest.data_stream.category], manifest] : [manifest],
@@ -154,25 +187,6 @@ export const DataAssetList: React.FC = () => {
     });
     setShowCategories(true);
   }, [isLoading]);
-
-  useEffect(() => {
-    const downloadLatestVersionsManifestFiles = async () => {
-      try {
-        await Promise.all(
-          storedDataAssets.map(async (manifestAsset) => {
-            await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash);
-          })
-        );
-      } catch (error) {
-        throw error;
-      }
-      setIsLoading(false);
-    };
-
-    if (storedDataAssets.length > 0) {
-      downloadLatestVersionsManifestFiles();
-    }
-  }, [storedDataAssets]);
 
   return (
     <div className="p-4 flex flex-col">

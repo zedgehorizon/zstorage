@@ -4,7 +4,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import DEFAULT_SONG_IMAGE from "../assets/img/audio-player-image.png";
+import DEFAULT_SONG_IMAGE from "@assets/img/audio-player-image.png";
 import toast from "react-hot-toast";
 
 type AudioPlayerProps = {

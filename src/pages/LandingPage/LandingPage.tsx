@@ -1,45 +1,14 @@
 import React from "react";
-import vault from "../../assets/img/illustration-vault.png";
-import hands from "../../assets/img/hands.png";
-import folders from "../../assets/img/folder-storage.png";
+import vault from "@assets/img/illustration-vault.png";
+import hands from "@assets/img/hands.png";
+import folders from "@assets/img/folder-storage.png";
 import { Link } from "react-router-dom";
 import KeyFeatures from "./components/KeyFeatures";
-import { Footer } from "../../components/Layout/Footer";
+import { Footer } from "@components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
-import Testimonials from "./components/Testimonials";
-import avatar from "../../assets/logo/Avatar.png";
-import companyLogo from "../../assets/logo/Black.png";
-import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
-
-const testimonialsData = [
-  {
-    userName: "John Doe",
-    rating: 4,
-    occupation: "Software Engineer",
-    avatar: avatar,
-    companyLogo: companyLogo,
-    feedback:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  // {
-  //   userName: "Jane Smith",
-  //   rating: 5,
-  //   occupation: "Product Manager",
-  //   avatar: avatar,
-  //   companyLogo: companyLogo,
-  //   feedback: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  // },
-  // {
-  //   userName: "Alex Johnson",
-  //   rating: 3,
-  //   occupation: "UX Designer",
-  //   avatar: avatar,
-  //   companyLogo: companyLogo,
-  //   feedback: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  // },
-];
+import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 
 const LandingPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -67,7 +36,7 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="-mt-12 z-2  ">
+      <div className="-mt-12 z-2">
         <img src={vault}></img>
       </div>
       <div id="solution" className="pt-16 lg:p-32 w-full flex flex-col lg:flex-row items-center justify-center">
@@ -118,7 +87,7 @@ const LandingPage: React.FC = () => {
       <div id="pricing"></div>
       <Pricing />
       <div id="testimonials"></div>
-      {/* <Testimonials testimonials={testimonialsData} /> */}
+      {/*<Testimonials testimonials={testimonialsData} />*/}
       <Faq />
       <Footer />
     </div>

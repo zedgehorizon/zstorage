@@ -3,15 +3,15 @@ import { ExtensionLoginButton, LedgerLoginButton, WalletConnectLoginButton, WebW
 import { useNavigate } from "react-router-dom";
 import { useGetNetworkConfig } from "@multiversx/sdk-dapp/hooks";
 import { NativeAuthConfigType } from "@multiversx/sdk-dapp/types";
-import { getApi } from "../../utils/misc";
+import { getApi } from "@utils/misc";
 import { walletConnectV2ProjectId } from "../../config";
-import zImageHalf from "../../assets/img/z-image-half.png";
+import zImageHalf from "@assets/img/z-image-half.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ELROND_NETWORK } from "../../utils/constants";
-import { Modal } from "../../components/Modal";
-import xAliasIssue from "../../assets/img/xalias-issue-dashboard.png";
-import { Button } from "../../libComponents/Button";
+import { ELROND_NETWORK } from "@utils/constants";
+import { Modal } from "@components/Modal";
+import xAliasIssue from "@assets/img/xalias-issue-dashboard.png";
+import { Button } from "@libComponents/Button";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
@@ -45,8 +45,6 @@ export const Unlock: React.FC = () => {
     },
   };
 
-  console.log("commonProps", commonProps);
-
   if (ELROND_NETWORK === "devnet") {
     xAliasEnv = "https://devnet.xalias.com";
   }
@@ -73,7 +71,7 @@ export const Unlock: React.FC = () => {
             Google Login is in BETA; You may have some issues logging in :
             <Modal
               modalClassName="w-[70%] border-accent/50"
-              footerContent={<Button className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</Button>}
+              footerContent={<p className={"px-8 -mt-2 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>}
               openTrigger={
                 <a href="#" className="text-accent hover:underline ml-1">
                   Learn more

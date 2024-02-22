@@ -1,10 +1,10 @@
 import React from "react";
-import storageIllustration from "../../../assets/img/illustration-storage.png";
-import realWorldIllustration from "../../../assets/img/illustration-real-world.png";
+import storageIllustration from "@assets/img/illustration-storage.png";
+import realWorldIllustration from "@assets/img/illustration-real-world.png";
 
 const UseCase: React.FC = () => {
   return (
-    <div className="scale-75 lg:scale-100 w-screen h-full lg:h-screen flex flex-col items-center justify-center">
+    <div className="scale-75 lg:scale-100 w-full h-full lg:h-screen flex flex-col items-center justify-center">
       <span className="text-foreground text-4xl mb-8">Use Cases</span>
       <div className=" flex flex-col lg:flex-row gap-4">
         <div className=" w-[28rem] h-[32rem] flex flex-col">

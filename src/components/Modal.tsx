@@ -1,8 +1,7 @@
 import React from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../libComponents/Dialog";
-import { cn } from "../utils/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@libComponents/Dialog";
+import { cn } from "@utils/functions";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { Button } from "../libComponents/Button";
 
 type ModalProps = {
   openTrigger: React.ReactNode;
@@ -33,7 +32,9 @@ export const Modal: React.FC<ModalProps> = (props) => {
         </DialogHeader>
         <div className="overflow-x-hidden overflow-y-auto scrollbar">{children}</div>
         <DialogFooter className="!justify-center !items-center m-0 p-4">
-          <DialogClose>{footerContent} </DialogClose>
+          <DialogClose>
+            {footerContent ? footerContent : <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}{" "}
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

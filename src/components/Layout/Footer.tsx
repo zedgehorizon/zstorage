@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Heart } from "lucide-react";
-import logoBlack from "../../assets/logo/logo-black.png";
+import logoBlack from "@assets/logo/logo-black.png";
 import toast from "react-hot-toast";
-import { ELROND_NETWORK } from "../../utils/constants";
+import { ELROND_NETWORK } from "@utils/constants";
 
 const appVersion = import.meta.env.VITE_APP_VERSION ? `v${import.meta.env.VITE_APP_VERSION}` : "version number unknown";
 
