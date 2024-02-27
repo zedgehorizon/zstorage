@@ -119,6 +119,12 @@ export const UploadMusicData: React.FC = () => {
   }
 
   function validateUpload() {
+    console.log("validating upload", unsavedChanges);
+
+    if (!verifyHeaderFields() || !validateSongsData()) {
+      return false;
+    }
+
     if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
       toast.error("No modification was made", {
         icon: (
@@ -129,9 +135,6 @@ export const UploadMusicData: React.FC = () => {
       });
       return false;
     }
-    if (!verifyHeaderFields() || !validateSongsData()) {
-      return false;
-    }
     return true;
   }
 
@@ -140,6 +143,8 @@ export const UploadMusicData: React.FC = () => {
     const filesToUpload = new FormData();
     try {
       //iterating over the songsData and for each object add its image and song to the formData
+      console.log("songsData", songsData);
+      console.log("filePairs", filePairs);
       Object.values(songsData).forEach((songData, idx) => {
         if (songData && songData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
@@ -209,6 +214,7 @@ export const UploadMusicData: React.FC = () => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
+      console.log("responseData CID", responseDataCIDs);
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
@@ -228,6 +234,7 @@ export const UploadMusicData: React.FC = () => {
               );
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
+            console.log("matchingObjImage", matchingObjImage, "matchingObjSong", matchingObjSong);
           }
 
           return {
@@ -371,6 +378,7 @@ export const UploadMusicData: React.FC = () => {
   };
 
   function deleteSong(index: number) {
+    console.log("deleting song", index);
     console.log();
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
@@ -394,6 +402,31 @@ export const UploadMusicData: React.FC = () => {
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
+    // setSongsData((prevSongsData) => {
+    //   const updatedSongsData = { ...prevSongsData };
+    //   delete updatedSongsData[index];
+    //   return updatedSongsData;
+    // });
+
+    // setFilePairs((prevFilePairs) => {
+    //   const updatedFilePairs = { ...prevFilePairs };
+    //   delete updatedFilePairs[index];
+    //   return updatedFilePairs;
+    // });
+
+    // setUnsavedChanges((prevUnsavedChanges) => {
+    //   const updatedUnsavedChanges = { ...prevUnsavedChanges };
+    //   delete updatedUnsavedChanges[index];
+    //   return updatedUnsavedChanges;
+    // });
+
+    // setValidationErrors((prevValidationErrors) => {
+    //   const updatedValidationErrors = { ...prevValidationErrors };
+    //   delete updatedValidationErrors[index];
+    //   return updatedValidationErrors;
+    // });
+
+    // setNumberOfSongs((prevNumberOfSongs) => prevNumberOfSongs - 1);
   }
 
   /**
@@ -403,6 +436,8 @@ export const UploadMusicData: React.FC = () => {
    * @param second - The index of the second song to swap. Use -1 to delete the song at index first.
    */
   function swapSongs(first: number, second: number) {
+    console.log("swapping songs", first, second);
+    console.log(songsData, filePairs, numberOfSongs);
     if (first < 1 || second >= numberOfSongs) {
       return;
     }
@@ -440,6 +475,7 @@ export const UploadMusicData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    console.log("handleFilesSelected", index, formInputs, image, audio);
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({

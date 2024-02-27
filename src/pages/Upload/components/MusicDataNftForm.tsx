@@ -106,13 +106,13 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   useEffect(() => {
     if (imageURL) {
       form.setValue("cover_art_url", imageURL);
-      props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+      props.setterFunction(props.index, form.getValues(), imageFile, audioFile); // setting the cover art url
     }
   }, [imageURL]);
 
   useEffect(() => {
-    if (audioFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
-  }, [audioFile]);
+    if (audioFile || imageFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+  }, [imageFile, audioFile]);
 
   useEffect(() => {
     if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
