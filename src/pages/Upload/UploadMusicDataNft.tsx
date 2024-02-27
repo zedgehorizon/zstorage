@@ -45,7 +45,6 @@ export const UploadMusicData: React.FC = () => {
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(false);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
@@ -107,19 +106,33 @@ export const UploadMusicData: React.FC = () => {
   //   setIsUploadButtonDisabled(hasUnsavedChanges);
   // }, [songsData, unsavedChanges, name, creator, createdOn]);
 
-  function validateData() {
-    console.log(songsData, "songsData");
-    console.log("validation ERRROrS", validationErrors);
-    verifyHeaderFields();
+  function validateSongsData() {
     let isValid = true;
     if (songsData) {
-      Object.keys(songsData).forEach((index: any) => {
-        isValid = isValid && dataAssetObjectValidation(Number(index));
+      Object.keys(songsData).forEach((key: string) => {
+        isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
     } else {
       isValid = false;
     }
     return isValid;
+  }
+
+  function validateUpload() {
+    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+      toast.error("No modification was made", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    if (!verifyHeaderFields() || !validateSongsData()) {
+      return false;
+    }
+    return true;
   }
 
   // upload the audio and images of all the songs
@@ -267,22 +280,7 @@ export const UploadMusicData: React.FC = () => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
-    if (validateData() === false) {
-      toast.error("Please fill all the fields from the forms", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-      return;
-    }
     setProgressBar(12);
-
-    if (!verifyHeaderFields()) {
-      return;
-    }
-
     try {
       const data = await transformSongsData();
 
@@ -373,6 +371,7 @@ export const UploadMusicData: React.FC = () => {
   };
 
   function deleteSong(index: number) {
+    console.log();
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
@@ -414,8 +413,8 @@ export const UploadMusicData: React.FC = () => {
       return;
     }
 
-    if (validateData() === false) {
-      toast.error("Please save all the changes before swapping the songs", {
+    if (validateSongsData() === false) {
+      toast.error("Please fill all fields before swapping the songs", {
         icon: (
           <button onClick={() => toast.dismiss()}>
             <Lightbulb color="yellow" />
@@ -441,12 +440,6 @@ export const UploadMusicData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
-    console.log("received info", index, formInputs, image, audio);
-    console.log(validationErrors, "validationErrors");
-
-    if (validationErrors[index] && validationErrors[index] !== "") {
-      validateData();
-    }
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -467,6 +460,9 @@ export const UploadMusicData: React.FC = () => {
       }));
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      dataAssetObjectValidation(index);
+    }
   };
 
   const dataAssetObjectValidation = (index: number) => {
@@ -494,8 +490,7 @@ export const UploadMusicData: React.FC = () => {
         message += "Audio, ";
       }
     }
-
-    setValidationErrors((prev) => ({ ...prev, [index]: message }));
+    setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
     if (message === "") {
       setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
       return true;
@@ -572,11 +567,7 @@ export const UploadMusicData: React.FC = () => {
                     </div>
                   }
                   openTrigger={
-                    <Button
-                      disabled={isUploadButtonDisabled}
-                      className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>
-                      Preview Player
-                    </Button>
+                    <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>Preview Player</Button>
                   }>
                   <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16 ">
                     <AudioPlayerPreview
@@ -591,7 +582,7 @@ export const UploadMusicData: React.FC = () => {
             isUploadButtonDisabled={false}
             progressBar={progressBar}
             uploadFileToIpfs={generateManifestFile}
-            validateDataObjects={validateData}
+            validateDataObjects={validateUpload}
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}

@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
 import NextStepsList from "@components/Lists/NextStepsList";
 import { Button } from "@libComponents/Button";
+import toast from "react-hot-toast";
+import { XCircle } from "lucide-react";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -64,9 +66,19 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   }, [progressBar]);
 
   function handleUploadFileToIpfs() {
-    if (validateDataObjects() === false) return; /// show a toast?
-    document.getElementById("uploadButton")?.click();
+    if (validateDataObjects() === false) {
+      toast.error("There were some validation errors!", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <XCircle color="red" />
+          </button>
+        ),
+        id: "validationError",
+      });
+      return;
+    }
 
+    document.getElementById("uploadButton")?.click();
     uploadFileToIpfs();
   }
 

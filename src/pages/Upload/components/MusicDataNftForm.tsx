@@ -40,7 +40,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const { validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
@@ -75,11 +75,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
   };
 
-  // useEffect(() => {
-  //   form.setValue("date", new Date().toISOString().split("T")[0]);
-  //   console.log("form reset", form.getValues());
-  // }, []);
-
   // populate the form
   useEffect(() => {
     form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
@@ -109,23 +104,19 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }, [props.song]);
 
   useEffect(() => {
-    if (imageURL) form.setValue("cover_art_url", imageURL);
+    if (imageURL) {
+      form.setValue("cover_art_url", imageURL);
+      props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+    }
   }, [imageURL]);
 
   useEffect(() => {
-    if (imageFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
-  }, [imageFile]);
+    if (audioFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+  }, [audioFile]);
 
   useEffect(() => {
     if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
-    //props.setterFunction(props.index, { date: date }, imageFile, audioFile);
   }, [date]);
-  // function onSubmit(values: z.infer<typeof formSchema>) {
-  //   // console.log(imageFile, audioFile);
-  //   // console.log(values, "values");
-  //   props.setterFunction(props.index, values, imageFile, audioFile);
-  //   //props.setUnsavedChanges(props.index, false);
-  // }
 
   function handleMoveUp() {
     if (props.index == 1) return;
@@ -166,16 +157,9 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         </div>
       </div>
       <form
-        // onFocus={() => props.setterFunction(props.index, form.getValues(), imageFile, audioFile)}
-        // onChange={() => {
-        //   onSubmit(form.getValues());
-        // }}
-        onBlur={() => {
-          console.log("onBlur song Object ");
-          console.log(form.getValues(), "form values");
+        onChange={() => {
           props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
         }}
-        // onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -259,11 +243,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
                       <Edit2 className="text-accent  " />
                     </div>
                   </Button>
-                  {/* <Button tabIndex={-1} onClick={() => setwantToEditAudio(true)}>
-                    <div className="hover:scale-110 hover:bg-accent text-accent hover:text-accent-foreground  bg-accent-foreground transition border border-accent hover:border-2 hover:border-accent-foreground  p-2 rounded-full flex items-center justify-center">
-                      <Edit2 className="t " />
-                    </div>
-                  </Button> */}
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
@@ -288,8 +267,13 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           {/* <div className="w-full flex flex-col justify-center items-center ">
             {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save ! {validationMessage} </p>}
           </div> */}
-          <div className="w-full flex flex-col justify-center items-center ">
-            {validationMessage && <p className="text-red-500"> Please add: {validationMessage} </p>}
+          <div className="w-full flex flex-col justify-start items-start ">
+            {validationMessage && (
+              <p className="text-red-500">
+                {" "}
+                Please fill the folowing fields: <br></br> {validationMessage}{" "}
+              </p>
+            )}
           </div>
           <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete

@@ -451,7 +451,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
-    debugger;
     if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -520,6 +519,9 @@ export const UploadTrailblazerData: React.FC = () => {
             folderHash={folderHash}
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
+            validateDataObjects={() => {
+              return true;
+            }}
           />
         </div>
       </div>

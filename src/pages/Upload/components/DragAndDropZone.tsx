@@ -14,8 +14,8 @@ interface DragAndDropZoneProps {
 const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   const { idxId, setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+
   useEffect(() => {
     if (imagePreview) {
       setPreviewSrc(imagePreview);

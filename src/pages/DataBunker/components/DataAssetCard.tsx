@@ -77,11 +77,12 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
         <div className="w-full text-foreground/75 gap-2 p-2">
           <div className="w-full flex justify-between">
             <p>Creator: {creator}</p>
-            {manifest.ipnsHash && (
-              <div className=" flex   items-center  ">
-                <p className="  text-sm text-center  bg-accent-foreground border border-accent text-accent rounded-xl px-2 ">Ipns</p>
-              </div>
-            )}
+
+            <div className=" flex   items-center  ">
+              <p className="  text-sm text-center  bg-accent-foreground border border-accent text-accent rounded-xl px-2 ">
+                {manifest.ipnsHash ? "Ipns" : "Ipfs"}
+              </p>
+            </div>
           </div>
           <p>Created On: {created_on}</p>
           <p>Last Modified On: {last_modified_on}</p>

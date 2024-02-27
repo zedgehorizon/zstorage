@@ -51,7 +51,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <label className="block text-foreground mb-2 cursor-help ">Stream</label>
+                <label className="block text-foreground mb-2 cursor-help ">Nested Stream</label>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Data Stream will be "dynamic" where it can evolve to have its data change</p>

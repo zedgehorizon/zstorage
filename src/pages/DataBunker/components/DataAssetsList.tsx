@@ -183,7 +183,6 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     console.log("manifest files", manifestFiles);
     if (isLoading === true) return;
-    //if (categoryManifestFiles[CATEGORIES[0]].length > 0) return; //TODO check if needed
     manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
         setCategoryManifestFiles((prev) => ({
