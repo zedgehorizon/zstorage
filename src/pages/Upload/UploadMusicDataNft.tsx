@@ -12,8 +12,8 @@ import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbac
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
-import { AudioPlayerPreview } from "@components/AudioPlayerPreview";
-import MintDataNftModal from "./components/modals/MintDataNftModal";
+import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
+import MintDataNftModal from "../../components/Modals/MintDataNftModal";
 
 type SongData = {
   date: string;
