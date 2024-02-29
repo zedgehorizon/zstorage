@@ -5,9 +5,9 @@ import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbac
 import { Progress } from "@libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
-import NextStepsList from "@components/Lists/NextStepsList";
+import NextStepsModal from "@components/Modals/NextStepsModal";
 import { Button } from "@libComponents/Button";
-import MintDataNftModal from "./modals/MintDataNftModal";
+import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
 import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
 
 interface DataObjectsListProps {
@@ -130,7 +130,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                         }
                         closeOnOverlayClick={true}
                         footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
-                        {<NextStepsList manifestCid={manifestCid} />}
+                        {<NextStepsModal manifestCid={manifestCid} />}
                       </Modal>
                     )}
                   </div>

@@ -88,11 +88,11 @@ export const DataAssetList: React.FC = () => {
 
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         });
       } else {
         toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         });
       }
       throw error; // error to be caught by toast.promise
@@ -131,7 +131,7 @@ export const DataAssetList: React.FC = () => {
     } catch (error) {
       console.error("Error downloading manifest files:", manifestCid, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
       });
     }
@@ -151,7 +151,7 @@ export const DataAssetList: React.FC = () => {
     console.log(storedDataAssets, "storedDataAssets");
     const downloadAllTheManifestFiles = async () => {
       if (storedDataAssets.length === 0) {
-        toast.error("No data assets found", { icon: <Lightbulb color="yellow"></Lightbulb> });
+        toast.error("No data assets found", { icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb> });
         setIsLoading(false);
         return;
       }

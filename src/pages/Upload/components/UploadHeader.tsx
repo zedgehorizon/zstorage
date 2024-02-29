@@ -3,7 +3,7 @@ import { DatePicker } from "@libComponents/DatePicker";
 import CidsView from "./CidsView";
 import { format } from "date-fns";
 import { Modal } from "@components/Modal";
-import NextStepsList from "@components/Lists/NextStepsList";
+import NextStepsModal from "@components/Modals/NextStepsModal";
 import { Button } from "@libComponents/Button";
 import { Switch } from "@libComponents/Switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
@@ -132,7 +132,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             }
             footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
             closeOnOverlayClick={true}>
-            {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+            {<NextStepsModal manifestCid={currentManifestFileCID || ""} />}
           </Modal>
         )
       )}

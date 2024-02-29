@@ -67,7 +67,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setwantToEditAudio(false);
     } else {
       toast("Please upload an audio file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
       });
     }
   };
