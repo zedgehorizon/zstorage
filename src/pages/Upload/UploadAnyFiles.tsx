@@ -46,7 +46,6 @@ const UploadAnyFiles: React.FC = () => {
 
   // populate the fileObjects with the files from the manifest file and the header
   useEffect(() => {
-    console.log(manifestFile, "manifestFile in any file");
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;

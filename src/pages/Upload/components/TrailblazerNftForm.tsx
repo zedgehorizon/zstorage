@@ -76,7 +76,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
       });
     }
   };
