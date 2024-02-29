@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
 import NextStepsList from "@components/Lists/NextStepsList";
 import { Button } from "@libComponents/Button";
+import MintDataNftModal from "./modals/MintDataNftModal";
+import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -91,39 +93,48 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             <Progress className="bg-background w-[40rem]" value={progressValue} />
             <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
-            {manifestCid && (
+            {manifestCid && progressBar === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
-                {progressBar === 100 && (
-                  <div className="flex flex-col justify-center items-center gap-4">
-                    <CidsView
-                      ipnsHash={ipnsHash}
-                      currentManifestFileCID={manifestCid}
-                      folderCid={folderHash}
-                      manifestFileName={recentlyUploadedManifestFileName}
-                    />
-                    <div className="flex flex-row justify-center items-center gap-4">
-                      <Link
-                        to={"/data-bunker"}
-                        className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                        View stored files
-                      </Link>
-                      {ipnsHash ? (
-                        <></>
-                      ) : (
-                        <Modal
-                          modalClassName="w-[40%] border-accent/50"
-                          openTrigger={
-                            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                              Update your DNS
-                            </button>
-                          }
-                          closeOnOverlayClick={true}>
-                          {<NextStepsList manifestCid={manifestCid} />}
-                        </Modal>
-                      )}
-                    </div>
+                <div className="flex flex-col justify-center items-center gap-4">
+                  <CidsView
+                    ipnsHash={ipnsHash}
+                    currentManifestFileCID={manifestCid}
+                    folderCid={folderHash}
+                    manifestFileName={recentlyUploadedManifestFileName}
+                  />
+                  <div className="flex flex-row justify-center items-center gap-4">
+                    <Link
+                      to={"/data-bunker"}
+                      className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                      View stored files
+                    </Link>
+                    {ipnsHash ? (
+                      <Modal
+                        modalClassName="w-[60%] h-full border-accent/50"
+                        openTrigger={
+                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                            How IPNS works?
+                          </button>
+                        }
+                        closeOnOverlayClick={true}
+                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                        {<HowIpnsWorkModal ipnsHash={ipnsHash} />}
+                      </Modal>
+                    ) : (
+                      <Modal
+                        modalClassName="w-[40%] border-accent/50"
+                        openTrigger={
+                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                            Update your DNS
+                          </button>
+                        }
+                        closeOnOverlayClick={true}
+                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                        {<NextStepsList manifestCid={manifestCid} />}
+                      </Modal>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import NextStepsList from "@components/Lists/NextStepsList";
 import { Button } from "@libComponents/Button";
 import { Switch } from "@libComponents/Switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
+import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
 
 interface UploadHeaderProps {
   title: string;
@@ -107,18 +108,33 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      {currentManifestFileCID && folderCid && !ipnsHash && (
+      {currentManifestFileCID && folderCid && ipnsHash ? (
         <Modal
           modalClassName="w-[70%] border-accent/50"
           openTrigger={
             <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-              Instructions to Update your DNS
+              How IPNS works?
             </button>
           }
           footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
           closeOnOverlayClick={true}>
-          {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+          {<HowIpnsWorkModal ipnsHash={ipnsHash} />}
         </Modal>
+      ) : (
+        currentManifestFileCID &&
+        folderCid && (
+          <Modal
+            modalClassName="w-[70%] border-accent/50"
+            openTrigger={
+              <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                Instructions to Update your DNS
+              </button>
+            }
+            footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
+            closeOnOverlayClick={true}>
+            {<NextStepsList manifestCid={currentManifestFileCID || ""} />}
+          </Modal>
+        )
       )}
       <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} ipnsHash={ipnsHash} />
     </div>
