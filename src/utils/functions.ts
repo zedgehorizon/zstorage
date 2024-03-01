@@ -19,6 +19,10 @@ export function onlyAlphaNumericChars(str: string) {
   return str.replace(/[^a-zA-Z0-9]/g, "");
 }
 
+export function shortenAddress(value: string, length: number = 6): string {
+  return value.slice(0, length) + " ... " + value.slice(-length);
+}
+
 export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToken: string) {
   try {
     const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
