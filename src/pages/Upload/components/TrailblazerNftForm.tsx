@@ -12,10 +12,15 @@ import toast from "react-hot-toast";
 const formSchema = z
   .object({
     date: z.string().min(1, "Required field"),
-    category: z.string().min(1, "Required field"),
+    category: z
+      .string()
+      .min(1, "Required field")
+      .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
     title: z
       .string()
       .min(1, "Required field")
+      .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed")
+
       .refine((data) => !data.includes("manifest"), {
         message: "The title cannot contain the word 'manifest'",
       }),
@@ -41,13 +46,10 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  // const [wantToEditImage, setWantToEditImage] = useState(false);
-  // const [wantToEditMedia, setWantToEditMedia] = useState(false);
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
-  // const [mediaError, setMediaError] = useState(false);
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

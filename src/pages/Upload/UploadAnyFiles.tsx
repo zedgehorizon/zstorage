@@ -122,7 +122,7 @@ const UploadAnyFiles: React.FC = () => {
     setProgressBar(27);
     try {
       Object.values(files).forEach((file) => {
-        filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name));
+        filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name.split(".")[0]) + "." + file.name.split(".")[1]);
       });
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);
@@ -163,7 +163,9 @@ const UploadAnyFiles: React.FC = () => {
           const fileToUpload = files[key];
 
           if (fileToUpload) {
-            matchingObj = responseDataCIDs.find((uploadedFileObj: any) => uploadedFileObj.fileName.includes(onlyAlphaNumericChars(fileToUpload.name)));
+            matchingObj = responseDataCIDs.find((uploadedFileObj: any) =>
+              uploadedFileObj.fileName.includes(onlyAlphaNumericChars(fileToUpload.name.split(".")[0]))
+            );
             if (!matchingObj) throw new Error("The data has not been uploaded correctly. CID could not be found for file - " + fileToUpload.name);
           }
           return {
@@ -221,7 +223,7 @@ const UploadAnyFiles: React.FC = () => {
       formDataFormat.append(
         "files",
         new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
+        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
       );
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
