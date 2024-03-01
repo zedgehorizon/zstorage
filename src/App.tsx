@@ -10,7 +10,7 @@ import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { UploadTrailblazerData } from "./pages/Upload/UploadTrailblazerData";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
@@ -103,7 +103,7 @@ function App() {
       <div className="">
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Toaster
-            position="top-right"
+            position={window.innerWidth <= 800 ? "top-center" : "top-right"}
             reverseOrder={false}
             containerStyle={{
               position: "sticky",
