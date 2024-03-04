@@ -1,10 +1,15 @@
 import React, { useEffect } from "react";
-import vault from "@assets/img/illustration-vault.png";
 import { Link } from "react-router-dom";
 import { Footer } from "@components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import toast from "react-hot-toast";
-import { Lightbulb, MonitorCheck } from "lucide-react";
+import { MonitorCheck } from "lucide-react";
+import frontOfTheVault from "@assets/img//cubeAnimation/front_cube.png";
+import vaultBunker from "@assets/img/cubeAnimation/vault.png";
+import dataLines from "@assets/img/cubeAnimation/data_lines.png";
+import backOfTheVault from "@assets/img/cubeAnimation/back_cube.png";
+import sideCubes from "@assets/img/cubeAnimation/side_cubes.png";
+import { motion } from "framer-motion";
 
 const CampaignPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -42,8 +47,40 @@ const CampaignPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="lg:-mt-12 z-2 mb-4 ">
-        <img src={vault}></img>
+      <div className=" scale-75 xl:scale-150 flex justify-center items-center h-[30rem] w-full xl:w-[50%] xl:mb-16">
+        <motion.div className="flex min-w-[20rem]  xl:h-[20rem] overflow-hidden">
+          <motion.img
+            src={frontOfTheVault}
+            initial={{ x: -150, y: 160, opacity: 0 }}
+            animate={{ opacity: 1, x: -40, y: 130 }}
+            transition={{ duration: 3 }}
+            className="absolute z-[11]"
+          />
+          <img src={vaultBunker} className="z-10 w-[25rem] h-[20rem]" />
+
+          <motion.img
+            src={dataLines}
+            initial={{ x: -25, y: 25, opacity: 0 }}
+            animate={{ opacity: [0, 1] }}
+            transition={{ duration: 5 }}
+            className="absolute ml-8 xl:ml-0 -z-10 xl:w-[30rem] h-[20rem]"
+          />
+
+          <motion.img src={sideCubes} initial={{ x: 100, y: -100 }} animate={{ opacity: 1, x: 100, y: 0 }} transition={{ duration: 3 }} className="absolute" />
+
+          <motion.img
+            src={backOfTheVault}
+            initial={{ x: 350, y: -100 }}
+            animate={{ opacity: 1, x: 275, y: 0 }}
+            transition={{ duration: 3 }}
+            className="absolute -ml-16 xl:-ml-0"
+          />
+
+          <motion.div initial={{ x: 280, y: 250 }} animate={{ opacity: 1, x: 220, y: 180 }} transition={{ duration: 3 }} className="z-[11] absolute">
+            <img src={sideCubes} className="" />
+            <img src={sideCubes} className="-mt-[35px]" />
+          </motion.div>
+        </motion.div>
       </div>
       <Footer />
     </div>
