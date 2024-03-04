@@ -10,6 +10,7 @@ import dataLines from "@assets/img/cubeAnimation/data_lines.png";
 import backOfTheVault from "@assets/img/cubeAnimation/back_cube.png";
 import sideCubes from "@assets/img/cubeAnimation/side_cubes.png";
 import { motion } from "framer-motion";
+import zImage from "@assets/img/z-image.png";
 
 const CampaignPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -23,12 +24,13 @@ const CampaignPage: React.FC = () => {
   }, []);
   return (
     <div className="top-0 w-full  h-full bg-background flex flex-grow flex-col items-center justify-start  ">
-      <div className="min-w-[60%] min-h-[25rem] bg-z-image bg-no-repeat bg-center bg-contain flex flex-col items-center justify-center">
-        <div className="h-[60%] flex flex-col justify-center items-center">
-          <span className="text-[3rem] 2xl:text-[4rem] justify-center text-center">
+      <div className="py-16 relative flex items-center justify-center">
+        <img src={zImage} className="absolute top-0  max-h-[25rem] object-cover mx-auto" alt="Background" />
+        <div className="z-10 flex flex-col justify-center items-center h-full w-full">
+          <span className="text-[3rem] 2xl:text-[4rem] text-center">
             <span className="text-accent">Store</span> your Itheum
             <br />
-            <span className="text-accent ">Music Data NFT</span> Files
+            <span className="text-accent">Music Data NFT</span> Files
           </span>
           <div className="mt-3">
             {(isLoggedIn && (
@@ -41,13 +43,13 @@ const CampaignPage: React.FC = () => {
               <Link
                 to={"/unlock?r=itheum-music-data-nft"}
                 className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center text-xl">
-                <p className="">Get Started</p>{" "}
+                <p>Get Started</p>
               </Link>
             )}
           </div>
         </div>
       </div>
-      <div className=" scale-75 xl:scale-150 flex justify-center items-center h-[30rem] w-full xl:w-[50%] xl:mb-16">
+      <div className="-z-1 scale-75 xl:scale-150 flex justify-center items-center h-[30rem] w-full xl:w-[50%] xl:mb-16 ">
         <motion.div className="flex min-w-[20rem]  xl:h-[20rem] overflow-hidden">
           <motion.img
             src={frontOfTheVault}

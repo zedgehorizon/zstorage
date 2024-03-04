@@ -16,6 +16,8 @@ import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { MonitorCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import whiteRectangle from "@assets/img/white-rectangle.png";
+import zImage from "@assets/img/z-image.png";
 
 const LandingPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -28,12 +30,13 @@ const LandingPage: React.FC = () => {
     }
   }, []);
   return (
-    <div className="top-0 w-full  h-full bg-background flex flex-grow flex-col items-center justify-start  ">
-      <div className="min-w-[60%] min-h-[25rem] bg-z-image bg-no-repeat bg-center bg-contain flex flex-col items-center justify-center">
-        <div className="h-[60%]  flex flex-col justify-center items-center">
+    <div className="top-0 w-full h-full bg-background flex flex-grow flex-col items-center justify-start  ">
+      <div className="py-16 relative flex items-center justify-center">
+        <img src={zImage} className="absolute top-0  max-h-[25rem] object-cover mx-auto" alt="Background" />
+        <div className="z-10 flex flex-col justify-center items-center h-full w-full">
           <span className="text-[2.5rem] 2xl:text-[3.5rem] text-accent uppercase text-center">Digital Storage Bunkers</span>
           <span className="text-[2rem] 2xl:text-[3rem] ">For your most vital data</span>
-          <div className="mt-3">
+          <div className="mt-3 z-10">
             {(isLoggedIn && (
               <Link
                 to={"/data-bunker"}
@@ -50,7 +53,8 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className=" scale-75 xl:scale-150 flex justify-center items-center h-[30rem] w-full xl:w-[50%]  ">
+
+      <div className="pt-16 scale-75 xl:scale-150 flex justify-center items-center h-[30rem] w-full xl:w-[50%]">
         <motion.div className="flex min-w-[20rem]  xl:h-[20rem] overflow-hidden">
           <motion.img
             src={frontOfTheVault}
@@ -119,16 +123,19 @@ const LandingPage: React.FC = () => {
       <UseCase />
       <div id="features"></div>
       <KeyFeatures />
-      <div className="w-full h-full bg-background flex flex-col items-center pb-16">
-        <div className="  mt-8 flex flex-col justify-center items-center w-full h-[100svh] bg-top bg-white-rectangle bg-cover bg-no-repeat">
-          <img className="scale-75 lg:scale-100" src={folders}></img>
-          <span className=" text-muted text-2xl lg:text-5xl w-[60%] mx-auto text-center">
-            Complete Toolkit
-            <br /> for your Digital Data Bunker
-          </span>
-          <span className="text-base text-muted w-[50%] mx-auto text-center">
-            Providing you with all the tools your need to upload, update, manage and control your most vital data assets.
-          </span>{" "}
+      <div className="w-full min-h-screen   flex flex-col items-center xl:pb-32">
+        <div className="mt-8 flex flex-col justify-center items-center relative w-full h-full  p-4 pt-16 xl:p-32">
+          <img src={whiteRectangle} className="absolute top-0 left-0 -z-1 w-full  min-h-screen object-cover" alt="White Rectangle Background" />
+          <div className="z-10 flex flex-col items-center">
+            <img className="scale-75 lg:scale-100" src={folders} alt="Folders" />
+            <span className="text-muted text-2xl lg:text-5xl w-[60%] mx-auto text-center">
+              Complete Toolkit
+              <br /> for your Digital Data Bunker
+            </span>
+            <span className="text-base text-muted w-[50%] mx-auto text-center">
+              Providing you with all the tools you need to upload, update, manage, and control your most vital data assets.
+            </span>
+          </div>
         </div>
       </div>
       <div id="pricing"></div>
