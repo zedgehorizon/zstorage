@@ -1,5 +1,6 @@
 import { CopyIcon, ExternalLink, Lightbulb } from "lucide-react";
 import React from "react";
+import MintDataNftModal from "./MintDataNftModal";
 
 interface HowIpnsWorkModalProps {
   ipnsHash: string;
@@ -59,6 +60,7 @@ const HowIpnsWorkModal: React.FC<HowIpnsWorkModalProps> = (props) => {
           <li className="mb-4">
             <p className="font-bold">Mint Data Nft:</p>
             <p>Now that you have understood how IPNS works, you can mint your Data NFT using the IPNS hash and update it at any time with Zedge Storage. </p>
+            <MintDataNftModal triggerElement={<button className={"underline text-accent text-lg font-bold"}>Check the whitelist!</button>} />
           </li>
         </ul>
       </div>
