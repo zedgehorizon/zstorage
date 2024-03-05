@@ -50,8 +50,8 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
                 <TooltipTrigger className="flex flex-row">
                   <h3 className=" cursor-help ">Your Asset’s IPNS Location: </h3>
                 </TooltipTrigger>{" "}
-                <p className="ml-2 text-accent ">{"ipns/" + shortenAddress(ipnsHash, 20)}</p>
-                <CopyIcon onClick={() => navigator.clipboard.writeText("ipns/" + ipnsHash)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+                <p className="ml-2 text-accent ">{"ipns://" + shortenAddress(ipnsHash, 20)}</p>
+                <CopyIcon onClick={() => navigator.clipboard.writeText("ipns://" + ipnsHash)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
                 <TooltipContent>
                   <p>Utilize this when minting data NFTs. Insert this into the "Data Stream URL" input field</p>
                 </TooltipContent>
