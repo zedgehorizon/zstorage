@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
-import { Modal } from "../../../components/Modal";
+import { Modal } from "@components/Modal";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallbackMusicDataNfts from "../../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
-import { Progress } from "../../../libComponents/Progress";
+import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import { Progress } from "@libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
-import NextStepsList from "../../../components/Lists/NextStepsList";
-import { Button } from "../../../libComponents/Button";
+import NextStepsModal from "@components/Modals/NextStepsModal";
+import { Button } from "@libComponents/Button";
+import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
+import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -18,6 +20,7 @@ interface DataObjectsListProps {
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
   errorMessage?: string;
+  ipnsHash?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
@@ -31,6 +34,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     folderHash,
     uploadFileToIpfs,
     errorMessage,
+    ipnsHash,
   } = props;
 
   const [progressValue, setProgressValue] = React.useState(0);
@@ -81,9 +85,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           </button>
         }
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
-        footerContent={
-          errorMessage && <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
-        }
+        footerContent={errorMessage && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
@@ -91,34 +93,48 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
             <Progress className="bg-background w-[40rem]" value={progressValue} />
             <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
-            {manifestCid && (
+            {manifestCid && progressBar === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
-                {progressBar === 100 && (
-                  <div className="flex flex-col justify-center items-center gap-4">
-                    <CidsView currentManifestFileCID={manifestCid} folderCid={folderHash} manifestFileName={recentlyUploadedManifestFileName} />
-
-                    <div className="flex flex-row justify-center items-center gap-4">
-                      <Link
-                        to={"/data-bunker"}
-                        className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                        View stored files
-                      </Link>
+                <div className="flex flex-col justify-center items-center gap-4">
+                  <CidsView
+                    ipnsHash={ipnsHash}
+                    currentManifestFileCID={manifestCid}
+                    folderCid={folderHash}
+                    manifestFileName={recentlyUploadedManifestFileName}
+                  />
+                  <div className="flex flex-row justify-center items-center gap-4">
+                    <Link
+                      to={"/data-bunker"}
+                      className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                      View stored files
+                    </Link>
+                    {ipnsHash ? (
                       <Modal
-                        modalClassName="w-[70%] border-accent/50"
+                        modalClassName="w-[60%] h-full border-accent/50"
+                        openTrigger={
+                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                            How IPNS works?
+                          </button>
+                        }
+                        closeOnOverlayClick={true}
+                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                        {<HowIpnsWorkModal ipnsHash={ipnsHash} />}
+                      </Modal>
+                    ) : (
+                      <Modal
+                        modalClassName="w-[40%] border-accent/50"
                         openTrigger={
                           <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
                             Update your DNS
                           </button>
                         }
-                        footerContent={
-                          <Button className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</Button>
-                        }
-                        closeOnOverlayClick={true}>
-                        {<NextStepsList manifestCid={manifestCid} />}
+                        closeOnOverlayClick={true}
+                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                        {<NextStepsModal manifestCid={manifestCid} />}
                       </Modal>
-                    </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>

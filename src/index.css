@@ -74,6 +74,22 @@
 
     --radius: 0.5rem;
   }
+
+  ::-webkit-scrollbar {
+    @apply w-3;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply rounded-md bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-accent/60 rounded-lg;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent;
+  }
 }
 
 @layer base {
@@ -101,4 +117,26 @@
 #nativeAuthTokenExpiration {
   background-color: #a7a847;
   min-height: 90px;
+}
+
+.dapp-core-component__scamPhishingStyles__scam-phishing-alert .dapp-core-component__scamPhishingStyles__scam-phishing-alert-text,
+.dapp-core-component__walletConnectLoginContainerStyles__xPortal-content,
+.dapp-core-component__ledgerConnectStyles__login-connect-container .dapp-core-component__ledgerConnectStyles__login-connect-container-content {
+  @apply text-black !important;
+}
+
+.dapp-core-component__addressTableStyles__ledger-address-table-wrapper {
+  @apply text-black !important;
+}
+
+.dapp-core-component__ledgerLoadingStyles__ledger-loading-wrapper {
+  @apply text-black !important;
+}
+
+.dapp-core-component__scamPhishingStyles__scam-phishing-alert.dapp-core-component__scamPhishingStyles__scam-phishing-alert-authorization {
+  @apply text-black !important;
+}
+
+.dapp-core-component__confirmAddressStyles__ledger-confirm-address-heading {
+  @apply text-black !important;
 }

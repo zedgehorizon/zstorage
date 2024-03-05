@@ -1,18 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
-import logo from "../../assets/logo/logo.png";
+import logo from "@assets/logo/logo.png";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { Dot, Home, Menu } from "lucide-react";
-import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "../../libComponents/DropdownMenu";
-import { Button } from "../../libComponents/Button";
+import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
+import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
 
   const handleLogout = () => {
-    // logout(`${window.location.origin}/unlock`);
     logout(`${window.location.origin}`, undefined, false);
   };
 
@@ -60,12 +59,6 @@ export const Navbar: React.FC = () => {
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              {/* <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
-              <p className=" ">Testimonials</p>
-              <div className="opacity-0 group-hover:opacity-100">
-                <Dot className="text-accent scale-[2] mx-auto "></Dot>
-              </div>
-            </Link> */}
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
@@ -129,11 +122,16 @@ export const Navbar: React.FC = () => {
                     <DropdownMenuItem>Pricing </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
+                <DropdownMenuGroup>
+                  <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
+                    <DropdownMenuItem>Music Data NFT Storage </DropdownMenuItem>
+                  </Link>
+                </DropdownMenuGroup>
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>
-                      <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
-                        <DropdownMenuItem>Music Data NFT Storage </DropdownMenuItem>
+                      <Link className=" cursor-pointer group " to={"/data-bunker"}>
+                        <DropdownMenuItem>My Data Bunker </DropdownMenuItem>
                       </Link>
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>

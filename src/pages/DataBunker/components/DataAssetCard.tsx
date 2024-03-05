@@ -1,9 +1,9 @@
 import { Edit2, PlaySquare } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Button } from "../../../libComponents/Button";
-import { Modal } from "../../../components/Modal";
-import { AudioPlayerPreview } from "../../../components/AudioPlayerPreview";
-import MintDataNftModal from "../../Upload/components/modals/MintDataNftModal";
+import { Button } from "@libComponents/Button";
+import { Modal } from "@components/Modal";
+import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
+import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
 
 interface DataAsset {
   name: string;
@@ -33,8 +33,8 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
   } = dataAsset;
   const paths = ["/upload", "/upload-music", "/upload-trailblazer"];
   return (
-    <div className="truncate hover:shadow-inner hover:shadow-accent/50 gap-4 bg-muted border border-accent/50 p-6 pb-2 rounded-md">
-      <div className="z-10 flex flex-row justify-between border-b border-accent/30 p-2">
+    <div className="truncate hover:shadow-inner hover:shadow-accent/50 bg-muted border border-accent/50 px-6 pb-2 pt-2 rounded-md  ">
+      <div className="z-10 flex flex-row justify-between items-center border-b border-accent/30 p-2">
         <h2 className="text-2xl font-bold text-ellipsis whitespace-nowrap overflow-hidden">{name}</h2>
         {category === 1 && (
           <Modal
@@ -49,7 +49,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
             }
             footerContent={
               <div className="flex flex-row p-2 gap-8 justify-center items-center w-full -mt-16 ">
-                <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back</Button>
+                <p className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back</p>
                 <Link
                   to={"/upload-music"}
                   state={{
@@ -59,7 +59,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
                     manifestFileName: manifest.manifestFileName,
                     folderCid: manifest.folderHash,
                   }}>
-                  <div className="px-8 mt-8 p-2 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent">Start edit</div>
+                  <div className="px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent">Start edit</div>
                 </Link>
               </div>
             }>
@@ -74,13 +74,22 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
         )}
       </div>
       <div className="text-foreground/75 gap-2 p-2">
-        <p>Creator: {creator}</p>
-        <p>Created On: {created_on}</p>
-        <p>Last Modified On: {last_modified_on}</p>
-        <p>Total Items: {totalItems}</p>
-        <p>Nested Stream: {nestedStream ? "Yes" : "No"}</p>
+        <div className="w-full text-foreground/75 gap-2 p-2">
+          <div className="w-full flex justify-between">
+            <p>Creator: {creator}</p>
+            {manifest.ipnsHash && (
+              <div className=" flex   items-center  ">
+                <p className="  text-sm text-center  bg-accent-foreground border border-accent text-accent rounded-xl px-2 ">Ipns</p>
+              </div>
+            )}
+          </div>
+          <p>Created On: {created_on}</p>
+          <p>Last Modified On: {last_modified_on}</p>
+          <p>Total Items: {totalItems}</p>
+          <p>Nested Stream: {nestedStream ? "Yes" : "No"}</p>
+        </div>
       </div>
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between px-2">
         {category === 1 && (
           <MintDataNftModal
             triggerElement={
@@ -93,10 +102,6 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
           to={paths[category]}
           state={{
             manifestFile: manifest,
-            action: "Update Asset",
-            currentManifestFileCID: manifest.hash,
-            manifestFileName: manifest.manifestFileName,
-            folderCid: manifest.folderHash,
           }}>
           <div className="hover:scale-125 transition border border-accent p-2 rounded-full flex items-center justify-center">
             <Edit2 className="text-accent w-4  h-4" />

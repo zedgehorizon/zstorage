@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import zImageHalf from "../../assets/img/z-image-half.png";
-import { Heart, XCircle } from "lucide-react";
+import zImageHalf from "@assets/img/z-image-half.png";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
 import { XStorageCheckBox } from "./components/XStorageCheckBox";
-import { Button } from "../../libComponents/Button";
-import { Footer } from "../../components/Layout/Footer";
+import { Button } from "@libComponents/Button";
 import { useNavigate } from "react-router-dom";
-
-interface IStoreDataAssetProps {}
 
 const StoreDataAsset: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [dataAssetAction, setDataAssetAction] = useState("");
   const [storageType, setStorageType] = useState();
   const [template, setTemplate] = useState("");
   const [storagePreference, setStoragePreference] = useState();
@@ -94,7 +89,7 @@ const StoreDataAsset: React.FC = () => {
             options={["DNS + IPFS", "IPNS + IPFS", "Arweave", "Ceramic"]}
             currentOption={storageOption}
             setterFunction={setStorageOption}
-            disabled={[false, true, true, true]}
+            disabled={[false, false, true, true]}
           />
         )}
 
@@ -111,7 +106,6 @@ const StoreDataAsset: React.FC = () => {
             <Link
               to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer Data NFT") ? "/upload-trailblazer" : "/upload-music"}
               state={{
-                action: dataAssetAction,
                 type: storageType,
                 template: template,
                 storage: storagePreference,

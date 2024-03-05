@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "../../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus, Music, Lightbulb } from "lucide-react";
-import { DatePicker } from "../../../libComponents/DatePicker";
-import { Input } from "../../../libComponents/Input";
-import DragAndDropImageFiles from "./DragAndDropImageFiles";
+import { DatePicker } from "@libComponents/DatePicker";
+import { Input } from "@libComponents/Input";
+import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
@@ -67,7 +67,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setwantToEditAudio(false);
     } else {
       toast("Please upload an audio file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
       });
     }
   };
@@ -209,7 +209,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Cover Art Image</span>
 
-            <DragAndDropImageFiles idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
             {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
 
             <div>

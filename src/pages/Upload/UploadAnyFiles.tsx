@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import UploadHeader from "./components/UploadHeader";
 import { useLocation } from "react-router-dom";
-import DragAndDropImageFiles from "./components/DragAndDropImageFiles";
+import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import toast from "react-hot-toast";
 import { Lightbulb, XCircle } from "lucide-react";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
 type FileData = {
   idx: number;
@@ -23,18 +23,21 @@ const UploadAnyFiles: React.FC = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
 
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+  const [stream, setStream] = useState(true);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
+  const [ipnsHash, setIpnsHash] = useState();
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
@@ -51,7 +54,9 @@ const UploadAnyFiles: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setTotalItems(dataStream.marshalManifest.totalItems);
+        setStream(dataStream.marshalManifest.nestedStream);
         setNextIndex(dataStream.marshalManifest.totalItems + 1);
+        setIpnsHash(manifestFile.ipnsHash);
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
             if (file) acc[file.idx] = file;
@@ -136,7 +141,7 @@ const UploadAnyFiles: React.FC = () => {
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -205,7 +210,7 @@ const UploadAnyFiles: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": totalItems,
-            "nestedStream": "true",
+            "nestedStream": stream,
           },
         },
         "data": data,
@@ -221,15 +226,13 @@ const UploadAnyFiles: React.FC = () => {
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
 
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
       }
 
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -240,6 +243,20 @@ const UploadAnyFiles: React.FC = () => {
             </button>
           ),
         });
+        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
 
         setProgressBar(100);
       } else {
@@ -268,19 +285,22 @@ const UploadAnyFiles: React.FC = () => {
   return (
     <div className="flex  flex-col  h-full pb-16 ">
       <UploadHeader
-        title={manifestFileIpfsUrl ? "Update" : "Upload" + " Data"}
+        title={manifestFile ? "Update" : "Upload" + " Data"}
         name={name}
         creator={creator}
         createdOn={createdOn}
         modifiedOn={modifiedOn}
+        stream={stream}
+        setStream={setStream}
         setName={setName}
         setCreator={setCreator}
         setCreatedOn={setCreatedOn}
         folderCid={folderCid}
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
+        ipnsHash={ipnsHash}
       />
-      <DragAndDropImageFiles idxId={1} setFile={addNewFile} className="w-full" />
+      <DragAndDropZone idxId={1} setFile={addNewFile} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
@@ -302,6 +322,7 @@ const UploadAnyFiles: React.FC = () => {
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+          ipnsHash={ipnsHash}
           errorMessage={errorMessage}
         />
       </div>

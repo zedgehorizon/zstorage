@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "../../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { ArrowUp, ArrowDown, CheckCircleIcon, Loader2, Upload, Lightbulb } from "lucide-react";
-import { DatePicker } from "../../../libComponents/DatePicker";
-import { Input } from "../../../libComponents/Input";
-import DragAndDropImageFiles from "./DragAndDropImageFiles";
+import { DatePicker } from "@libComponents/DatePicker";
+import { Input } from "@libComponents/Input";
+import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
 
 const formSchema = z
@@ -41,13 +41,10 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  // const [wantToEditImage, setWantToEditImage] = useState(false);
-  // const [wantToEditMedia, setWantToEditMedia] = useState(false);
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
-  // const [mediaError, setMediaError] = useState(false);
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,10 +70,9 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
-      // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
       });
     }
   };
@@ -100,13 +96,11 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", props.itemData["file"]);
       setMediaURL(props.itemData["file"]);
     } else {
-      // setWantToEditMedia(false);
       setMediaURL("");
     }
 
     setImageFile(undefined);
     setMediaFile(undefined);
-    // setMediaError(false);
   }, [props.itemData]);
 
   useEffect(() => {
@@ -114,7 +108,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    debugger;
     props.setterFunction(props.index, values, imageFile, mediaFile);
     props.setUnsavedChanges(props.index, false);
   }
@@ -206,7 +199,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropImageFiles idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { MusicDataNftForm } from "./components/MusicDataNftForm";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "../../libComponents/Button";
+import { useLocation } from "react-router-dom";
+import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
-import { Modal } from "../../components/Modal";
-import { AudioPlayerPreview } from "../../components/AudioPlayerPreview";
-import MintDataNftModal from "./components/modals/MintDataNftModal";
+import { Modal } from "@components/Modal";
+import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
+import MintDataNftModal from "../../components/Modals/MintDataNftModal";
 
 type SongData = {
   date: string;
@@ -31,26 +31,29 @@ type FilePair = {
 };
 
 export const UploadMusicData: React.FC = () => {
-  const location = useLocation();
   const currentCategory = 1; // musicplaylist
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const location = useLocation();
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
+
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
+  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(false);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [ipnsHash, setIpnsHash] = useState();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -61,6 +64,8 @@ export const UploadMusicData: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setIpnsHash(manifestFile.ipnsHash);
+
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
             if (song) acc[song.idx] = song;
@@ -88,7 +93,6 @@ export const UploadMusicData: React.FC = () => {
     let hasUnsavedChanges = false;
 
     if (numberOfSongs > 1 && songsData[1].title) {
-      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
@@ -112,14 +116,28 @@ export const UploadMusicData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "image" +
+                "_" +
+                onlyAlphaNumericChars(songData.title) +
+                "." +
+                filePairs[idx + 1].image.name.split(".")[1]
             );
           }
           if (filePairs[idx + 1]?.audio) {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].audio,
-              generateRandomString() + "." + "audio" + "_" + onlyAlphaNumericChars(songData.title) + "." + filePairs[idx + 1].audio.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "audio" +
+                "_" +
+                onlyAlphaNumericChars(songData.title) +
+                "." +
+                filePairs[idx + 1].audio.name.split(".")[1]
             );
           }
         }
@@ -143,7 +161,7 @@ export const UploadMusicData: React.FC = () => {
     filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -169,14 +187,14 @@ export const UploadMusicData: React.FC = () => {
           const fileObj = filePairs[index + 1];
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
-              matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(songObj.title)}`)
+              matchingObjImage = responseDataCIDs.find(
+                (uploadedFileObj: any) => uploadedFileObj.fileName.includes(`${index + 1}.image_${onlyAlphaNumericChars(songObj.title)}`) // have to do the filtering because the responseDataCids does not come in the same order as uploaded
               );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Image CID could not be found ");
             }
             if (fileObj.audio && fileObj.audio.name) {
               matchingObjSong = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.audio_${onlyAlphaNumericChars(songObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.audio_${onlyAlphaNumericChars(songObj.title)}`)
               );
               if (!matchingObjSong) throw new Error("The data has not been uploaded correctly. Song CID could not be found ");
             }
@@ -210,13 +228,6 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;
@@ -254,7 +265,7 @@ export const UploadMusicData: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfSongs - 1,
-            "nestedStream": "true", // set to true for MUSIC DATA NFTs
+            "nestedStream": true, // set always true for MUSIC DATA NFTs
           },
         },
         "data": data,
@@ -270,15 +281,13 @@ export const UploadMusicData: React.FC = () => {
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
 
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
 
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
       }
       if (response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -290,6 +299,20 @@ export const UploadMusicData: React.FC = () => {
             </button>
           ),
         });
+        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
 
         setProgressBar(100);
       } else {
@@ -412,8 +435,6 @@ export const UploadMusicData: React.FC = () => {
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        {/* <SelectionList items={[action, type, template, storage, decentralized]} /> */}
-
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
@@ -427,6 +448,7 @@ export const UploadMusicData: React.FC = () => {
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
+            ipnsHash={ipnsHash}
           />
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
@@ -454,17 +476,17 @@ export const UploadMusicData: React.FC = () => {
                   titleClassName="px-8 mt-3"
                   footerContent={
                     <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
-                      <Button className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</Button>
-                      <Button
+                      <p className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</p>
+                      <p
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
                         onClick={handleModalUploadButton}>
                         Upload Data
-                      </Button>
-                      <Button
+                      </p>
+                      <p
                         onClick={handleOpenMintModal}
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>
                         Mint Data NFT
-                      </Button>
+                      </p>
                     </div>
                   }
                   openTrigger={
@@ -491,6 +513,7 @@ export const UploadMusicData: React.FC = () => {
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
             errorMessage={errorMessage}
+            ipnsHash={ipnsHash}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>

@@ -1,33 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
-import { Button } from "../../libComponents/Button";
+import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "../../utils/constants";
+import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "../../utils/utils";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallbackMusicDataNfts from "../../components/ErrorComponents/ErrorFallbackMusicDataNfts";
+import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
-
-// {
-//   "category": "Feature",
-//   "date": "2022-10-06T00:00:00Z",
-//   "title": "Morningstar Ventures Project Review",
-//   "link": "https://twitter.com/Morningstar_vc/status/1577801459013386240"
-// }
-
-// {
-//   "category": "Meme",
-//   "date": "2024-02-01T05:37:17Z",
-//   "title": "Feb 1 2024 Announcement Secret Team Meeting",
-//   "link": "https://twitter.com/PepeVersX/status/1752353118208098615",
-//   "file": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_video_feb_1_2024_meeting.mp4",
-//   "file_preview_img": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_previmg_feb_1_2024_meeting.png",
-//   "file_mimeType": "video/mp4"
-// }
 
 type ItemData = {
   date: string;
@@ -45,26 +28,30 @@ type FilePair = {
 };
 
 export const UploadTrailblazerData: React.FC = () => {
-  const location = useLocation();
   const currentCategory = 2; // trailblazer
-  const { currentManifestFileCID, manifestFile, action, type, template, storage, decentralized, version, manifestFileName, folderCid } = location.state || {};
+  const location = useLocation();
+  const { manifestFile, decentralized } = location.state || {};
+  const manifestFileName = manifestFile?.manifestFileName;
+  const folderCid = manifestFile?.folderHash;
+  const currentManifestFileCID = manifestFile?.hash;
+
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const theToken = tokenLogin?.nativeAuthToken;
   const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+  const [stream, setStream] = useState(true);
   const [progressBar, setProgressBar] = useState(0);
-  const [manifestFileIpfsUrl, setManifestFileIpfsUrl] = useState();
   const [manifestCid, setManifestCid] = useState();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
   const [folderHash, setFolderHash] = useState();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [ipnsHash, setIpnsHash] = useState();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -75,6 +62,9 @@ export const UploadTrailblazerData: React.FC = () => {
         setCreatedOn(dataStream.created_on);
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
+        setStream(dataStream.marshalManifest.nestedStream);
+        setIpnsHash(manifestFile.ipnsHash);
+
         const itemDataMap = manifestFile.data.reduce(
           (acc: any, itemData: any) => {
             if (itemData) acc[itemData.idx] = itemData;
@@ -102,7 +92,6 @@ export const UploadTrailblazerData: React.FC = () => {
     let hasUnsavedChanges = false;
 
     if (numberOfItems > 1 && itemsData[1].title) {
-      if (Object.keys(unsavedChanges).length === 0) hasUnsavedChanges = true;
       Object.values(unsavedChanges).forEach((item) => {
         if (item === true) {
           hasUnsavedChanges = true;
@@ -126,7 +115,14 @@ export const UploadTrailblazerData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].image,
-              generateRandomString() + "." + "image" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].image.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "image" +
+                "_" +
+                onlyAlphaNumericChars(mediaData.title) +
+                "." +
+                filePairs[idx + 1].image.name.split(".")[1]
             );
           }
 
@@ -134,7 +130,14 @@ export const UploadTrailblazerData: React.FC = () => {
             filesToUpload.append(
               "files",
               filePairs[idx + 1].media,
-              generateRandomString() + "." + "media" + "_" + onlyAlphaNumericChars(mediaData.title) + "." + filePairs[idx + 1].media.name.split(".")[1]
+              generateRandomString() +
+                (idx + 1) +
+                "." +
+                "media" +
+                "_" +
+                onlyAlphaNumericChars(mediaData.title) +
+                "." +
+                filePairs[idx + 1].media.name.split(".")[1]
             );
           }
         }
@@ -160,7 +163,7 @@ export const UploadTrailblazerData: React.FC = () => {
 
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, theToken || "");
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response && response.response.data.statusCode === 402) {
       setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
       return undefined;
@@ -189,13 +192,13 @@ export const UploadTrailblazerData: React.FC = () => {
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
               matchingObjImage = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.image_${onlyAlphaNumericChars(itemObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.image_${onlyAlphaNumericChars(itemObj.title)}`)
               );
               if (!matchingObjImage) throw new Error("The data has not been uploaded correctly. Preview Image CID could not be found ");
             }
             if (fileObj.media && fileObj.media.name) {
               matchingObjItem = responseDataCIDs.find((uploadedFileObj: any) =>
-                uploadedFileObj.fileName.includes(`.media_${onlyAlphaNumericChars(itemObj.title)}`)
+                uploadedFileObj.fileName.includes(`${index + 1}.media_${onlyAlphaNumericChars(itemObj.title)}`)
               );
               if (!matchingObjItem) throw new Error("The data has not been uploaded correctly. Media CID could not be found ");
             }
@@ -224,17 +227,6 @@ export const UploadTrailblazerData: React.FC = () => {
           }
 
           return condensedObject;
-
-          // return {
-          //   idx: index + 1,
-          //   date: new Date(itemObj?.date).toISOString(),
-          //   category: itemObj?.category,
-          //   title: itemObj?.title,
-          //   link: itemObj?.link,
-          //   file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
-          //   file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
-          //   file_mimeType: itemObj?.file_mimeType,
-          // };
         }
       });
       return transformedData.filter((item: any) => item !== null);
@@ -253,13 +245,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !itemsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;
@@ -296,7 +281,7 @@ export const UploadTrailblazerData: React.FC = () => {
           "last_modified_on": new Date().toISOString().split("T")[0],
           "marshalManifest": {
             "totalItems": numberOfItems - 1,
-            "nestedStream": "true", // set to true for MUSIC DATA NFTs
+            "nestedStream": stream,
           },
         },
         "data": data,
@@ -311,14 +296,12 @@ export const UploadTrailblazerData: React.FC = () => {
       );
 
       formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, theToken || "");
+      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
       if (response.response && response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
       }
       if (response && response[0]) {
-        const ipfs: any = "ipfs/" + response[0]?.folderHash + "/" + response[0]?.fileName;
-        setManifestFileIpfsUrl(ipfs);
         setManifestCid(response[0]?.hash);
         setFolderHash(response[0]?.folderHash);
         setRecentlyUploadedManifestFileName(response[0]?.fileName);
@@ -330,6 +313,20 @@ export const UploadTrailblazerData: React.FC = () => {
             </button>
           ),
         });
+        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
+          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
+
+          if (ipnsResponse) {
+            setIpnsHash(ipnsResponse.hash);
+            toast.success("IPNS published successfully", {
+              icon: (
+                <button onClick={() => toast.dismiss()}>
+                  <Lightbulb color="yellow" />
+                </button>
+              ),
+            });
+          }
+        }
 
         setProgressBar(100);
       } else {
@@ -354,7 +351,6 @@ export const UploadTrailblazerData: React.FC = () => {
     setNumberOfItems((prev) => prev + 1);
     setUnsavedChanges((prev) => ({ ...prev, [numberOfItems]: true }));
   };
-
   function deleteItem(index: number) {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
@@ -420,7 +416,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
-    debugger;
     if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
@@ -442,7 +437,6 @@ export const UploadTrailblazerData: React.FC = () => {
     }
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
   };
-
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -454,11 +448,14 @@ export const UploadTrailblazerData: React.FC = () => {
             createdOn={createdOn}
             modifiedOn={modifiedOn}
             setName={setName}
+            stream={stream}
+            setStream={setStream}
             setCreator={setCreator}
             setCreatedOn={setCreatedOn}
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
+            ipnsHash={ipnsHash}
           />
           <DataObjectsList
             DataObjectsComponents={Object.keys(itemsData).map((index: any) => (
@@ -486,6 +483,7 @@ export const UploadTrailblazerData: React.FC = () => {
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
             errorMessage={errorMessage}
+            ipnsHash={ipnsHash}
           />
         </div>
       </div>
