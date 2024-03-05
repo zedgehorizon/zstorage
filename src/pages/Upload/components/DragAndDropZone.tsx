@@ -77,7 +77,6 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
     };
   };
 
-  /// TODO REFACTOR THE NAMES OF component and calassName
   return (
     <div
       className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", dropZoneStyles)}

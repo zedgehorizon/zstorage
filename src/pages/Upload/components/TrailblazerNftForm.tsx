@@ -41,13 +41,10 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  // const [wantToEditImage, setWantToEditImage] = useState(false);
-  // const [wantToEditMedia, setWantToEditMedia] = useState(false);
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
-  // const [mediaError, setMediaError] = useState(false);
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,7 +70,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
-      // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
         icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
@@ -100,13 +96,11 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", props.itemData["file"]);
       setMediaURL(props.itemData["file"]);
     } else {
-      // setWantToEditMedia(false);
       setMediaURL("");
     }
 
     setImageFile(undefined);
     setMediaFile(undefined);
-    // setMediaError(false);
   }, [props.itemData]);
 
   useEffect(() => {

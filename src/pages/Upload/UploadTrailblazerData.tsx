@@ -12,23 +12,6 @@ import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbac
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
 
-// {
-//   "category": "Feature",
-//   "date": "2022-10-06T00:00:00Z",
-//   "title": "Morningstar Ventures Project Review",
-//   "link": "https://twitter.com/Morningstar_vc/status/1577801459013386240"
-// }
-
-// {
-//   "category": "Meme",
-//   "date": "2024-02-01T05:37:17Z",
-//   "title": "Feb 1 2024 Announcement Secret Team Meeting",
-//   "link": "https://twitter.com/PepeVersX/status/1752353118208098615",
-//   "file": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_video_feb_1_2024_meeting.mp4",
-//   "file_preview_img": "https://gateway.lighthouse.storage/ipfs/QmUaTKTpgSdU12v7ERqVN7vLtMuofaGDapYCnfhTnHiEvG/meme_previmg_feb_1_2024_meeting.png",
-//   "file_mimeType": "video/mp4"
-// }
-
 type ItemData = {
   date: string;
   category: string;
@@ -244,17 +227,6 @@ export const UploadTrailblazerData: React.FC = () => {
           }
 
           return condensedObject;
-
-          // return {
-          //   idx: index + 1,
-          //   date: new Date(itemObj?.date).toISOString(),
-          //   category: itemObj?.category,
-          //   title: itemObj?.title,
-          //   link: itemObj?.link,
-          //   file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
-          //   file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
-          //   file_mimeType: itemObj?.file_mimeType,
-          // };
         }
       });
       return transformedData.filter((item: any) => item !== null);
@@ -273,13 +245,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !itemsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;
@@ -451,7 +416,7 @@ export const UploadTrailblazerData: React.FC = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
-     if (image && media) {
+    if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
