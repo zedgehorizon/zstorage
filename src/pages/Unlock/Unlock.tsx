@@ -24,7 +24,6 @@ export const Unlock: React.FC = () => {
 
   const nativeAuthProps: NativeAuthConfigType = {
     apiAddress: `https://${getApi(chainID)}`,
-    // origin: window.location.origin,
     expirySeconds: 3000,
   };
 

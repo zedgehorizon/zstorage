@@ -228,13 +228,6 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;

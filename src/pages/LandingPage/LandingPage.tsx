@@ -86,8 +86,6 @@ const LandingPage: React.FC = () => {
       </div>
       <div id="pricing"></div>
       <Pricing />
-      <div id="testimonials"></div>
-      {/*<Testimonials testimonials={testimonialsData} />*/}
       <Faq />
       <Footer />
     </div>

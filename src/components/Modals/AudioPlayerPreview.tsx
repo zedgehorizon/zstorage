@@ -139,7 +139,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
     }
     const index = props.songs[currentTrackIndex]?.idx;
 
-    audio.src = props.songs[currentTrackIndex].file; /// do we have file ?
+    audio.src = props.songs[currentTrackIndex].file;
     audio.load();
     updateProgress();
     audio.currentTime = 0;
