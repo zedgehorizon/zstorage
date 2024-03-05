@@ -114,7 +114,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   }, [imageURL]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    debugger;
     props.setterFunction(props.index, values, imageFile, mediaFile);
     props.setUnsavedChanges(props.index, false);
   }
