@@ -33,11 +33,10 @@ const UploadAnyFiles: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [stream, setStream] = useState(true);
-  const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState();
+  const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
-  const [ipnsHash, setIpnsHash] = useState();
+  const [ipnsHash, setIpnsHash] = useState<string>();
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
@@ -57,6 +56,7 @@ const UploadAnyFiles: React.FC = () => {
         setStream(dataStream.marshalManifest.nestedStream);
         setNextIndex(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
+        setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
             if (file) acc[file.idx] = file;
@@ -119,7 +119,6 @@ const UploadAnyFiles: React.FC = () => {
 
   async function uploadFiles() {
     const filesToUpload = new FormData();
-    setProgressBar(27);
     try {
       Object.values(files).forEach((file) => {
         filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name.split(".")[0]) + "." + file.name.split(".")[1]);
@@ -173,7 +172,6 @@ const UploadAnyFiles: React.FC = () => {
             name: matchingObj ? matchingObj.fileName : fileObj?.name,
             file: matchingObj ? `${IPFS_GATEWAY}ipfs/${matchingObj.folderHash}/${matchingObj.fileName}` : fileObj.file,
             date: fileObj.date ? new Date(fileObj.date).toISOString() : new Date().toISOString(),
-            //category: file?.category,
             mime_type: fileObj?.mime_type,
             size: fileObj?.size,
           };
@@ -193,90 +191,13 @@ const UploadAnyFiles: React.FC = () => {
     }
   }
 
-  const generateManifestFile = async () => {
-    setProgressBar(12);
-
-    try {
-      const data = await transformFilesToDataArray();
-
-      if (data === undefined) {
-        return;
-      }
-
-      const manifest = {
-        "data_stream": {
-          "category": CATEGORIES[currentCategory],
-          "name": name,
-          "creator": creator,
-          "created_on": createdOn,
-          "last_modified_on": new Date().toISOString().split("T")[0],
-          "marshalManifest": {
-            "totalItems": totalItems,
-            "nestedStream": stream,
-          },
-        },
-        "data": data,
-      };
-
-      const formDataFormat = new FormData();
-
-      formDataFormat.append(
-        "files",
-        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + name + ".json"
-      );
-
-      formDataFormat.append("category", CATEGORIES[currentCategory]);
-
-      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
-      }
-
-      if (response[0]) {
-        setManifestCid(response[0]?.hash);
-        setFolderHash(response[0]?.folderHash);
-        setRecentlyUploadedManifestFileName(response[0]?.fileName);
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
-        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
-
-          if (ipnsResponse) {
-            setIpnsHash(ipnsResponse.hash);
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
-          }
-        }
-
-        setProgressBar(100);
-      } else {
-        throw new Error("The manifest file has not been uploaded correctly ");
-      }
-    } catch (error: any) {
-      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-      console.error("Error generating the manifest file:", error);
-    }
-  };
-
+  function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
+    setManifestCid(response?.hash);
+    setFolderHash(response?.folderHash);
+    setRecentlyUploadedManifestFileName(response?.fileName);
+    if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
+  }
+ 
   function checkIsDisabled() {
     if (!name || !creator || !createdOn || totalItems === 0) {
       return true;
@@ -318,14 +239,23 @@ const UploadAnyFiles: React.FC = () => {
                 />
               );
             })}
-          uploadFileToIpfs={generateManifestFile}
+          transformFilesToDataArray={transformFilesToDataArray}
+          setResponsesOnSuccess={setResponsesOnSuccess}
           isUploadButtonDisabled={checkIsDisabled()}
-          progressBar={progressBar}
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
           ipnsHash={ipnsHash}
+          ipnsKey={manifestFile?.ipnsKey}
           errorMessage={errorMessage}
+          storageType={decentralized}
+          headerValues={{
+            name: name,
+            creator: creator,
+            createdOn: createdOn,
+            stream: stream,
+            category: 0, // anyfile
+          }}
         />
       </div>
     </div>

@@ -71,7 +71,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             type="text"
             id="name"
             name="name"
-            pattern="[a-zA-Z0-9/s] "
+            pattern="[a-zA-Z0-9\s] "
             value={name}
             onChange={(event) => setName(event.target.value.replace(/[^a-zA-Z0-9\s]/g, ""))}
             className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"

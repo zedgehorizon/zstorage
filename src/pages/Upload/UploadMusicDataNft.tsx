@@ -14,6 +14,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
+import { stream } from "undici-types";
 
 type SongData = {
   date: string;
@@ -31,7 +32,6 @@ type FilePair = {
 };
 
 export const UploadMusicData: React.FC = () => {
-  const currentCategory = 1; // musicplaylist
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;
@@ -48,12 +48,11 @@ export const UploadMusicData: React.FC = () => {
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState();
-  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
-  const [folderHash, setFolderHash] = useState();
+  const [manifestCid, setManifestCid] = useState<string>();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const [ipnsHash, setIpnsHash] = useState();
+  const [ipnsHash, setIpnsHash] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -65,6 +64,7 @@ export const UploadMusicData: React.FC = () => {
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
+        setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
@@ -228,116 +228,17 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;
   }
 
-  /**
-   * Generates a manifest file based on the form data and uploads it to the server.
-   * If any required fields are missing, an error toast is displayed.
-
-   * The manifest file is uploaded to the server using a multipart/form-data request.
-   * The response contains the CID (Content Identifier) of the uploaded manifest file.
-   * If the upload is successful, the CID is set as the manifestCid state.
-   * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
-   */
-  const generateManifestFile = async () => {
-    setProgressBar(12);
-
-    if (!verifyHeaderFields()) {
-      return;
-    }
-
-    try {
-      const data = await transformSongsData();
-
-      if (data === undefined) {
-        return;
-      }
-
-      const manifest = {
-        "data_stream": {
-          "category": CATEGORIES[currentCategory],
-          "name": name,
-          "creator": creator,
-          "created_on": createdOn,
-          "last_modified_on": new Date().toISOString().split("T")[0],
-          "marshalManifest": {
-            "totalItems": numberOfSongs - 1,
-            "nestedStream": true, // set always true for MUSIC DATA NFTs
-          },
-        },
-        "data": data,
-      };
-
-      const formDataFormat = new FormData();
-
-      formDataFormat.append(
-        "files",
-        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
-      );
-
-      formDataFormat.append("category", CATEGORIES[currentCategory]);
-
-      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
-      }
-      if (response[0]) {
-        setManifestCid(response[0]?.hash);
-        setFolderHash(response[0]?.folderHash);
-        setRecentlyUploadedManifestFileName(response[0]?.fileName);
-
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
-        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
-
-          if (ipnsResponse) {
-            setIpnsHash(ipnsResponse.hash);
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
-          }
-        }
-
-        setProgressBar(100);
-      } else {
-        throw new Error("The manifest file has not been uploaded correctly ");
-      }
-    } catch (error: any) {
-      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-
-      console.error("Error generating the manifest file:", error);
-    }
-  };
+  function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
+    setManifestCid(response?.hash);
+    setFolderHash(response?.folderHash);
+    setRecentlyUploadedManifestFileName(response?.fileName);
+    if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
+  }
 
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
@@ -514,13 +415,22 @@ export const UploadMusicData: React.FC = () => {
               </div>
             }
             isUploadButtonDisabled={isUploadButtonDisabled}
-            progressBar={progressBar}
-            uploadFileToIpfs={generateManifestFile}
+            transformFilesToDataArray={transformSongsData}
+            storageType={decentralized}
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
+            ipnsKey={manifestFile?.ipnsKey}
+            headerValues={{
+              name: name,
+              creator: creator,
+              createdOn: createdOn,
+              stream: true,
+              category: 1, // musicplaylist
+            }}
+            setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>
