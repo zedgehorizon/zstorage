@@ -53,23 +53,6 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[2]]: [],
   });
 
-  // async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
-  //   try {
-  //     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
-  //     setIsLoading(true);
-
-  //     const response = await axios.get(apiUrlGet, {
-  //       headers: {
-  //         "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
-  //       },
-  //     });
-
-  //     setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
-  //   } catch (error: any) {
-  //     console.error("Error fetching data assets", error);
-  //   }
-  // }
-
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
@@ -101,7 +84,6 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
-    // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
   // download the manifest file for the corresponding CID

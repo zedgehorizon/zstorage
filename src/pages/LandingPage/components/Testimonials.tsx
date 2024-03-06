@@ -12,33 +12,7 @@ interface Testimonial {
 interface TestimonialsProps {
   testimonials: Testimonial[];
 }
-// const testimonialsData = [
-//   {
-//     userName: "John Doe",
-//     rating: 4,
-//     occupation: "Software Engineer",
-//     avatar: avatar,
-//     companyLogo: companyLogo,
-//     feedback:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-//   },
-// {
-//   userName: "Jane Smith",
-//   rating: 5,
-//   occupation: "Product Manager",
-//   avatar: avatar,
-//   companyLogo: companyLogo,
-//   feedback: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-// },
-// {
-//   userName: "Alex Johnson",
-//   rating: 3,
-//   occupation: "UX Designer",
-//   avatar: avatar,
-//   companyLogo: companyLogo,
-//   feedback: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-// },
-//];
+
 const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
   function starRating(testimonialRating: number) {
     const fullStars = Array.from({ length: testimonialRating }, (_, index) => index + 1);

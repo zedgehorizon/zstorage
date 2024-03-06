@@ -225,17 +225,6 @@ export const UploadTrailblazerData: React.FC = () => {
           }
 
           return condensedObject;
-
-          // return {
-          //   idx: index + 1,
-          //   date: new Date(itemObj?.date).toISOString(),
-          //   category: itemObj?.category,
-          //   title: itemObj?.title,
-          //   link: itemObj?.link,
-          //   file: matchingObjItem ? `${IPFS_GATEWAY}ipfs/${matchingObjItem.folderHash}/${matchingObjItem.fileName}` : itemObj.file,
-          //   file_preview_img: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : itemObj.file_preview_img,
-          //   file_mimeType: itemObj?.file_mimeType,
-          // };
         }
       });
       return transformedData.filter((item: any) => item !== null);
@@ -254,13 +243,6 @@ export const UploadTrailblazerData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !itemsData) {
-      // toast.error("Please fill all the fields from the header section", {
-      //   icon: (
-      //     <button onClick={() => toast.dismiss()}>
-      //       <Lightbulb color="yellow" />
-      //     </button>
-      //   ),
-      // });
       return false;
     }
     return true;

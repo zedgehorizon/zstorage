@@ -75,7 +75,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
-      // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
         icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
@@ -102,13 +101,11 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", props.itemData["file"]);
       setMediaURL(props.itemData["file"]);
     } else {
-      // setWantToEditMedia(false);
       setMediaURL("");
     }
 
     setImageFile(undefined);
     setMediaFile(undefined);
-    // setMediaError(false);
   }, [props.itemData]);
 
   useEffect(() => {
