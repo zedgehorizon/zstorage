@@ -120,6 +120,8 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
         //setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
       }
+      if (progressValue < 80) setProgressValue(80);
+
       // check here on how to add the errors form transform data function to the errors array
       if (response[0]) {
         let theResponse: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string } = {
