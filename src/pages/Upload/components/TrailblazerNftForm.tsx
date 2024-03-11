@@ -12,10 +12,15 @@ import toast from "react-hot-toast";
 const formSchema = z
   .object({
     date: z.string().min(1, "Required field"),
-    category: z.string().min(1, "Required field"),
+    category: z
+      .string()
+      .min(1, "Required field")
+      .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
     title: z
       .string()
       .min(1, "Required field")
+      .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed")
+
       .refine((data) => !data.includes("manifest"), {
         message: "The title cannot contain the word 'manifest'",
       }),

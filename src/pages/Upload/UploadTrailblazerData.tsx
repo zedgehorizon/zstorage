@@ -3,7 +3,7 @@ import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
@@ -28,7 +28,6 @@ type FilePair = {
 };
 
 export const UploadTrailblazerData: React.FC = () => {
-  const currentCategory = 2; // trailblazer
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;
@@ -46,12 +45,11 @@ export const UploadTrailblazerData: React.FC = () => {
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [stream, setStream] = useState(true);
-  const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState();
-  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
-  const [folderHash, setFolderHash] = useState();
+  const [manifestCid, setManifestCid] = useState<string>();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const [ipnsHash, setIpnsHash] = useState();
+  const [ipnsHash, setIpnsHash] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -64,6 +62,7 @@ export const UploadTrailblazerData: React.FC = () => {
         setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
         setStream(dataStream.marshalManifest.nestedStream);
         setIpnsHash(manifestFile.ipnsHash);
+        setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
         const itemDataMap = manifestFile.data.reduce(
           (acc: any, itemData: any) => {
@@ -180,7 +179,6 @@ export const UploadTrailblazerData: React.FC = () => {
   async function transformItemData() {
     try {
       const responseDataCIDs = await uploadItemItemMediaFiles();
-      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
 
       // Iterate through the response list and find the matching cidv1
@@ -250,102 +248,12 @@ export const UploadTrailblazerData: React.FC = () => {
     return true;
   }
 
-  /**
-   * Generates a manifest file based on the form data and uploads it to the server.
-   * If any required fields are missing, an error toast is displayed.
-
-   * The manifest file is uploaded to the server using a multipart/form-data request.
-   * The response contains the CID (Content Identifier) of the uploaded manifest file.
-   * If the upload is successful, the CID is set as the manifestCid state.
-   * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
-   */
-  const generateManifestFile = async () => {
-    setProgressBar(12);
-
-    if (!verifyHeaderFields()) {
-      return;
-    }
-
-    try {
-      const data = await transformItemData();
-      if (data === undefined) {
-        return;
-      }
-
-      const manifest = {
-        "data_stream": {
-          "category": CATEGORIES[currentCategory],
-          "name": name,
-          "creator": creator,
-          "created_on": createdOn,
-          "last_modified_on": new Date().toISOString().split("T")[0],
-          "marshalManifest": {
-            "totalItems": numberOfItems - 1,
-            "nestedStream": stream,
-          },
-        },
-        "data": data,
-      };
-
-      const formDataFormat = new FormData();
-
-      formDataFormat.append(
-        "files",
-        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
-      );
-
-      formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
-      }
-      if (response && response[0]) {
-        setManifestCid(response[0]?.hash);
-        setFolderHash(response[0]?.folderHash);
-        setRecentlyUploadedManifestFileName(response[0]?.fileName);
-
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
-        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
-
-          if (ipnsResponse) {
-            setIpnsHash(ipnsResponse.hash);
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
-          }
-        }
-
-        setProgressBar(100);
-      } else {
-        throw new Error("The manifest file has not been uploaded correctly ");
-      }
-    } catch (error: any) {
-      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-
-      console.error("Error generating the manifest file:", error);
-    }
-  };
-
+  function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
+    setManifestCid(response?.hash);
+    setFolderHash(response?.folderHash);
+    setRecentlyUploadedManifestFileName(response?.fileName);
+    if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
+  }
   const handleAddMoreItems = () => {
     setItemsData((prev) => Object.assign(prev, { [numberOfItems]: {} }));
     setNumberOfItems((prev) => prev + 1);
@@ -476,14 +384,23 @@ export const UploadTrailblazerData: React.FC = () => {
                 </Button>
               </div>
             }
+            transformFilesToDataArray={transformItemData}
+            setResponsesOnSuccess={setResponsesOnSuccess}
             isUploadButtonDisabled={isUploadButtonDisabled}
-            progressBar={progressBar}
-            uploadFileToIpfs={generateManifestFile}
             manifestCid={manifestCid}
-            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
-            errorMessage={errorMessage}
+            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             ipnsHash={ipnsHash}
+            ipnsKey={manifestFile?.ipnsKey}
+            errorMessage={errorMessage}
+            storageType={decentralized}
+            headerValues={{
+              name: name,
+              creator: creator,
+              createdOn: createdOn,
+              stream: stream,
+              category: 2, // trailblazer
+            }}
           />
         </div>
       </div>

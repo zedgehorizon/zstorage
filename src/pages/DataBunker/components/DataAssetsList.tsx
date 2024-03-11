@@ -181,7 +181,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={0} manifest={manifest}></DataAssetCard>
@@ -195,7 +195,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
@@ -209,7 +209,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={2} manifest={manifest}></DataAssetCard>

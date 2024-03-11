@@ -8,20 +8,31 @@ import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
-  category: z.string().min(1, "Required field"),
-  artist: z.string().min(1, "Required field"),
-  album: z.string().min(1, "Required field"),
+  category: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  artist: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  album: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
   title: z
     .string()
     .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed")
     .refine((data) => !data.includes("manifest"), {
       message: "The title cannot contain the word 'manifest'",
     }),
+
   cover_art_url: z.string().min(1, "Required field"),
+
   file: z.string().min(1, "Required field"),
 });
 
