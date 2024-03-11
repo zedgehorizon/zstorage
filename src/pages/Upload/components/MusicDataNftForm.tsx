@@ -58,7 +58,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageFile, setImageFile] = useState<File>();
   const [audioFile, setAudioFile] = useState<File>();
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState<string>();
 
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -77,6 +77,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   // populate the form
   useEffect(() => {
+    console.log(props.index, "song", props.song);
+    console.log(imageURL, "imageURL", audioURL, "audioURL");
     form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     setDate(props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
@@ -85,6 +87,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
 
     if (props.song["cover_art_url"]) {
+      console.log("is setting cover art", props.song["cover_art_url"]);
       form.setValue("cover_art_url", props.song["cover_art_url"]);
       setImageURL(props.song["cover_art_url"]);
     } else {
@@ -95,10 +98,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       form.setValue("file", props.song["file"]);
       setAudioURL(props.song["file"]);
     } else {
-      setwantToEditAudio(false);
       setAudioURL("");
     }
 
+    setwantToEditAudio(false);
     setImageFile(undefined);
     setAudioFile(undefined);
   }, [props.song]);
@@ -116,6 +119,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   useEffect(() => {
     if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
+    props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
   }, [date]);
 
   function handleMoveUp() {
@@ -129,6 +133,12 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   function deleteSong() {
     props.swapFunction(Number(props.index), -1);
+  }
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // props.setterFunction(props.index, values, imageFile, audioFile);
+    // props.setUnsavedChanges(props.index, false);
+    // console.log("form submitted", props.index, values);
   }
 
   return (
@@ -160,6 +170,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         onChange={() => {
           props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
         }}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -211,7 +222,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
-          <div className="gap-4 flex-col flex-1 items-center justify-center ">
+          <div className="gap-4 flex-col flex-1 items-center justify-center">
             <span className="mb-6 text-foreground">Cover Art Image</span>
 
             <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />

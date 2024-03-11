@@ -25,7 +25,7 @@ const formSchema = z
     file_mimeType: z.string(),
   })
   .refine((data) => !!data.file || !!data.file_preview_img, {
-    message: "Either Media Image OR Media File is mandatory. Both allowed as well.",
+    message: "Either Media Image OR Media File is mandatory.Both allowed as well.",
     path: ["min_media_files"],
   });
 
@@ -37,19 +37,21 @@ type TrailblazerNftFormProps = {
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parent component
   unsavedChanges: boolean;
   setUnsavedChanges: (index: number, value: boolean) => void;
+  validationMessage?: string;
 };
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  // const [wantToEditImage, setWantToEditImage] = useState(false);
-  // const [wantToEditMedia, setWantToEditMedia] = useState(false);
+  const { validationMessage } = props;
+
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
-  // const [mediaError, setMediaError] = useState(false);
+  const [date, setDate] = useState<string>();
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
+    mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
@@ -61,9 +63,49 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       file_mimeType: "",
     },
   });
+
+  // populate the form
   useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
+    // console.log("TITLE", props.itemData["title"]);
+    // console.log("props.itemData", props.itemData);
+    form.setValue("date", props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    form.setValue("category", props.itemData["category"] ? props.itemData["category"] : "");
+    form.setValue("title", props.itemData["title"] ? props.itemData["title"] : "");
+    form.setValue("link", props.itemData["link"] ? props.itemData["link"] : "");
+    form.setValue("file_mimeType", props.itemData["file_mimeType"] ? props.itemData["file_mimeType"] : "");
+
+    if (props.itemData["file_preview_img"]) {
+      form.setValue("file_preview_img", props.itemData["file_preview_img"]);
+      setImageURL(props.itemData["file_preview_img"]);
+    } else {
+      setImageURL("");
+    }
+    if (props.itemData["file"]) {
+      form.setValue("file", props.itemData["file"]);
+      setMediaURL(props.itemData["file"]);
+    } else {
+      setMediaURL("");
+    }
+
+    setImageFile(undefined);
+    setMediaFile(undefined);
+  }, [props.itemData]);
+
+  useEffect(() => {
+    if (imageURL) {
+      form.setValue("file_preview_img", imageURL);
+      props.setterFunction(props.index, form.getValues(), imageFile, mediaFile); // setting the cover art url
+    }
+  }, [imageURL]);
+
+  useEffect(() => {
+    if (mediaFile || imageFile) props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
+  }, [imageFile, mediaFile]);
+
+  useEffect(() => {
+    if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
+    props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
+  }, [date]);
 
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -81,41 +123,10 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
     }
   };
 
-  // populate the form
-  useEffect(() => {
-    form.setValue("date", props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : "");
-    form.setValue("category", props.itemData["category"] ? props.itemData["category"] : "");
-    form.setValue("title", props.itemData["title"] ? props.itemData["title"] : "");
-    form.setValue("link", props.itemData["link"] ? props.itemData["link"] : "");
-    form.setValue("file_mimeType", props.itemData["file_mimeType"] ? props.itemData["file_mimeType"] : "");
-
-    if (props.itemData["file_preview_img"]) {
-      form.setValue("file_preview_img", props.itemData["file_preview_img"]);
-      setImageURL(props.itemData["file_preview_img"]);
-    } else {
-      setImageURL("");
-    }
-
-    if (props.itemData["file"]) {
-      form.setValue("file", props.itemData["file"]);
-      setMediaURL(props.itemData["file"]);
-    } else {
-      // setWantToEditMedia(false);
-      setMediaURL("");
-    }
-
-    setImageFile(undefined);
-    setMediaFile(undefined);
-    // setMediaError(false);
-  }, [props.itemData]);
-
-  useEffect(() => {
-    if (imageURL) form.setValue("file_preview_img", imageURL);
-  }, [imageURL]);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
-    props.setterFunction(props.index, values, imageFile, mediaFile);
-    props.setUnsavedChanges(props.index, false);
+    // props.setterFunction(props.index, values, imageFile, mediaFile);
+    // props.setUnsavedChanges(props.index, false);
+    // console.log("form submitted", props.index, values);
   }
 
   function handleMoveUp() {
@@ -130,6 +141,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   function deleteItem() {
     props.swapFunction(Number(props.index), -1);
   }
+  // // console.log("index", props.index, imageURL);
 
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
@@ -158,7 +170,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       </div>
       <form
         onChange={() => {
-          props.setUnsavedChanges(props.index, true);
+          props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
         }}
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
@@ -169,7 +181,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             </span>
 
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date")} />
+              <DatePicker setterFunction={setDate} previousDate={date} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
 
@@ -241,7 +253,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                   </Button> */}
                 </div>
               ) : (
-                <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted p-2 text-sm text-accent/50  ">
+                <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
                   <Input accept=".mp3, .mp4" id="file" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleMediaFileChange(e)} />
                   <div className="text-accent/50 w-[10rem] truncate ">
                     {mediaFile ? mediaFile.name : mediaURL?.split("_")[1] ? mediaURL.split("_")[1] : "No chosen file"}{" "}
@@ -258,21 +270,24 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             <p className="w-full text-red-500 flex flex-col justify-center items-center">{form.formState.errors?.min_media_files.message}</p>
           )}
         </div>
-        <div className="w-full flex flex-row ">
+        <div className="w-full flex flex-row justify-between">
           {props.unsavedChanges != undefined && props.unsavedChanges === false && (
             <div className="mt-2 flex flex-row gap-2 text-accent">
-              Saved <CheckCircleIcon className="text-accent" />
+              Verified <CheckCircleIcon className="text-accent" />
             </div>
           )}
-          <div className="w-full flex flex-col justify-center items-center ">
-            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
+
+          <div className="w-full flex flex-col justify-start items-start max-w-[30rem]">
+            {validationMessage && (
+              <p className="text-red-500">
+                {" "}
+                Please fill the folowing fields: <br></br> {validationMessage}{" "}
+              </p>
+            )}
           </div>
           <Button tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
-          <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
-            Save
-          </button>
         </div>
       </form>
     </div>

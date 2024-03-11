@@ -155,7 +155,7 @@ export const DataAssetList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log(storedDataAssets, "storedDataAssets");
+    // console.log(storedDataAssets, "storedDataAssets");
     const downloadAllTheManifestFiles = async () => {
       if (storedDataAssets.length === 0) {
         toast.error("No data assets found", { icon: <Lightbulb color="yellow"></Lightbulb> });
@@ -181,7 +181,7 @@ export const DataAssetList: React.FC = () => {
   }, [storedDataAssets]);
 
   useEffect(() => {
-    console.log("manifest files", manifestFiles);
+    // console.log("manifest files", manifestFiles);
     if (isLoading === true) return;
     manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {

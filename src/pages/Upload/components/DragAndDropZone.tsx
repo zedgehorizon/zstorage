@@ -18,6 +18,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
 
   useEffect(() => {
     if (imagePreview) {
+      // if (imagePreview === "undefined") return setPreviewSrc("");
       setPreviewSrc(imagePreview);
     }
   }, [imagePreview]);

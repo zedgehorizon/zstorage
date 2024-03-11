@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
 interface DatePickerProps {
   setterFunction: (date: string) => void;
-  previousDate: string;
+  previousDate: string | undefined;
 }
 
 export function DatePicker(props: DatePickerProps) {
