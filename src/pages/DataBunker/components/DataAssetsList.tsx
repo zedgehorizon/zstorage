@@ -52,22 +52,6 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[1]]: [],
     [CATEGORIES[2]]: [],
   });
-  // async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
-  //   try {
-  //     const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
-  //     setIsLoading(true);
-
-  //     const response = await axios.get(apiUrlGet, {
-  //       headers: {
-  //         "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
-  //       },
-  //     });
-
-  //     setCategoryManifestFiles((prev) => ({ ...prev, [category]: response.data }));
-  //   } catch (error: any) {
-  //     console.error("Error fetching data assets", error);
-  //   }
-  // }
 
   // fetch all data assets of an address
   async function fetchAllManifestsOfAnAddress() {
@@ -87,19 +71,11 @@ export const DataAssetList: React.FC = () => {
 
       if (error?.response.data.statusCode === 403) {
         toast("Native auth token expired. Re-login and try again! ", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow"></Lightbulb>{" "}
-            </button>
-          ),
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         });
       } else {
         toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow"></Lightbulb>{" "}
-            </button>
-          ),
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         });
       }
       throw error; // error to be caught by toast.promise
@@ -108,7 +84,6 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     await fetchAllManifestsOfAnAddress();
-    // await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[0]);
   }
 
   // download the manifest file for the corresponding CID
@@ -138,7 +113,7 @@ export const DataAssetList: React.FC = () => {
     } catch (error) {
       console.error("Error downloading manifest files:", manifestCid, error);
       toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         id: "fetch-manifest-file1",
       });
     }
@@ -157,7 +132,7 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     const downloadAllTheManifestFiles = async () => {
       if (storedDataAssets.length === 0) {
-        toast.error("No data assets found", { icon: <Lightbulb color="yellow"></Lightbulb> });
+        toast.error("No data assets found", { icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb> });
         setIsLoading(false);
         return;
       }
@@ -206,7 +181,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={0} manifest={manifest}></DataAssetCard>
@@ -220,7 +195,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
@@ -234,7 +209,7 @@ export const DataAssetList: React.FC = () => {
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
-            <div className="gap-4 grid grid-cols-3">
+            <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
                 categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
                   <DataAssetCard key={index} category={2} manifest={manifest}></DataAssetCard>

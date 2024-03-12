@@ -12,7 +12,6 @@ export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
 
   const handleLogout = () => {
-    // logout(`${window.location.origin}/unlock`);
     logout(`${window.location.origin}`, undefined, false);
   };
 
@@ -60,12 +59,6 @@ export const Navbar: React.FC = () => {
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              {/* <Link className=" cursor-pointer group " to={"/#testimonials"} onClick={() => scrollToSection("testimonials")}>
-              <p className=" ">Testimonials</p>
-              <div className="opacity-0 group-hover:opacity-100">
-                <Dot className="text-accent scale-[2] mx-auto "></Dot>
-              </div>
-            </Link> */}
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">

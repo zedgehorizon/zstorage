@@ -2,11 +2,11 @@ import { CopyIcon, Lightbulb } from "lucide-react";
 import React from "react";
 import step2Img from "@assets/img/next-steps-cname.png";
 import step4Img from "@assets/img/next-steps-txt-record.png";
-interface NextStepsListProps {
+interface NextStepsModalProps {
   manifestCid: string;
 }
 
-const NextStepsList: React.FC<NextStepsListProps> = (props) => {
+const NextStepsModal: React.FC<NextStepsModalProps> = (props) => {
   const { manifestCid } = props;
   return (
     <div className=" relative z-10 p-4 text-sm leading-relaxed text-white b rounded-3xl shadow-md">
@@ -73,4 +73,4 @@ const NextStepsList: React.FC<NextStepsListProps> = (props) => {
   );
 };
 
-export default NextStepsList;
+export default NextStepsModal;

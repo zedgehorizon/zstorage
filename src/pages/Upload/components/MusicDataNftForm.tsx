@@ -11,16 +11,28 @@ import toast from "react-hot-toast";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
-  category: z.string().min(1, "Required field"),
-  artist: z.string().min(1, "Required field"),
-  album: z.string().min(1, "Required field"),
+  category: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  artist: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  album: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
   title: z
     .string()
     .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed")
     .refine((data) => !data.includes("manifest"), {
       message: "The title cannot contain the word 'manifest'",
     }),
+
   cover_art_url: z.string().min(1, "Required field"),
+
   file: z.string().min(1, "Required field"),
 });
 
@@ -70,7 +82,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setwantToEditAudio(false);
     } else {
       toast("Please upload an audio file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
       });
     }
   };

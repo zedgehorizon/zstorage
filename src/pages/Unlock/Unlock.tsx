@@ -11,7 +11,6 @@ import { Link } from "react-router-dom";
 import { ELROND_NETWORK } from "@utils/constants";
 import { Modal } from "@components/Modal";
 import xAliasIssue from "@assets/img/xalias-issue-dashboard.png";
-import { Button } from "@libComponents/Button";
 
 export const Unlock: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +23,6 @@ export const Unlock: React.FC = () => {
 
   const nativeAuthProps: NativeAuthConfigType = {
     apiAddress: `https://${getApi(chainID)}`,
-    // origin: window.location.origin,
     expirySeconds: 3000,
   };
 

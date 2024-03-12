@@ -5,41 +5,52 @@ import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbac
 import { Progress } from "@libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
-import NextStepsList from "@components/Lists/NextStepsList";
-import { Button } from "@libComponents/Button";
+import NextStepsModal from "@components/Modals/NextStepsModal";
+import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
+import { generateRandomString, publishIpns, uploadFilesRequest } from "@utils/functions";
+import { CATEGORIES } from "@utils/constants";
+import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import toast from "react-hot-toast";
-import { XCircle } from "lucide-react";
+import { Lightbulb, XCircle } from "lucide-react";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
   addButton?: React.ReactNode;
   isUploadButtonDisabled: boolean;
-  progressBar: number;
-  uploadFileToIpfs: () => void;
+  transformFilesToDataArray: () => Promise<any>;
+  headerValues: { name: string; creator: string; createdOn: string; stream: boolean; category: number };
+  setResponsesOnSuccess: (response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) => void;
   validateDataObjects: () => boolean;
   manifestCid?: string;
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
   errorMessage?: string;
-  ipnsHash?: string;
+  ipnsHash?: string; // make one object with ipnsKey and ipnsHash
+  ipnsKey?: string;
+  storageType?: string;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   const {
     isUploadButtonDisabled,
     addButton,
-    progressBar,
     DataObjectsComponents,
     manifestCid,
     recentlyUploadedManifestFileName,
     folderHash,
-    uploadFileToIpfs,
+    transformFilesToDataArray,
+    setResponsesOnSuccess,
+    headerValues,
     validateDataObjects,
     errorMessage,
     ipnsHash,
+    ipnsKey,
+    storageType,
   } = props;
-
+  const { name, creator, createdOn, stream, category } = headerValues;
+  const { tokenLogin } = useGetLoginInfo();
   const [progressValue, setProgressValue] = React.useState(0);
+  const [errors, setErrors] = React.useState<string>();
 
   // useEffect hook to load the progress bar smoothly to 100 in 10 seconds
   useEffect(() => {
@@ -102,7 +113,9 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       <Modal
         openTrigger={<button id="uploadButton"></button>}
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
-        footerContent={errorMessage && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
+        footerContent={
+          (errorMessage || errors) && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>
+        }
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
@@ -118,7 +131,9 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                   : "Uploading files..."}
             </span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
-            {manifestCid && (
+            {errors && <span className="text-red-500">{errors}</span>}
+
+            {manifestCid && progressValue === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressBar === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">

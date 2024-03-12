@@ -94,10 +94,6 @@ module.exports = {
         "spin-slow": "spin 3s linear infinite",
         blob: "blob 40s infinite",
       },
-      backgroundImage: {
-        "z-image": "url('../src/assets/img/z-image.png')",
-        "white-rectangle": "url('../src/assets/img/rec.png')",
-      },
     },
   },
   plugins: [require("tailwindcss-animate")],

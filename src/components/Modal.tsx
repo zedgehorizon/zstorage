@@ -32,7 +32,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
         </DialogHeader>
         <div className="overflow-x-hidden overflow-y-auto scrollbar">{children}</div>
         <DialogFooter className="!justify-center !items-center m-0 p-4">
-          <DialogClose>{footerContent} </DialogClose>
+          <DialogClose>{footerContent}</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

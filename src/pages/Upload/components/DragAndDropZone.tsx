@@ -53,7 +53,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
     } else {
       if (setImagePreview) {
         toast("Please upload an image file", {
-          icon: <Lightbulb color="yellow"></Lightbulb>,
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
         });
       } else {
         setFile(file);

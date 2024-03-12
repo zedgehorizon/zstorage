@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 
 const StoreDataAsset: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  // const [dataAssetAction, setDataAssetAction] = useState("");
   const [storageType, setStorageType] = useState();
   const [template, setTemplate] = useState("");
   const [storagePreference, setStoragePreference] = useState();
@@ -107,7 +106,6 @@ const StoreDataAsset: React.FC = () => {
             <Link
               to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer Data NFT") ? "/upload-trailblazer" : "/upload-music"}
               state={{
-                // action: dataAssetAction,
                 type: storageType,
                 template: template,
                 storage: storagePreference,
