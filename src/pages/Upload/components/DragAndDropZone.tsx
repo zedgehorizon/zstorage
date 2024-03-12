@@ -116,7 +116,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
       {previewSrc && (
         <div className="z-8 w-full h-full absolute bg-background/50 mt-[1px]  rounded-xl opacity-0 hover:opacity-100">
           <div className="mt-16 mx-auto p-3 w-12 h-12 bg-accent/20 flex   rounded-full  items-center justify-center">
-            <Edit2 className="text-accent  " />
+            <Edit2 className="text-accent" />
           </div>
           <div className="mt-6 mx-auto text-center text-accent">
             <span className="select-none">Pick another image</span>
