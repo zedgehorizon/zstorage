@@ -8,6 +8,7 @@ import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
+import { set } from "date-fns";
 
 const formSchema = z
   .object({
@@ -50,6 +51,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   const [mediaFile, setMediaFile] = useState<File>();
   const [date, setDate] = useState<string>();
   const [mediaFileIsLoading, setMediaFileIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
     resolver: zodResolver(formSchema),
@@ -66,9 +68,10 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
   // populate the form
   useEffect(() => {
-    // console.log("TITLE", props.itemData["title"]);
-    // console.log("props.itemData", props.itemData);
+    form.reset({ file: "", file_preview_img: "", file_mimeType: "" });
+
     form.setValue("date", props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    setDate(props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     form.setValue("category", props.itemData["category"] ? props.itemData["category"] : "");
     form.setValue("title", props.itemData["title"] ? props.itemData["title"] : "");
     form.setValue("link", props.itemData["link"] ? props.itemData["link"] : "");
@@ -115,7 +118,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
-      // setWantToEditMedia(false);
     } else {
       toast("Please upload a valid file", {
         icon: <Lightbulb color="yellow"></Lightbulb>,
@@ -124,24 +126,21 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // props.setterFunction(props.index, values, imageFile, mediaFile);
-    // props.setUnsavedChanges(props.index, false);
-    // console.log("form submitted", props.index, values);
+    //console.log("form submitted", props.index, values);
   }
 
   function handleMoveUp() {
     if (props.index == 1) return;
-    props.swapFunction(props.index - 1 + 1, props.index - 1);
+    props.swapFunction(Number(props.index), Number(props.index) - 1);
   }
 
   function handleMoveDown() {
-    props.swapFunction(Number(props.index), Number(props.index) + 1); // -1 transform string in number
+    props.swapFunction(Number(props.index), Number(props.index) + 1);
   }
 
   function deleteItem() {
     props.swapFunction(Number(props.index), -1);
   }
-  // // console.log("index", props.index, imageURL);
 
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
@@ -217,7 +216,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>
@@ -243,14 +242,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                     className="-ml-9 scale-[0.8]"
                     controls
                   />
-                  {/* <Button
-                    tabIndex={-1}
-                    className="border border-accent p-2 hover:bg-accent/50 bg-accent/20 rounded-full flex items-center justify-center"
-                    onClick={() => setWantToEditMedia(true)}>
-                    <div>
-                      <Edit2 className="text-accent  " />
-                    </div>
-                  </Button> */}
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">

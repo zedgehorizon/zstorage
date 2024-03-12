@@ -7,7 +7,7 @@ interface DragAndDropZoneProps {
   idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
-  imagePreview?: string;
+  imagePreview: string;
   dropZoneStyles?: string;
 }
 
@@ -17,10 +17,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (imagePreview) {
-      // if (imagePreview === "undefined") return setPreviewSrc("");
-      setPreviewSrc(imagePreview);
-    }
+    setPreviewSrc(imagePreview);
   }, [imagePreview]);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {

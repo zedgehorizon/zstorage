@@ -58,7 +58,6 @@ export const UploadTrailblazerData: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
@@ -135,8 +134,6 @@ export const UploadTrailblazerData: React.FC = () => {
   }
 
   function validateUpload() {
-    console.log("validating upload", unsavedChanges);
-
     if (!verifyHeaderFields() || !validateItemsData()) {
       return false;
     }
@@ -230,7 +227,6 @@ export const UploadTrailblazerData: React.FC = () => {
   async function transformItemData() {
     try {
       const responseDataCIDs = await uploadItemItemMediaFiles();
-      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
 
       // Iterate through the response list and find the matching cidv1
@@ -473,7 +469,6 @@ export const UploadTrailblazerData: React.FC = () => {
       deleteItem(first);
       return;
     }
-
     const itemsDataVar = { ...itemsData };
     const storeItem = itemsDataVar[second];
     itemsDataVar[second] = itemsDataVar[first];
@@ -487,8 +482,6 @@ export const UploadTrailblazerData: React.FC = () => {
     setItemsData(itemsDataVar);
     setFilePairs(storeFilesVar);
   }
-  console.log(itemsData, "itemsdata");
-  // console.log(imageUrl, "imageurl");
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
     if (image && media) {

@@ -77,8 +77,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   // populate the form
   useEffect(() => {
-    console.log(props.index, "song", props.song);
-    console.log(imageURL, "imageURL", audioURL, "audioURL");
     form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     setDate(props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
@@ -87,7 +85,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     form.setValue("title", props.song["title"] ? props.song["title"] : "");
 
     if (props.song["cover_art_url"]) {
-      console.log("is setting cover art", props.song["cover_art_url"]);
       form.setValue("cover_art_url", props.song["cover_art_url"]);
       setImageURL(props.song["cover_art_url"]);
     } else {
@@ -136,8 +133,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // props.setterFunction(props.index, values, imageFile, audioFile);
-    // props.setUnsavedChanges(props.index, false);
     // console.log("form submitted", props.index, values);
   }
 
