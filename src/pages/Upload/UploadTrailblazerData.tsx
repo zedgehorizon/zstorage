@@ -37,9 +37,9 @@ export const UploadTrailblazerData: React.FC = () => {
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
@@ -86,22 +86,35 @@ export const UploadTrailblazerData: React.FC = () => {
     }
   }, [manifestFile]);
 
-  // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
-
-    if (numberOfItems > 1 && itemsData[1].title) {
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
+  function validateItemsData() {
+    let isValid = true;
+    if (itemsData) {
+      Object.keys(itemsData).forEach((key: string) => {
+        isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
     } else {
-      hasUnsavedChanges = true;
+      isValid = false;
     }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [itemsData, unsavedChanges, name, creator, createdOn]);
+    return isValid;
+  }
+
+  function validateUpload() {
+    if (!verifyHeaderFields() || !validateItemsData()) {
+      return false;
+    }
+
+    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+      toast.error("No modification was made", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    return true;
+  }
 
   // upload the preview images and media of all the items
   async function uploadItemItemMediaFiles() {
@@ -243,6 +256,13 @@ export const UploadTrailblazerData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !itemsData) {
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
       return false;
     }
     return true;
@@ -263,20 +283,24 @@ export const UploadTrailblazerData: React.FC = () => {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
+    const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
+      variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableItemsData[numberOfItems - 1];
     delete variableFilePairs[numberOfItems - 1];
     delete variableUnsavedChanges[numberOfItems - 1];
+    delete variableValidationErrors[numberOfItems - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
     setItemsData(variableItemsData);
     setFilePairs(variableFilePairs);
+    setValidationErrors(variableValidationErrors);
     setNumberOfItems((prev) => prev - 1);
   }
 
@@ -291,23 +315,24 @@ export const UploadTrailblazerData: React.FC = () => {
       return;
     }
 
+    if (first < numberOfItems - 1 || second !== -1) {
+      if (validateItemsData() === false) {
+        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`, {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow" />
+            </button>
+          ),
+        });
+        return;
+      }
+    }
+
     // deleting item with index = first
     if (second === -1) {
       deleteItem(first);
       return;
     }
-
-    if (unsavedChanges[first] || unsavedChanges[second]) {
-      toast.error("Please save all the changes before swapping the items", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
-      return;
-    }
-
     const itemsDataVar = { ...itemsData };
     const storeItem = itemsDataVar[second];
     itemsDataVar[second] = itemsDataVar[first];
@@ -321,7 +346,6 @@ export const UploadTrailblazerData: React.FC = () => {
     setItemsData(itemsDataVar);
     setFilePairs(storeFilesVar);
   }
-
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
     if (image && media) {
@@ -344,7 +368,39 @@ export const UploadTrailblazerData: React.FC = () => {
       }));
     }
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      dataAssetObjectValidation(index);
+    }
   };
+  const dataAssetObjectValidation = (index: number) => {
+    let message: string = "";
+    if (itemsData[index]) {
+      if (!itemsData[index].title) {
+        message += "Title, ";
+      }
+      if (!itemsData[index].category) {
+        message += "Category, ";
+      }
+      if (!itemsData[index].link) {
+        message += "Link, ";
+      }
+      if (!itemsData[index].date) {
+        message += "Date, ";
+      }
+      if (!filePairs[index]?.image && !itemsData[index].file_preview_img && !filePairs[index]?.media && !itemsData[index].file) {
+        message += "Either Media Image OR Media File is mandatory. Both allowed as well. ";
+      }
+    }
+    setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
+    if (message === "") {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+      return true;
+    } else {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
+      return false;
+    }
+  };
+
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -375,18 +431,23 @@ export const UploadTrailblazerData: React.FC = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapItemData}
                 unsavedChanges={unsavedChanges[index]}
-                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></TrailblazerNftForm>
+                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}
+                validationMessage={validationErrors[index]}
+              />
             ))}
             addButton={
               <div className="flex flex-col justify-center items-center">
-                <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"} onClick={handleAddMoreItems}>
+                <Button
+                  className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
+                  onClick={handleAddMoreItems}>
                   Add Item
                 </Button>
               </div>
             }
             transformFilesToDataArray={transformItemData}
             setResponsesOnSuccess={setResponsesOnSuccess}
-            isUploadButtonDisabled={isUploadButtonDisabled}
+            isUploadButtonDisabled={false}
+            validateDataObjects={validateUpload}
             manifestCid={manifestCid}
             folderHash={folderHash}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}

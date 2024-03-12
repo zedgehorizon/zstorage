@@ -20,6 +20,7 @@ interface DataObjectsListProps {
   transformFilesToDataArray: () => Promise<any>;
   headerValues: { name: string; creator: string; createdOn: string; stream: boolean; category: number };
   setResponsesOnSuccess: (response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) => void;
+  validateDataObjects: () => boolean;
   manifestCid?: string;
   folderHash?: string;
   recentlyUploadedManifestFileName?: string;
@@ -40,6 +41,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     transformFilesToDataArray,
     setResponsesOnSuccess,
     headerValues,
+    validateDataObjects,
     errorMessage,
     ipnsHash,
     ipnsKey,
@@ -176,6 +178,23 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     }
   };
 
+  function handleUploadFileToIpfs() {
+    if (validateDataObjects() === false) {
+      toast.error("There were some validation errors!", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <XCircle color="red" />
+          </button>
+        ),
+        id: "validationError",
+      });
+      return;
+    }
+
+    document.getElementById("uploadButton")?.click();
+    generateManifestFile();
+  }
+
   return (
     <div className="flex w-full flex-col">
       <ErrorBoundary
@@ -186,17 +205,15 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           {addButton}
         </div>
       </ErrorBoundary>
-
+      <button
+        id="validateDataObjectsButton"
+        onClick={handleUploadFileToIpfs}
+        disabled={isUploadButtonDisabled || progressValue === 100}
+        className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
+        Upload Data
+      </button>
       <Modal
-        openTrigger={
-          <button
-            id="uploadButton"
-            onClick={generateManifestFile}
-            disabled={isUploadButtonDisabled || progressValue === 100}
-            className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-            Upload Data
-          </button>
-        }
+        openTrigger={<button id="uploadButton"></button>}
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
         footerContent={
           (errorMessage || errors) && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>
@@ -206,52 +223,52 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
             <Progress className="bg-background w-[40rem]" value={progressValue} />
-            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
+            <span className="">
+              {errorMessage
+                ? "Uploading has stopped because of an error"
+                : progressValue > 60
+                  ? progressValue === 100
+                    ? "Upload completed!"
+                    : "Almost there..."
+                  : "Uploading files..."}
+            </span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {errors && <span className="text-red-500">{errors}</span>}
 
             {manifestCid && progressValue === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
-                <div className="flex flex-col justify-center items-center gap-4">
-                  <CidsView
-                    ipnsHash={ipnsHash}
-                    currentManifestFileCID={manifestCid}
-                    folderCid={folderHash}
-                    manifestFileName={recentlyUploadedManifestFileName}
-                  />
-                  <div className="flex flex-row justify-center items-center gap-4">
-                    <Link
-                      to={"/data-bunker"}
-                      className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                      View stored files
-                    </Link>
-                    {ipnsHash ? (
-                      <Modal
-                        modalClassName="w-[60%] h-full border-accent/50"
-                        openTrigger={
-                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                            How IPNS works?
-                          </button>
-                        }
-                        closeOnOverlayClick={true}
-                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
-                        {<HowIpnsWorkModal ipnsHash={ipnsHash} />}
-                      </Modal>
-                    ) : (
-                      <Modal
-                        modalClassName="w-[40%] border-accent/50"
-                        openTrigger={
-                          <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
-                            Update your DNS
-                          </button>
-                        }
-                        closeOnOverlayClick={true}
-                        footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
-                        {<NextStepsModal manifestCid={manifestCid} />}
-                      </Modal>
-                    )}
+                {progressValue === 100 && (
+                  <div className="flex flex-col justify-center items-center gap-4">
+                    <CidsView
+                      ipnsHash={ipnsHash}
+                      currentManifestFileCID={manifestCid}
+                      folderCid={folderHash}
+                      manifestFileName={recentlyUploadedManifestFileName}
+                    />
+                    <div className="flex flex-row justify-center items-center gap-4">
+                      <Link
+                        to={"/data-bunker"}
+                        className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                        View stored files
+                      </Link>
+                      {ipnsHash ? (
+                        <></>
+                      ) : (
+                        <Modal
+                          modalClassName="w-[60%] border-accent/50"
+                          openTrigger={
+                            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                              Update your DNS
+                            </button>
+                          }
+                          closeOnOverlayClick={true}
+                          footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                          {<NextStepsModal manifestCid={manifestCid} />}
+                        </Modal>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>

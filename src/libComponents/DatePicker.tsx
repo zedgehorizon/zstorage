@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger, PopoverClose } from "./Popover
 
 interface DatePickerProps {
   setterFunction: (date: string) => void;
-  previousDate?: string;
+  previousDate: string | undefined;
 }
 
 export function DatePicker(props: DatePickerProps) {
@@ -38,7 +38,7 @@ export function DatePicker(props: DatePickerProps) {
         <Button
           variant={"outline"}
           className={cn(
-            "justify-between text-accent/50 hover:bg-background/1 hover:text-accent w-full fill-accent text-md   bg-background p-6 border border-accent/50 rounded ",
+            "justify-between text-accent/50 hover:bg-background/1 hover:text-accent w-full fill-accent text-md   bg-background p-6 px-4 border border-accent/50 rounded ",
             !date && "text-accent"
           )}>
           {date ? format(date, "dd/MM/yyyy") : <span> Pick a date</span>}

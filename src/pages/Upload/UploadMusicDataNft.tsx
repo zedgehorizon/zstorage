@@ -3,7 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
@@ -14,7 +14,6 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
-import { stream } from "undici-types";
 
 type SongData = {
   date: string;
@@ -41,9 +40,10 @@ export const UploadMusicData: React.FC = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(false);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
@@ -89,21 +89,51 @@ export const UploadMusicData: React.FC = () => {
   }, [manifestFile]);
 
   // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
+  // useEffect(() => {
+  //   let hasUnsavedChanges = false;
 
-    if (numberOfSongs > 1 && songsData[1].title) {
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
+  //   if (numberOfSongs > 1 && songsData[1].title) {
+  //     Object.values(unsavedChanges).forEach((item) => {
+  //       if (item === true) {
+  //         hasUnsavedChanges = true;
+  //       }
+  //     });
+  //   } else {
+  //     hasUnsavedChanges = true;
+  //   }
+  //   hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
+  //   setIsUploadButtonDisabled(hasUnsavedChanges);
+  // }, [songsData, unsavedChanges, name, creator, createdOn]);
+
+  function validateSongsData() {
+    let isValid = true;
+    if (songsData) {
+      Object.keys(songsData).forEach((key: string) => {
+        isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
     } else {
-      hasUnsavedChanges = true;
+      isValid = false;
     }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [songsData, unsavedChanges, name, creator, createdOn]);
+    return isValid;
+  }
+
+  function validateUpload() {
+    if (!verifyHeaderFields() || !validateSongsData()) {
+      return false;
+    }
+
+    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+      toast.error("No modification was made", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    return true;
+  }
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -228,6 +258,13 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
       return false;
     }
     return true;
@@ -250,21 +287,50 @@ export const UploadMusicData: React.FC = () => {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
+    const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
+      variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
     delete variableUnsavedChanges[numberOfSongs - 1];
+    delete variableValidationErrors[numberOfSongs - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
+    setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
+    //debugger; // setSongsData((prevSongsData) => {
+    //   const updatedSongsData = { ...prevSongsData };
+    //   delete updatedSongsData[index];
+    //   return updatedSongsData;
+    // });
+
+    // setFilePairs((prevFilePairs) => {
+    //   const updatedFilePairs = { ...prevFilePairs };
+    //   delete updatedFilePairs[index];
+    //   return updatedFilePairs;
+    // });
+
+    // setUnsavedChanges((prevUnsavedChanges) => {
+    //   const updatedUnsavedChanges = { ...prevUnsavedChanges };
+    //   delete updatedUnsavedChanges[index];
+    //   return updatedUnsavedChanges;
+    // });
+
+    // setValidationErrors((prevValidationErrors) => {
+    //   const updatedValidationErrors = { ...prevValidationErrors };
+    //   delete updatedValidationErrors[index];
+    //   return updatedValidationErrors;
+    // });
+
+    // setNumberOfSongs((prevNumberOfSongs) => prevNumberOfSongs - 1);
   }
 
   /**
@@ -277,21 +343,21 @@ export const UploadMusicData: React.FC = () => {
     if (first < 1 || second >= numberOfSongs) {
       return;
     }
-
+    if (first < numberOfSongs - 1 || second !== -1) {
+      if (validateSongsData() === false) {
+        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`, {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow" />
+            </button>
+          ),
+        });
+        return;
+      }
+    }
     // deleting song with index = first
     if (second === -1) {
       deleteSong(first);
-      return;
-    }
-
-    if (unsavedChanges[first] || unsavedChanges[second]) {
-      toast.error("Please save all the changes before swapping the songs", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
       return;
     }
 
@@ -331,9 +397,48 @@ export const UploadMusicData: React.FC = () => {
       }));
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      dataAssetObjectValidation(index);
+    }
   };
+
+  const dataAssetObjectValidation = (index: number) => {
+    let message: string = "";
+    if (songsData[index]) {
+      if (!songsData[index].title) {
+        message += "Title, ";
+      }
+      if (!songsData[index].artist) {
+        message += "Artist, ";
+      }
+      if (!songsData[index].album) {
+        message += "Album, ";
+      }
+      if (!songsData[index].category) {
+        message += "Category, ";
+      }
+      if (!songsData[index].date) {
+        message += "Date, ";
+      }
+      if (!filePairs[index]?.image && !songsData[index].cover_art_url) {
+        message += "Image, ";
+      }
+      if (!filePairs[index]?.audio && !songsData[index].file) {
+        message += "Audio, ";
+      }
+    }
+    setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
+    if (message === "") {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+      return true;
+    } else {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
+      return false;
+    }
+  };
+
   const handleModalUploadButton = () => {
-    document.getElementById("uploadButton")?.click();
+    document.getElementById("validateUploadButton")?.click();
   };
 
   const handleOpenMintModal = () => {
@@ -368,6 +473,7 @@ export const UploadMusicData: React.FC = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
                 unsavedChanges={unsavedChanges[index]}
+                validationMessage={validationErrors[index]}
                 setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
             ))}
             addButton={
@@ -398,11 +504,7 @@ export const UploadMusicData: React.FC = () => {
                     </div>
                   }
                   openTrigger={
-                    <Button
-                      disabled={isUploadButtonDisabled}
-                      className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>
-                      Preview Player
-                    </Button>
+                    <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>Preview Player</Button>
                   }>
                   <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16 ">
                     <AudioPlayerPreview
@@ -414,9 +516,10 @@ export const UploadMusicData: React.FC = () => {
                 </Modal>
               </div>
             }
-            isUploadButtonDisabled={isUploadButtonDisabled}
+            isUploadButtonDisabled={false}
             transformFilesToDataArray={transformSongsData}
             storageType={decentralized}
+            validateDataObjects={validateUpload}
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
