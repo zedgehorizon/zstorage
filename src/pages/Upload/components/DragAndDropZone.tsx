@@ -7,7 +7,7 @@ interface DragAndDropZoneProps {
   idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
-  imagePreview: string;
+  imagePreview?: string;
   dropZoneStyles?: string;
 }
 
@@ -17,7 +17,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    setPreviewSrc(imagePreview);
+    if (imagePreview !== undefined) setPreviewSrc(imagePreview);
   }, [imagePreview]);
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -106,10 +106,15 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
         )}
       </div>
       {previewSrc && (
-        <img src={previewSrc} className="z-0 absolute rounded-xl max-h-[15rem] max-w-[15rem] border-[2px] border-accent" id="preview" alt="Preview" />
+        <img
+          src={previewSrc}
+          className="z-0 absolute rounded-xl max-h-[15rem] max-w-[15rem] border-[2px] border-accent -ml-[1px] -mt-[1px]"
+          id="preview"
+          alt="Preview"
+        />
       )}
       {previewSrc && (
-        <div className="z-8 w-full h-full absolute bg-background/50  rounded-xl opacity-0 hover:opacity-100">
+        <div className="z-8 w-full h-full absolute bg-background/50 mt-[1px]  rounded-xl opacity-0 hover:opacity-100">
           <div className="mt-16 mx-auto p-3 w-12 h-12 bg-accent/20 flex   rounded-full  items-center justify-center">
             <Edit2 className="text-accent  " />
           </div>

@@ -104,23 +104,6 @@ export const UploadTrailblazerData: React.FC = () => {
     }
   }, [manifestFile]);
 
-  // check whether the upload button should be disabled or not
-  // useEffect(() => {
-  //   let hasUnsavedChanges = false;
-
-  //   if (numberOfItems > 1 && itemsData[1].title) {
-  //     Object.values(unsavedChanges).forEach((item) => {
-  //       if (item === true) {
-  //         hasUnsavedChanges = true;
-  //       }
-  //     });
-  //   } else {
-  //     hasUnsavedChanges = true;
-  //   }
-  //   hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-  //   setIsUploadButtonDisabled(hasUnsavedChanges);
-  // }, [itemsData, unsavedChanges, name, creator, createdOn]);
-
   function validateItemsData() {
     let isValid = true;
     if (itemsData) {

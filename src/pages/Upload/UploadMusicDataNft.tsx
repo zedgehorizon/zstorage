@@ -395,7 +395,7 @@ export const UploadMusicData: React.FC = () => {
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
-    debugger; // setSongsData((prevSongsData) => {
+    //debugger; // setSongsData((prevSongsData) => {
     //   const updatedSongsData = { ...prevSongsData };
     //   delete updatedSongsData[index];
     //   return updatedSongsData;
