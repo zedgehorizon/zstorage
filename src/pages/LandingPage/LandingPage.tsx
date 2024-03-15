@@ -123,9 +123,9 @@ const LandingPage: React.FC = () => {
       <UseCase />
       <div id="features"></div>
       <KeyFeatures />
-      <div className="w-full min-h-screen   flex flex-col items-center xl:pb-32">
-        <div className="mt-8 flex flex-col justify-center items-center relative w-full h-full  p-4 pt-16 xl:p-32">
-          <img src={whiteRectangle} className="absolute top-0 left-0 -z-1 w-full  min-h-screen object-cover" alt="White Rectangle Background" />
+      <div className=" w-full min-h-screen max-h-[120%] flex flex-col items-center xl:pb-32 overflow-hidden">
+        <div className="mt-8 flex flex-col  justify-center items-center relative w-full h-full p-4 pt-16 xl:p-32 ">
+          <img src={whiteRectangle} className="absolute top-0 left-0 w-full min-h-screen object-cover" alt="White Rectangle Background" />
           <div className="z-10 flex flex-col items-center">
             <img className="scale-75 lg:scale-100" src={folders} alt="Folders" />
             <span className="text-muted text-2xl lg:text-5xl w-[60%] mx-auto text-center">

@@ -171,7 +171,7 @@ export const Navbar: React.FC = () => {
                 <DropdownMenuGroup>
                   <DropdownMenuItem className="mt-4 w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent   lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
-                      <Link to={"/"} className="flex w-full items-center jusitfy-center text-center ">
+                      <Link to={"/"} className="w-full ">
                         <DropdownMenuItem>
                           <div className="w-full " onClick={handleLogout}>
                             Logout
