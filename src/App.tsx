@@ -10,7 +10,7 @@ import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { UploadTrailblazerData } from "./pages/Upload/UploadTrailblazerData";
-import toast, { Toaster } from "react-hot-toast";
+// import toast, { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
@@ -18,6 +18,7 @@ import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
 import { ELROND_NETWORK } from "./utils/constants";
 import { PageNotFound } from "pages/PageNotFound/PageNotFound";
+import { Toaster } from "@libComponents/Toaster";
 
 const routes = [
   {
@@ -103,7 +104,7 @@ function App() {
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
-          <Toaster
+          {/* <Toaster
             position={window.innerWidth <= 800 ? "top-center" : "top-right"}
             reverseOrder={false}
             containerStyle={{
@@ -122,7 +123,8 @@ function App() {
                 duration: 3000,
               },
             }}
-          />
+          /> */}
+          <Toaster />
           <Navbar />
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
