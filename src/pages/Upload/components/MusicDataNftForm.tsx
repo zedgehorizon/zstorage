@@ -142,10 +142,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     swapFunction(Number(index), -1);
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // console.log("form submitted",  index, values);
-  }
-
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
       <div className="text-2xl text-accent text-center p-3"> 0{index}</div>
@@ -175,7 +171,6 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
         onChange={() => {
           setterFunction(index, form.getValues(), imageFile, audioFile);
         }}
-        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -280,9 +275,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               Verified <CheckCircleIcon className="text-accent" />
             </div>
           )}
-          {/* <div className="w-full flex flex-col justify-center items-center ">
-            { unsavedChanges && <p className="text-accent"> Unsaved changes, please save ! {validationMessage} </p>}
-          </div> */}
+
           <div className="w-full flex flex-col justify-start items-start ">
             {validationMessage && (
               <p className="text-red-500">
@@ -291,12 +284,9 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               </p>
             )}
           </div>
-          <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
+          <Button type="button" tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
-          {/* <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
-            Save
-          </button> */}
         </div>
       </form>
     </div>

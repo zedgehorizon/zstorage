@@ -127,10 +127,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    //console.log("form submitted",  index, values);
-  }
-
   function handleMoveUp() {
     if (index == 1) return;
     swapFunction(Number(index), Number(index) - 1);
@@ -173,7 +169,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
         onChange={() => {
           setterFunction(index, form.getValues(), imageFile, mediaFile);
         }}
-        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -278,7 +273,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               </p>
             )}
           </div>
-          <Button tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
+          <Button type="button" tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
         </div>
