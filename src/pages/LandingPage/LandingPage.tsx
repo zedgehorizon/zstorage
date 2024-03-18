@@ -14,19 +14,21 @@ import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { MonitorCheck } from "lucide-react";
-import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import whiteRectangle from "@assets/img/white-rectangle.png";
 import zImage from "@assets/img/z-image.png";
+import { toast } from "sonner";
 
 const LandingPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {
-      toast("Opt for desktop for a superior app experience! ", {
-        icon: <MonitorCheck onClick={() => toast.dismiss()} className="text-accent" />,
-        duration: 3000,
-      });
+      toast(
+        <div className="flex flex-row items-center justify-center gap-2 ">
+          <MonitorCheck className="text-accent" />
+          <p className="text-center">Opt for desktop for a superior app experience!</p>{" "}
+        </div>
+      );
     }
   }, []);
   return (

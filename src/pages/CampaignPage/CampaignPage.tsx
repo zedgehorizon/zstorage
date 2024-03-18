@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Footer } from "@components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 // import toast from "react-hot-toast";
-import { useToast } from "@libComponents/UseToast";
 import { MonitorCheck } from "lucide-react";
 import frontOfTheVault from "@assets/img//cubeAnimation/front_cube.png";
 import vaultBunker from "@assets/img/cubeAnimation/vault.png";
@@ -12,25 +11,18 @@ import backOfTheVault from "@assets/img/cubeAnimation/back_cube.png";
 import sideCubes from "@assets/img/cubeAnimation/side_cubes.png";
 import { motion } from "framer-motion";
 import zImage from "@assets/img/z-image.png";
+import { toast } from "sonner";
 
 const CampaignPage: React.FC = () => {
-  const { toast } = useToast();
-
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {
-      toast({
-        description: (
-          <div className="flex flex-row items-center justify-center gap-2 ">
-            <MonitorCheck className="text-accent" />
-            <p className="text-center">Opt for desktop for a superior app experience!</p>{" "}
-          </div>
-        ),
-      });
-      // toast("Opt for desktop for a superior app experience! ", {
-      //   icon: <MonitorCheck onClick={() => toast.dismiss()} className="text-accent" />,
-      //   duration: 3000,
-      // });
+      toast(
+        <div className="flex flex-row items-center justify-center gap-2 ">
+          <MonitorCheck className="text-accent" />
+          <p className="text-center">Opt for desktop for a superior app experience!</p>{" "}
+        </div>
+      );
     }
   }, []);
   return (
