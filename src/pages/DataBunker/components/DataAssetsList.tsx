@@ -119,6 +119,7 @@ export const DataAssetList: React.FC = () => {
       });
       if (!response.data?.data_stream) {
         /// empty manifest file or wrong format might happen only with older versions of manifest file
+
         console.error("empty manifest file or wrong format");
         return undefined;
       }
@@ -143,7 +144,7 @@ export const DataAssetList: React.FC = () => {
   const downloadAllTheManifestFiles = async (storedDataAssets: DataAsset[]) => {
     if (storedDataAssets.length === 0) {
       setIsLoading(false); // if no data assets, stop loading
-      toast.error("No data assets found!", { icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb> });
+      toast.warning("No data assets found!");
       setIsLoading(false);
       return;
     }

@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { API_VERSION } from "./constants";
 import axios from "axios";
 
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

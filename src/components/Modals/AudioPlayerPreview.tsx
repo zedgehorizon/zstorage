@@ -3,9 +3,8 @@ import { ArrowBigLeft, Library, Loader2, Pause, Play, RefreshCcwDot, SkipBack, S
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
+import { toast } from "sonner";
 import DEFAULT_SONG_IMAGE from "@assets/img/audio-player-image.png";
-import { useToast } from "@libComponents/UseToast";
 type AudioPlayerProps = {
   songs?: any;
   previewUrl?: string;
@@ -13,7 +12,6 @@ type AudioPlayerProps = {
 
 export const AudioPlayerPreview = (props: AudioPlayerProps) => {
   const { songs, previewUrl } = props;
-  const { toast } = useToast();
   useEffect(() => {
     audio.addEventListener("ended", function () {
       setCurrentTrackIndex((prevCurrentTrackIndex) => (prevCurrentTrackIndex < songs.length - 1 ? prevCurrentTrackIndex + 1 : 0));
@@ -89,9 +87,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
         // Audio is loaded, play it.
         audio.play();
       } else {
-        toast({
-          description: "Audio not ready yet. Waiting for loading to complete...",
-        });
+        toast("Audio not ready yet. Waiting for loading to complete...");
         return;
       }
     }
@@ -169,9 +165,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
 
   const showPlaylist = () => {
     if (previewUrl) {
-      toast({
-        description: "This is just a preview. You have to buy the Music Data Nft to see all the songs.",
-      });
+      toast("This is just a preview. You have to buy the Music Data Nft to see all the songs.");
     } else {
       setDisplayPlaylist(true);
     }

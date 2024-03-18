@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "@components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
-// import toast from "react-hot-toast";
 import { MonitorCheck } from "lucide-react";
 import frontOfTheVault from "@assets/img//cubeAnimation/front_cube.png";
 import vaultBunker from "@assets/img/cubeAnimation/vault.png";

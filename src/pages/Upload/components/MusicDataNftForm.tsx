@@ -7,7 +7,7 @@ import { ArrowUp, ArrowDown, Edit2, CheckCircleIcon, Loader2, Upload, ImagePlus,
 import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -81,9 +81,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       setAudioURL(audioURL);
       setwantToEditAudio(false);
     } else {
-      toast("Please upload an audio file", {
-        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
-      });
+      toast.warning("Please upload an audio file");
     }
   };
 

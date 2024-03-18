@@ -7,8 +7,7 @@ import { ArrowUp, ArrowDown, CheckCircleIcon, Loader2, Upload, Lightbulb } from 
 import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
-import toast from "react-hot-toast";
-import { set } from "date-fns";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -124,9 +123,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
     } else {
-      toast("Please upload a valid file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
-      });
+      toast.warning("Please upload a valid file");
     }
   };
 

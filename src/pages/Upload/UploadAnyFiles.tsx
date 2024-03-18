@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { XCircle } from "lucide-react";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
@@ -68,13 +68,7 @@ const UploadAnyFiles: React.FC = () => {
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
         setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
-        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <XCircle color="red" />
-            </button>
-          ),
-        });
+        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
     }
   }, [manifestFile]);
@@ -126,17 +120,7 @@ const UploadAnyFiles: React.FC = () => {
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);
       setErrorMessage("Error iterating through files : " + (error instanceof Error) ? error.message : "");
-      toast.error(
-        "Error iterating through files : " +
-          `${error ? error.message + ". " + error?.response?.data.message : ""}` +
-          {
-            icon: (
-              <button onClick={() => toast.dismiss()}>
-                <XCircle color="red" />
-              </button>
-            ),
-          }
-      );
+      toast.error("Error iterating through files : " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
@@ -180,13 +164,7 @@ const UploadAnyFiles: React.FC = () => {
       return transformedData.filter((file: any) => file !== null);
     } catch (error: any) {
       setErrorMessage("Error transforming the data : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
+      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`);
       console.error("ERROR transforming the data: ", error);
     }
   }
@@ -196,13 +174,6 @@ const UploadAnyFiles: React.FC = () => {
     setFolderHash(response?.folderHash);
     setRecentlyUploadedManifestFileName(response?.fileName);
     if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
-  }
-
-  function checkIsDisabled() {
-    if (!name || !creator || !createdOn || totalItems === 0) {
-      return true;
-    }
-    return false;
   }
 
   return (
@@ -241,7 +212,6 @@ const UploadAnyFiles: React.FC = () => {
             })}
           transformFilesToDataArray={transformFilesToDataArray}
           setResponsesOnSuccess={setResponsesOnSuccess}
-          isUploadButtonDisabled={checkIsDisabled()}
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
@@ -256,9 +226,7 @@ const UploadAnyFiles: React.FC = () => {
             stream: stream,
             category: 0, // anyfile
           }}
-          validateDataObjects={() => {
-            return true;
-          }} /// TODO add validation
+          validateDataObjects={() => true}
         />
       </div>
     </div>
