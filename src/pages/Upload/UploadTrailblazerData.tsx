@@ -3,7 +3,7 @@ import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
@@ -28,7 +28,6 @@ type FilePair = {
 };
 
 export const UploadTrailblazerData: React.FC = () => {
-  const currentCategory = 2; // trailblazer
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;
@@ -38,20 +37,19 @@ export const UploadTrailblazerData: React.FC = () => {
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(true);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState("");
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
   const [stream, setStream] = useState(true);
-  const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState();
-  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
-  const [folderHash, setFolderHash] = useState();
+  const [manifestCid, setManifestCid] = useState<string>();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const [ipnsHash, setIpnsHash] = useState();
+  const [ipnsHash, setIpnsHash] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -64,6 +62,7 @@ export const UploadTrailblazerData: React.FC = () => {
         setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
         setStream(dataStream.marshalManifest.nestedStream);
         setIpnsHash(manifestFile.ipnsHash);
+        setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
         const itemDataMap = manifestFile.data.reduce(
           (acc: any, itemData: any) => {
@@ -87,22 +86,35 @@ export const UploadTrailblazerData: React.FC = () => {
     }
   }, [manifestFile]);
 
-  // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
-
-    if (numberOfItems > 1 && itemsData[1].title) {
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
+  function validateItemsData() {
+    let isValid = true;
+    if (itemsData) {
+      Object.keys(itemsData).forEach((key: string) => {
+        isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
     } else {
-      hasUnsavedChanges = true;
+      isValid = false;
     }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [itemsData, unsavedChanges, name, creator, createdOn]);
+    return isValid;
+  }
+
+  function validateUpload() {
+    if (!verifyHeaderFields() || !validateItemsData()) {
+      return false;
+    }
+
+    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+      toast.error("No modification was made", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    return true;
+  }
 
   // upload the preview images and media of all the items
   async function uploadItemItemMediaFiles() {
@@ -180,7 +192,6 @@ export const UploadTrailblazerData: React.FC = () => {
   async function transformItemData() {
     try {
       const responseDataCIDs = await uploadItemItemMediaFiles();
-      if (progressBar < 60) setProgressBar(60);
       if (!responseDataCIDs) return;
 
       // Iterate through the response list and find the matching cidv1
@@ -245,107 +256,24 @@ export const UploadTrailblazerData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !itemsData) {
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
       return false;
     }
     return true;
   }
 
-  /**
-   * Generates a manifest file based on the form data and uploads it to the server.
-   * If any required fields are missing, an error toast is displayed.
-
-   * The manifest file is uploaded to the server using a multipart/form-data request.
-   * The response contains the CID (Content Identifier) of the uploaded manifest file.
-   * If the upload is successful, the CID is set as the manifestCid state.
-   * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
-   */
-  const generateManifestFile = async () => {
-    setProgressBar(12);
-
-    if (!verifyHeaderFields()) {
-      return;
-    }
-
-    try {
-      const data = await transformItemData();
-      if (data === undefined) {
-        return;
-      }
-
-      const manifest = {
-        "data_stream": {
-          "category": CATEGORIES[currentCategory],
-          "name": name,
-          "creator": creator,
-          "created_on": createdOn,
-          "last_modified_on": new Date().toISOString().split("T")[0],
-          "marshalManifest": {
-            "totalItems": numberOfItems - 1,
-            "nestedStream": stream,
-          },
-        },
-        "data": data,
-      };
-
-      const formDataFormat = new FormData();
-
-      formDataFormat.append(
-        "files",
-        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
-      );
-
-      formDataFormat.append("category", CATEGORIES[currentCategory]);
-      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
-      }
-      if (response && response[0]) {
-        setManifestCid(response[0]?.hash);
-        setFolderHash(response[0]?.folderHash);
-        setRecentlyUploadedManifestFileName(response[0]?.fileName);
-
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
-        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
-
-          if (ipnsResponse) {
-            setIpnsHash(ipnsResponse.hash);
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
-          }
-        }
-
-        setProgressBar(100);
-      } else {
-        throw new Error("The manifest file has not been uploaded correctly ");
-      }
-    } catch (error: any) {
-      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-
-      console.error("Error generating the manifest file:", error);
-    }
-  };
-
+  function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
+    setManifestCid(response?.hash);
+    setFolderHash(response?.folderHash);
+    setRecentlyUploadedManifestFileName(response?.fileName);
+    if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
+  }
   const handleAddMoreItems = () => {
     setItemsData((prev) => Object.assign(prev, { [numberOfItems]: {} }));
     setNumberOfItems((prev) => prev + 1);
@@ -355,20 +283,24 @@ export const UploadTrailblazerData: React.FC = () => {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
+    const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
+      variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableItemsData[numberOfItems - 1];
     delete variableFilePairs[numberOfItems - 1];
     delete variableUnsavedChanges[numberOfItems - 1];
+    delete variableValidationErrors[numberOfItems - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
     setItemsData(variableItemsData);
     setFilePairs(variableFilePairs);
+    setValidationErrors(variableValidationErrors);
     setNumberOfItems((prev) => prev - 1);
   }
 
@@ -383,23 +315,24 @@ export const UploadTrailblazerData: React.FC = () => {
       return;
     }
 
+    if (first < numberOfItems - 1 || second !== -1) {
+      if (validateItemsData() === false) {
+        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`, {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow" />
+            </button>
+          ),
+        });
+        return;
+      }
+    }
+
     // deleting item with index = first
     if (second === -1) {
       deleteItem(first);
       return;
     }
-
-    if (unsavedChanges[first] || unsavedChanges[second]) {
-      toast.error("Please save all the changes before swapping the items", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
-      return;
-    }
-
     const itemsDataVar = { ...itemsData };
     const storeItem = itemsDataVar[second];
     itemsDataVar[second] = itemsDataVar[first];
@@ -413,7 +346,6 @@ export const UploadTrailblazerData: React.FC = () => {
     setItemsData(itemsDataVar);
     setFilePairs(storeFilesVar);
   }
-
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
     if (image && media) {
@@ -436,7 +368,39 @@ export const UploadTrailblazerData: React.FC = () => {
       }));
     }
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      dataAssetObjectValidation(index);
+    }
   };
+  const dataAssetObjectValidation = (index: number) => {
+    let message: string = "";
+    if (itemsData[index]) {
+      if (!itemsData[index].title) {
+        message += "Title, ";
+      }
+      if (!itemsData[index].category) {
+        message += "Category, ";
+      }
+      if (!itemsData[index].link) {
+        message += "Link, ";
+      }
+      if (!itemsData[index].date) {
+        message += "Date, ";
+      }
+      if (!filePairs[index]?.image && !itemsData[index].file_preview_img && !filePairs[index]?.media && !itemsData[index].file) {
+        message += "Either Media Image OR Media File is mandatory. Both allowed as well. ";
+      }
+    }
+    setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
+    if (message === "") {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+      return true;
+    } else {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
+      return false;
+    }
+  };
+
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
@@ -467,23 +431,37 @@ export const UploadTrailblazerData: React.FC = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapItemData}
                 unsavedChanges={unsavedChanges[index]}
-                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></TrailblazerNftForm>
+                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}
+                validationMessage={validationErrors[index]}
+              />
             ))}
             addButton={
               <div className="flex flex-col justify-center items-center">
-                <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"} onClick={handleAddMoreItems}>
+                <Button
+                  className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}
+                  onClick={handleAddMoreItems}>
                   Add Item
                 </Button>
               </div>
             }
-            isUploadButtonDisabled={isUploadButtonDisabled}
-            progressBar={progressBar}
-            uploadFileToIpfs={generateManifestFile}
+            transformFilesToDataArray={transformItemData}
+            setResponsesOnSuccess={setResponsesOnSuccess}
+            isUploadButtonDisabled={false}
+            validateDataObjects={validateUpload}
             manifestCid={manifestCid}
-            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
-            errorMessage={errorMessage}
+            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             ipnsHash={ipnsHash}
+            ipnsKey={manifestFile?.ipnsKey}
+            errorMessage={errorMessage}
+            storageType={decentralized}
+            headerValues={{
+              name: name,
+              creator: creator,
+              createdOn: createdOn,
+              stream: stream,
+              category: 2, // trailblazer
+            }}
           />
         </div>
       </div>

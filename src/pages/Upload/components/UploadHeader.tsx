@@ -4,7 +4,6 @@ import CidsView from "./CidsView";
 import { format } from "date-fns";
 import { Modal } from "@components/Modal";
 import NextStepsModal from "@components/Modals/NextStepsModal";
-import { Button } from "@libComponents/Button";
 import { Switch } from "@libComponents/Switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
 import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
@@ -72,10 +71,11 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             type="text"
             id="name"
             name="name"
+            pattern="[a-zA-Z0-9\s] "
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => setName(event.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
             className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
-            required={true}
+            required
           />
         </div>
 
@@ -88,7 +88,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             id="creator"
             name="creator"
             value={creator}
-            onChange={(event) => setCreator(event.target.value)}
+            onChange={(event) => setCreator(event.target.value.replace(/[^a-zA-Z0-9\s]/g, ""))}
             className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
             required={true}
           />
@@ -96,7 +96,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
 
         <div className="flex flex-col mb-4">
           <label className="text-foreground mb-2 ">Created On:</label>
-          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : undefined} />
+          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : ""} />
         </div>
 
         <div className="mb-4">

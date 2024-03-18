@@ -3,7 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
@@ -31,7 +31,6 @@ type FilePair = {
 };
 
 export const UploadMusicData: React.FC = () => {
-  const currentCategory = 1; // musicplaylist
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;
@@ -41,19 +40,19 @@ export const UploadMusicData: React.FC = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [isUploadButtonDisabled, setIsUploadButtonDisabled] = useState(false);
   const [name, setName] = useState("");
   const [creator, setCreator] = useState("");
   const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
   const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [progressBar, setProgressBar] = useState(0);
-  const [manifestCid, setManifestCid] = useState();
-  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState();
-  const [folderHash, setFolderHash] = useState();
+  const [manifestCid, setManifestCid] = useState<string>();
+  const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
+  const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const [ipnsHash, setIpnsHash] = useState();
+  const [ipnsHash, setIpnsHash] = useState<string>();
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -65,6 +64,7 @@ export const UploadMusicData: React.FC = () => {
         setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
+        setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
         const songsDataMap = manifestFile.data.reduce(
           (acc: any, song: any) => {
@@ -89,21 +89,51 @@ export const UploadMusicData: React.FC = () => {
   }, [manifestFile]);
 
   // check whether the upload button should be disabled or not
-  useEffect(() => {
-    let hasUnsavedChanges = false;
+  // useEffect(() => {
+  //   let hasUnsavedChanges = false;
 
-    if (numberOfSongs > 1 && songsData[1].title) {
-      Object.values(unsavedChanges).forEach((item) => {
-        if (item === true) {
-          hasUnsavedChanges = true;
-        }
+  //   if (numberOfSongs > 1 && songsData[1].title) {
+  //     Object.values(unsavedChanges).forEach((item) => {
+  //       if (item === true) {
+  //         hasUnsavedChanges = true;
+  //       }
+  //     });
+  //   } else {
+  //     hasUnsavedChanges = true;
+  //   }
+  //   hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
+  //   setIsUploadButtonDisabled(hasUnsavedChanges);
+  // }, [songsData, unsavedChanges, name, creator, createdOn]);
+
+  function validateSongsData() {
+    let isValid = true;
+    if (songsData) {
+      Object.keys(songsData).forEach((key: string) => {
+        isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
     } else {
-      hasUnsavedChanges = true;
+      isValid = false;
     }
-    hasUnsavedChanges = hasUnsavedChanges || !verifyHeaderFields();
-    setIsUploadButtonDisabled(hasUnsavedChanges);
-  }, [songsData, unsavedChanges, name, creator, createdOn]);
+    return isValid;
+  }
+
+  function validateUpload() {
+    if (!verifyHeaderFields() || !validateSongsData()) {
+      return false;
+    }
+
+    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+      toast.error("No modification was made", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
+      return false;
+    }
+    return true;
+  }
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -228,109 +258,24 @@ export const UploadMusicData: React.FC = () => {
 
   function verifyHeaderFields() {
     if (!name || !creator || !createdOn || !songsData) {
+      toast.error("Please fill all the fields from the header section", {
+        icon: (
+          <button onClick={() => toast.dismiss()}>
+            <Lightbulb color="yellow" />
+          </button>
+        ),
+      });
       return false;
     }
     return true;
   }
 
-  /**
-   * Generates a manifest file based on the form data and uploads it to the server.
-   * If any required fields are missing, an error toast is displayed.
-
-   * The manifest file is uploaded to the server using a multipart/form-data request.
-   * The response contains the CID (Content Identifier) of the uploaded manifest file.
-   * If the upload is successful, the CID is set as the manifestCid state.
-   * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
-   */
-  const generateManifestFile = async () => {
-    setProgressBar(12);
-
-    if (!verifyHeaderFields()) {
-      return;
-    }
-
-    try {
-      const data = await transformSongsData();
-
-      if (data === undefined) {
-        return;
-      }
-
-      const manifest = {
-        "data_stream": {
-          "category": CATEGORIES[currentCategory],
-          "name": name,
-          "creator": creator,
-          "created_on": createdOn,
-          "last_modified_on": new Date().toISOString().split("T")[0],
-          "marshalManifest": {
-            "totalItems": numberOfSongs - 1,
-            "nestedStream": true, // set always true for MUSIC DATA NFTs
-          },
-        },
-        "data": data,
-      };
-
-      const formDataFormat = new FormData();
-
-      formDataFormat.append(
-        "files",
-        new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-        manifestFileName ? manifestFileName : CATEGORIES[currentCategory] + "-manifest" + generateRandomString() + "_" + onlyAlphaNumericChars(name) + ".json"
-      );
-
-      formDataFormat.append("category", CATEGORIES[currentCategory]);
-
-      const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
-      }
-      if (response[0]) {
-        setManifestCid(response[0]?.hash);
-        setFolderHash(response[0]?.folderHash);
-        setRecentlyUploadedManifestFileName(response[0]?.fileName);
-
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
-        if ((decentralized && decentralized === "IPNS + IPFS") || manifestFile?.ipnsKey) {
-          const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, manifestFile?.ipnsKey);
-
-          if (ipnsResponse) {
-            setIpnsHash(ipnsResponse.hash);
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
-          }
-        }
-
-        setProgressBar(100);
-      } else {
-        throw new Error("The manifest file has not been uploaded correctly ");
-      }
-    } catch (error: any) {
-      setErrorMessage("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
-
-      console.error("Error generating the manifest file:", error);
-    }
-  };
+  function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
+    setManifestCid(response?.hash);
+    setFolderHash(response?.folderHash);
+    setRecentlyUploadedManifestFileName(response?.fileName);
+    if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
+  }
 
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
@@ -342,21 +287,50 @@ export const UploadMusicData: React.FC = () => {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableUnsavedChanges = { ...unsavedChanges };
+    const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
       variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
+      variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
     delete variableUnsavedChanges[numberOfSongs - 1];
+    delete variableValidationErrors[numberOfSongs - 1];
 
     setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
+    setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
+    //debugger; // setSongsData((prevSongsData) => {
+    //   const updatedSongsData = { ...prevSongsData };
+    //   delete updatedSongsData[index];
+    //   return updatedSongsData;
+    // });
+
+    // setFilePairs((prevFilePairs) => {
+    //   const updatedFilePairs = { ...prevFilePairs };
+    //   delete updatedFilePairs[index];
+    //   return updatedFilePairs;
+    // });
+
+    // setUnsavedChanges((prevUnsavedChanges) => {
+    //   const updatedUnsavedChanges = { ...prevUnsavedChanges };
+    //   delete updatedUnsavedChanges[index];
+    //   return updatedUnsavedChanges;
+    // });
+
+    // setValidationErrors((prevValidationErrors) => {
+    //   const updatedValidationErrors = { ...prevValidationErrors };
+    //   delete updatedValidationErrors[index];
+    //   return updatedValidationErrors;
+    // });
+
+    // setNumberOfSongs((prevNumberOfSongs) => prevNumberOfSongs - 1);
   }
 
   /**
@@ -369,21 +343,21 @@ export const UploadMusicData: React.FC = () => {
     if (first < 1 || second >= numberOfSongs) {
       return;
     }
-
+    if (first < numberOfSongs - 1 || second !== -1) {
+      if (validateSongsData() === false) {
+        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`, {
+          icon: (
+            <button onClick={() => toast.dismiss()}>
+              <Lightbulb color="yellow" />
+            </button>
+          ),
+        });
+        return;
+      }
+    }
     // deleting song with index = first
     if (second === -1) {
       deleteSong(first);
-      return;
-    }
-
-    if (unsavedChanges[first] || unsavedChanges[second]) {
-      toast.error("Please save all the changes before swapping the songs", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
       return;
     }
 
@@ -423,9 +397,48 @@ export const UploadMusicData: React.FC = () => {
       }));
     }
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
+    if (validationErrors[index] && validationErrors[index] !== "") {
+      dataAssetObjectValidation(index);
+    }
   };
+
+  const dataAssetObjectValidation = (index: number) => {
+    let message: string = "";
+    if (songsData[index]) {
+      if (!songsData[index].title) {
+        message += "Title, ";
+      }
+      if (!songsData[index].artist) {
+        message += "Artist, ";
+      }
+      if (!songsData[index].album) {
+        message += "Album, ";
+      }
+      if (!songsData[index].category) {
+        message += "Category, ";
+      }
+      if (!songsData[index].date) {
+        message += "Date, ";
+      }
+      if (!filePairs[index]?.image && !songsData[index].cover_art_url) {
+        message += "Image, ";
+      }
+      if (!filePairs[index]?.audio && !songsData[index].file) {
+        message += "Audio, ";
+      }
+    }
+    setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
+    if (message === "") {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
+      return true;
+    } else {
+      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
+      return false;
+    }
+  };
+
   const handleModalUploadButton = () => {
-    document.getElementById("uploadButton")?.click();
+    document.getElementById("validateUploadButton")?.click();
   };
 
   const handleOpenMintModal = () => {
@@ -460,6 +473,7 @@ export const UploadMusicData: React.FC = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
                 unsavedChanges={unsavedChanges[index]}
+                validationMessage={validationErrors[index]}
                 setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
             ))}
             addButton={
@@ -490,11 +504,7 @@ export const UploadMusicData: React.FC = () => {
                     </div>
                   }
                   openTrigger={
-                    <Button
-                      disabled={isUploadButtonDisabled}
-                      className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>
-                      Preview Player
-                    </Button>
+                    <Button className={"px-8 mt-8 border border-accent bg-background rounded-full hover:shadow  hover:shadow-accent"}>Preview Player</Button>
                   }>
                   <div className="flex flex-col h-[30rem] scale-[0.7] -mt-16 ">
                     <AudioPlayerPreview
@@ -506,14 +516,24 @@ export const UploadMusicData: React.FC = () => {
                 </Modal>
               </div>
             }
-            isUploadButtonDisabled={isUploadButtonDisabled}
-            progressBar={progressBar}
-            uploadFileToIpfs={generateManifestFile}
+            isUploadButtonDisabled={false}
+            transformFilesToDataArray={transformSongsData}
+            storageType={decentralized}
+            validateDataObjects={validateUpload}
             manifestCid={manifestCid}
             recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
             folderHash={folderHash}
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
+            ipnsKey={manifestFile?.ipnsKey}
+            headerValues={{
+              name: name,
+              creator: creator,
+              createdOn: createdOn,
+              stream: true,
+              category: 1, // musicplaylist
+            }}
+            setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>
