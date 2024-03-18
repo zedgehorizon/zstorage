@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Heart } from "lucide-react";
 import logoBlack from "@assets/logo/logo-black.png";
-import toast from "react-hot-toast";
 import { ELROND_NETWORK } from "@utils/constants";
+import { toast } from "sonner";
 
 const appVersion = import.meta.env.VITE_APP_VERSION ? `v${import.meta.env.VITE_APP_VERSION}` : "version number unknown";
 
@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
 
   const handleSubscribe = () => {
     if (!email) {
-      toast.error("Please enter your email address.");
+      toast("Please enter your email address. We need your email address to subscribe you to our newsletter.");
       return;
     }
   };

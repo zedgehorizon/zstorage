@@ -13,7 +13,7 @@ type XStorageCheckBoxProps = {
 };
 
 export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
-  const { options, currentOption, description, descriptions, setterFunction, disabled } = props;
+  const { title, options, currentOption, description, descriptions, setterFunction, disabled } = props;
   const [selectedOption, setSelectedOption] = useState("");
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
 
   return (
     <div className="p-4 w-[70%] flex flex-col gap-6">
-      <b className="font-thin text-2xl text-foreground"> {props.title}</b>
+      <b className="font-thin text-2xl text-foreground"> {title}</b>
       {description && <div className="text-foreground/50">{description}</div>}
       {descriptions ? (
         <ul className="w-full gap-6 flex flex-col">

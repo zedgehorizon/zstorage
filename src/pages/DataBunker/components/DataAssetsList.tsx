@@ -3,7 +3,7 @@ import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { API_VERSION } from "@utils/constants";
 import DataAssetCard from "./DataAssetCard";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@utils/constants";
 interface DataStream {
@@ -42,7 +42,6 @@ type DataAsset = {
 };
 
 export const DataAssetList: React.FC = () => {
-  const [storedDataAssets, setStoredDataAssets] = useState<DataAsset[]>([]);
   const { tokenLogin } = useGetLoginInfo();
   const [showCategories, setShowCategories] = useState(false);
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
@@ -53,107 +52,15 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[2]]: [],
   });
 
-  // fetch all data assets of an address
-  async function fetchAllManifestsOfAnAddress() {
-    const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
-    setIsLoading(true);
-    try {
-      const response = await axios.get(apiUrlGet, {
-        headers: {
-          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
-        },
-      });
-      setStoredDataAssets(response.data);
-      if (response.data.length === 0) setIsLoading(false); // if no data assets, stop loading
-    } catch (error: any) {
-      console.error("Error fetching data assets", error);
-      setIsLoading(false);
-
-      if (error?.response.data.statusCode === 403) {
-        toast("Native auth token expired. Re-login and try again! ", {
-          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
-        });
-      } else {
-        toast("Sorry, there’s a problem with the service, try again later " + `${error ? error.message + ". " + error?.response?.data.message : ""}`, {
-          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
-        });
-      }
-      throw error; // error to be caught by toast.promise
-    }
-  }
-
-  async function fetchAllDataAssetsOfAnAddress() {
-    await fetchAllManifestsOfAnAddress();
-  }
-
-  // download the manifest file for the corresponding CID
-  async function downloadTheManifestFile(folderHash: string, manifestFileName: string, manifestCid: string, ipnsHash?: string, ipnsKey?: string) {
-    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid;
-    try {
-      const response = await axios.get(apiUrlDownloadFile, {
-        headers: {
-          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
-        },
-      });
-      if (!response.data?.data_stream) {
-        console.error("empty manifest file or wrong format");
-        /// empty manifest file or wrong format might happen only with older versions of manifest file
-        return undefined;
-      }
-      const allDetailsStampedManifestFile = {
-        ...response.data,
-        manifestFileName: manifestFileName,
-        hash: manifestCid,
-        folderHash: folderHash,
-        ipnsHash: ipnsHash,
-        ipnsKey: ipnsKey,
-      };
-
-      setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
-    } catch (error) {
-      console.error("Error downloading manifest files:", manifestCid, error);
-      toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
-        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
-        id: "fetch-manifest-file1",
-      });
-    }
-  }
-
   useEffect(() => {
-    if (storedDataAssets.length === 0) {
-      toast.promise(fetchAllDataAssetsOfAnAddress(), {
-        loading: "Fetching all your digital bunker data assets...",
-        success: "Fetched all your digital bunker data assets!",
-        error: "The data assets could not be fetched.",
-      });
-    }
+    toast.promise(fetchAllDataAssetsOfAnAddress(), {
+      loading: "Fetching all your digital bunker data assets...",
+      success: "Fetched all your digital bunker data assets!",
+      error: "The data assets could not be fetched.",
+    });
   }, []);
 
-  useEffect(() => {
-    const downloadAllTheManifestFiles = async () => {
-      if (storedDataAssets.length === 0) {
-        toast.error("No data assets found", { icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb> });
-        setIsLoading(false);
-        return;
-      }
-      try {
-        await Promise.all(
-          storedDataAssets.map(async (manifestAsset) => {
-            await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash, manifestAsset.ipnsHash, manifestAsset.ipnsKey);
-          })
-        );
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-        throw error;
-      }
-    };
-
-    if (storedDataAssets.length > 0) {
-      downloadAllTheManifestFiles();
-    }
-  }, [storedDataAssets]);
-
+  // when we got all the manifest files, categorize them and then show the categories
   useEffect(() => {
     if (isLoading === true) return;
     manifestFiles.map((manifest: ManifestFile) => {
@@ -166,6 +73,93 @@ export const DataAssetList: React.FC = () => {
     });
     setShowCategories(true);
   }, [isLoading]);
+
+  // fetch all data assets of an address
+  async function fetchAllManifestsOfAnAddress(): Promise<DataAsset[]> {
+    const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}?manifest=true`;
+    setIsLoading(true);
+    try {
+      const response = await axios.get(apiUrlGet, {
+        headers: {
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error("Error fetching data assets", error);
+      setIsLoading(false);
+
+      if (error?.response.data.statusCode === 403) {
+        toast("Native auth token expired. Re-login and try again! ", {
+          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
+        });
+      } else {
+        toast.error(
+          "Sorry, there’s a problem with the service, please try again later! " + ` ${error ? error.message + ". " + error?.response?.data.message : ""}`
+        );
+      }
+
+      throw error; // error to be caught by toast.promise
+    }
+  }
+
+  async function fetchAllDataAssetsOfAnAddress() {
+    const dataAssets: DataAsset[] = await fetchAllManifestsOfAnAddress();
+    await downloadAllTheManifestFiles(dataAssets);
+  }
+
+  // download the manifest file for the corresponding CID
+  async function downloadTheManifestFile(folderHash: string, manifestFileName: string, manifestCid: string, ipnsHash?: string, ipnsKey?: string) {
+    const apiUrlDownloadFile = `${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid;
+    try {
+      const response = await axios.get(apiUrlDownloadFile, {
+        headers: {
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
+        },
+      });
+      if (!response.data?.data_stream) {
+        /// empty manifest file or wrong format might happen only with older versions of manifest file
+
+        console.error("empty manifest file or wrong format");
+        return undefined;
+      }
+      const allDetailsStampedManifestFile = {
+        ...response.data,
+        manifestFileName: manifestFileName,
+        hash: manifestCid,
+        folderHash: folderHash,
+        ipnsHash: ipnsHash,
+        ipnsKey: ipnsKey,
+      };
+      setManifestFiles((prev) => [...prev, allDetailsStampedManifestFile]);
+    } catch (error) {
+      console.error("Error downloading manifest files:", manifestCid, error);
+      toast("Wait some more time for the manifest file to get pinned if you can't find the one you are looking for", {
+        icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
+        id: "fetch-manifest-file1",
+      });
+    }
+  }
+
+  const downloadAllTheManifestFiles = async (storedDataAssets: DataAsset[]) => {
+    if (storedDataAssets.length === 0) {
+      setIsLoading(false); // if no data assets, stop loading
+      toast.warning("No data assets found!");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      await Promise.all(
+        storedDataAssets.map(async (manifestAsset) => {
+          await downloadTheManifestFile(manifestAsset.folderHash, manifestAsset.fileName, manifestAsset.hash, manifestAsset.ipnsHash, manifestAsset.ipnsKey);
+        })
+      );
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      throw error;
+    }
+  };
 
   return (
     <div className="p-4 flex flex-col">

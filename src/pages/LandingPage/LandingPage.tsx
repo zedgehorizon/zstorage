@@ -14,19 +14,21 @@ import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { MonitorCheck } from "lucide-react";
-import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import whiteRectangle from "@assets/img/white-rectangle.png";
 import zImage from "@assets/img/z-image.png";
+import { toast } from "sonner";
 
 const LandingPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {
-      toast("Opt for desktop for a superior app experience! ", {
-        icon: <MonitorCheck onClick={() => toast.dismiss()} className="text-accent" />,
-        duration: 3000,
-      });
+      toast(
+        <div className="flex flex-row items-center justify-center gap-2 ">
+          <MonitorCheck className="text-accent" />
+          <p className="text-center">Opt for desktop for a superior app experience!</p>{" "}
+        </div>
+      );
     }
   }, []);
   return (
@@ -123,9 +125,9 @@ const LandingPage: React.FC = () => {
       <UseCase />
       <div id="features"></div>
       <KeyFeatures />
-      <div className="w-full min-h-screen   flex flex-col items-center xl:pb-32">
-        <div className="mt-8 flex flex-col justify-center items-center relative w-full h-full  p-4 pt-16 xl:p-32">
-          <img src={whiteRectangle} className="absolute top-0 left-0 -z-1 w-full  min-h-screen object-cover" alt="White Rectangle Background" />
+      <div className=" w-full min-h-screen max-h-[120%] flex flex-col items-center xl:pb-32 overflow-hidden">
+        <div className="mt-8 flex flex-col  justify-center items-center relative w-full h-full p-4 pt-16 xl:p-32 ">
+          <img src={whiteRectangle} className="absolute top-0 left-0 w-full min-h-screen object-cover" alt="White Rectangle Background" />
           <div className="z-10 flex flex-col items-center">
             <img className="scale-75 lg:scale-100" src={folders} alt="Folders" />
             <span className="text-muted text-2xl lg:text-5xl w-[60%] mx-auto text-center">

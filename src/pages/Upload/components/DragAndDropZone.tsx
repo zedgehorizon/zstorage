@@ -1,6 +1,6 @@
 import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { cn } from "@utils/functions";
 
 interface DragAndDropZoneProps {
@@ -52,9 +52,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
       if (setImagePreview) displayPreview(file);
     } else {
       if (setImagePreview) {
-        toast("Please upload an image file", {
-          icon: <Lightbulb onClick={() => toast.dismiss()} color="yellow"></Lightbulb>,
-        });
+        toast.warning("Please upload an image file");
       } else {
         setFile(file);
       }

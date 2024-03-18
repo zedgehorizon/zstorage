@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Footer } from "@components/Layout/Footer";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
-import toast from "react-hot-toast";
 import { MonitorCheck } from "lucide-react";
 import frontOfTheVault from "@assets/img//cubeAnimation/front_cube.png";
 import vaultBunker from "@assets/img/cubeAnimation/vault.png";
@@ -11,15 +10,18 @@ import backOfTheVault from "@assets/img/cubeAnimation/back_cube.png";
 import sideCubes from "@assets/img/cubeAnimation/side_cubes.png";
 import { motion } from "framer-motion";
 import zImage from "@assets/img/z-image.png";
+import { toast } from "sonner";
 
 const CampaignPage: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {
-      toast("Opt for desktop for a superior app experience! ", {
-        icon: <MonitorCheck onClick={() => toast.dismiss()} className="text-accent" />,
-        duration: 3000,
-      });
+      toast(
+        <div className="flex flex-row items-center justify-center gap-2 ">
+          <MonitorCheck className="text-accent" />
+          <p className="text-center">Opt for desktop for a superior app experience!</p>{" "}
+        </div>
+      );
     }
   }, []);
   return (
@@ -27,12 +29,12 @@ const CampaignPage: React.FC = () => {
       <div className="py-16 relative flex items-center justify-center">
         <img src={zImage} className="absolute top-0  max-h-[25rem] object-cover mx-auto" alt="Background" />
         <div className="z-10 flex flex-col justify-center items-center h-full w-full">
-          <span className="text-[3rem] 2xl:text-[4rem] text-center">
+          <span className="text-[2rem] 2xl:text-[4rem] text-center">
             <span className="text-accent">Store</span> your Itheum
             <br />
             <span className="text-accent">Music Data NFT</span> Files
           </span>
-          <div className="mt-3">
+          <div className="mt-3 scale-75 xl:scale-100">
             {(isLoggedIn && (
               <Link
                 to={"/data-bunker?r=itheum-music-data-nft"}

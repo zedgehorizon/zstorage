@@ -10,13 +10,14 @@ import { Content } from "./components/Layout/Content";
 import { Unlock } from "./pages/Unlock/Unlock";
 import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { UploadTrailblazerData } from "./pages/Upload/UploadTrailblazerData";
-import toast, { Toaster } from "react-hot-toast";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
 import { ELROND_NETWORK } from "./utils/constants";
+import { PageNotFound } from "pages/PageNotFound/PageNotFound";
+import { Toaster } from "@libComponents/Sooner";
 
 const routes = [
   {
@@ -102,39 +103,21 @@ function App() {
       <SignTransactionsModals className="custom-class-for-modals" />
       <div className="">
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
-          <Toaster
-            position={window.innerWidth <= 800 ? "top-center" : "top-right"}
-            reverseOrder={false}
-            containerStyle={{
-              position: "sticky",
-              zIndex: 1000,
-              width: "100%",
-            }}
-            toastOptions={{
-              className: "",
-              duration: 10000,
-              style: {
-                background: "#363636",
-                color: "#fff",
-              },
-              success: {
-                duration: 3000,
-              },
-            }}
-          />
+          <Toaster position="top-right" richColors closeButton />
           <Navbar />
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
-                <Route path="/" element={<LandingPage />}></Route>
-                <Route path="/start" element={<Start />}></Route>
-                <Route path="/unlock" element={<Unlock />}></Route>
-                <Route path="/upload-music" element={<UploadMusicData />}></Route>
-                <Route path="/upload-trailblazer" element={<UploadTrailblazerData />}></Route>
-                <Route path="/upload" element={<UploadAnyFiles />}></Route>
-                <Route path="/data-bunker" element={<DataBunker />}></Route>
-                <Route path="/storage" element={<StoreDataAsset />}></Route>
-                <Route path="/itheum-music-data-nft" element={<CampaignPage />}></Route>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/start" element={<Start />} />
+                <Route path="/unlock" element={<Unlock />} />
+                <Route path="/upload-music" element={<UploadMusicData />} />
+                <Route path="/upload-trailblazer" element={<UploadTrailblazerData />} />
+                <Route path="/upload" element={<UploadAnyFiles />} />
+                <Route path="/data-bunker" element={<DataBunker />} />
+                <Route path="/storage" element={<StoreDataAsset />} />
+                <Route path="/itheum-music-data-nft" element={<CampaignPage />} />
+                <Route path="*" element={<PageNotFound />} />
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>

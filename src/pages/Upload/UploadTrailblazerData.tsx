@@ -5,7 +5,7 @@ import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { Lightbulb, XCircle } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
@@ -75,13 +75,7 @@ export const UploadTrailblazerData: React.FC = () => {
       } catch (err: any) {
         setErrorMessage("Error parsing manifest file : " + (err instanceof Error) ? err.message : "");
         console.error("ERROR parsing manifest file : ", err);
-        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <XCircle color="red" />
-            </button>
-          ),
-        });
+        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
     }
   }, [manifestFile]);
@@ -99,18 +93,12 @@ export const UploadTrailblazerData: React.FC = () => {
   }
 
   function validateUpload() {
-    if (!verifyHeaderFields() || !validateItemsData()) {
+    if (!validateItemsData()) {
       return false;
     }
 
     if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
-      toast.error("No modification was made", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
+      toast.warning("No modification was made");
       return false;
     }
     return true;
@@ -160,14 +148,7 @@ export const UploadTrailblazerData: React.FC = () => {
       toast.error(
         "Error iterating through items Data : " +
           `${error ? error.message + ". " + error?.response?.data.message : ""}` +
-          " Please check all the fields to be filled correctly.",
-        {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <XCircle color="red" />
-            </button>
-          ),
-        }
+          " Please check all the fields to be filled correctly."
       );
     }
 
@@ -243,29 +224,9 @@ export const UploadTrailblazerData: React.FC = () => {
       return transformedData.filter((item: any) => item !== null);
     } catch (error: any) {
       setErrorMessage("Error transforming the data : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
+      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`);
       console.error("ERROR transforming the data: ", error);
     }
-  }
-
-  function verifyHeaderFields() {
-    if (!name || !creator || !createdOn || !itemsData) {
-      toast.error("Please fill all the fields from the header section", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <Lightbulb color="yellow" />
-          </button>
-        ),
-      });
-      return false;
-    }
-    return true;
   }
 
   function setResponsesOnSuccess(response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) {
@@ -317,13 +278,7 @@ export const UploadTrailblazerData: React.FC = () => {
 
     if (first < numberOfItems - 1 || second !== -1) {
       if (validateItemsData() === false) {
-        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`, {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
+        toast.error(`Please fill all fields before ${second == -1 ? "deleting" : "swapping the"} songs`);
         return;
       }
     }
@@ -446,7 +401,6 @@ export const UploadTrailblazerData: React.FC = () => {
             }
             transformFilesToDataArray={transformItemData}
             setResponsesOnSuccess={setResponsesOnSuccess}
-            isUploadButtonDisabled={false}
             validateDataObjects={validateUpload}
             manifestCid={manifestCid}
             folderHash={folderHash}

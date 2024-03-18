@@ -81,7 +81,7 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
                   <ExternalLink className="text-accent" />
                 </a>
                 <TooltipContent>
-                  <p>This CID is the target of the IPNS pointer, ensuring consistency between the two.</p>
+                  <p>This CID is the target of the IPNS pointer, ensuring consistency between the two</p>
                 </TooltipContent>
               </Tooltip>{" "}
             </div>{" "}
