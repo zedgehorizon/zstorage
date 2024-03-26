@@ -8,20 +8,31 @@ import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
 import toast from "react-hot-toast";
-import { format } from "date-fns";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
-  category: z.string().min(1, "Required field"),
-  artist: z.string().min(1, "Required field"),
-  album: z.string().min(1, "Required field"),
+  category: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  artist: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
+  album: z
+    .string()
+    .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed"),
   title: z
     .string()
     .min(1, "Required field")
+    .regex(/^[a-zA-Z0-9\s]*$/, "Only alphanumeric characters are allowed")
     .refine((data) => !data.includes("manifest"), {
       message: "The title cannot contain the word 'manifest'",
     }),
+
   cover_art_url: z.string().min(1, "Required field"),
+
   file: z.string().min(1, "Required field"),
 });
 
@@ -33,12 +44,15 @@ type MusicDataNftFormProps = {
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
   unsavedChanges: boolean;
   setUnsavedChanges: (index: number, value: boolean) => void;
+  validationMessage?: string;
 };
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
+  const { validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
+    mode: "onChange",
     resolver: zodResolver(formSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
@@ -56,6 +70,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
   const [imageFile, setImageFile] = useState<File>();
   const [audioFile, setAudioFile] = useState<File>();
   const [audioFileIsLoading, setAudioFileIsLoading] = useState(false);
+  const [date, setDate] = useState<string>();
 
   const handleAudioFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -72,13 +87,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     }
   };
 
-  useEffect(() => {
-    form.setValue("date", new Date().toISOString().split("T")[0]);
-  }, []);
-
   // populate the form
   useEffect(() => {
-    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : "");
+    form.setValue("date", props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    setDate(props.song["date"] ? new Date(props.song["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
     form.setValue("category", props.song["category"] ? props.song["category"] : "");
     form.setValue("artist", props.song["artist"] ? props.song["artist"] : "");
     form.setValue("album", props.song["album"] ? props.song["album"] : "");
@@ -95,22 +107,29 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       form.setValue("file", props.song["file"]);
       setAudioURL(props.song["file"]);
     } else {
-      setwantToEditAudio(false);
       setAudioURL("");
     }
 
+    setwantToEditAudio(false);
     setImageFile(undefined);
     setAudioFile(undefined);
   }, [props.song]);
 
   useEffect(() => {
-    if (imageURL) form.setValue("cover_art_url", imageURL);
+    if (imageURL) {
+      form.setValue("cover_art_url", imageURL);
+      props.setterFunction(props.index, form.getValues(), imageFile, audioFile); // setting the cover art url
+    }
   }, [imageURL]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    props.setterFunction(props.index, values, imageFile, audioFile);
-    props.setUnsavedChanges(props.index, false);
-  }
+  useEffect(() => {
+    if (audioFile || imageFile) props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+  }, [imageFile, audioFile]);
+
+  useEffect(() => {
+    if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
+    props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
+  }, [date]);
 
   function handleMoveUp() {
     if (props.index == 1) return;
@@ -123,6 +142,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
 
   function deleteSong() {
     props.swapFunction(Number(props.index), -1);
+  }
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // console.log("form submitted", props.index, values);
   }
 
   return (
@@ -152,7 +175,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       </div>
       <form
         onChange={() => {
-          props.setUnsavedChanges(props.index, true);
+          props.setterFunction(props.index, form.getValues(), imageFile, audioFile);
         }}
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
@@ -202,14 +225,14 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
             <div>
-              <DatePicker setterFunction={(date) => form.setValue("date", date)} previousDate={form.getValues("date") ? form.getValues("date") : undefined} />
+              <DatePicker setterFunction={setDate} previousDate={date} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
-          <div className="gap-4 flex-col flex-1 items-center justify-center ">
+          <div className="gap-4 flex-col flex-1 items-center justify-center">
             <span className="mb-6 text-foreground">Cover Art Image</span>
 
-            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL ? imageURL : undefined} />
+            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
             {form.formState.errors.cover_art_url && <p className="text-red-500 absolute -mt-6">{form.formState.errors.cover_art_url.message?.toString()}</p>}
 
             <div>
@@ -252,21 +275,30 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
             </div>
           </div>
         </div>
+
         <div className="w-full flex flex-row ">
           {props.unsavedChanges != undefined && props.unsavedChanges === false && (
             <div className="mt-2  flex flex-row gap-2 text-accent">
-              Saved <CheckCircleIcon className="text-accent" />
+              Verified <CheckCircleIcon className="text-accent" />
             </div>
           )}
-          <div className="w-full flex flex-col justify-center items-center ">
-            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save</p>}
+          {/* <div className="w-full flex flex-col justify-center items-center ">
+            {props.unsavedChanges && <p className="text-accent"> Unsaved changes, please save ! {validationMessage} </p>}
+          </div> */}
+          <div className="w-full flex flex-col justify-start items-start ">
+            {validationMessage && (
+              <p className="text-red-500">
+                {" "}
+                Please fill the folowing fields: <br></br> {validationMessage}{" "}
+              </p>
+            )}
           </div>
           <Button tabIndex={-1} onClick={deleteSong} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
-          <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
+          {/* <button type="submit" className="bg-accent text-accent-foreground p-2 px-6 rounded-full  ">
             Save
-          </button>
+          </button> */}
         </div>
       </form>
     </div>
