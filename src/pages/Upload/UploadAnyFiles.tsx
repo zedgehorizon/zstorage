@@ -18,7 +18,7 @@ type FileData = {
   size: number;
 };
 
-const UploadAnyFiles: React.FC = () => {
+const UploadAnyFiles = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();

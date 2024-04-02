@@ -30,7 +30,7 @@ type FilePair = {
   audio: File;
 };
 
-export const UploadMusicData: React.FC = () => {
+export const UploadMusicData = () => {
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;

@@ -5,7 +5,7 @@ import updateIcon from "@assets/logo/ic_baseline-updateupdate.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const Start: React.FC = () => {
+export const Start = () => {
   let urlHashVal = "";
   let storeNewRoute = "/storage";
 

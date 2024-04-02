@@ -19,7 +19,7 @@ import whiteRectangle from "@assets/img/white-rectangle.png";
 import zImage from "@assets/img/z-image.png";
 import { toast } from "sonner";
 
-const LandingPage: React.FC = () => {
+const LandingPage = () => {
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {

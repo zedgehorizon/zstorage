@@ -12,7 +12,7 @@ import { ELROND_NETWORK } from "@utils/constants";
 import { Modal } from "@components/Modal";
 import xAliasIssue from "@assets/img/xalias-issue-dashboard.png";
 
-export const Unlock: React.FC = () => {
+export const Unlock = () => {
   const navigate = useNavigate();
 
   const buttonStyles = useMemo(() => {
