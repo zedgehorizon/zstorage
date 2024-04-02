@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
-import { Lightbulb, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
