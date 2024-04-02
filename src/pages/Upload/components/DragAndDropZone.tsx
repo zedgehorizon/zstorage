@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { cn } from "@utils/functions";
 
 interface DragAndDropZoneProps {
-  idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
@@ -12,7 +11,7 @@ interface DragAndDropZoneProps {
 }
 
 const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
-  const { idxId, setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
+  const { setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
@@ -76,7 +75,6 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   return (
     <div
       className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", dropZoneStyles)}
-      id={`dropzone-${idxId}`}
       ref={dropzoneRef}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

@@ -5,7 +5,6 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
-import { XCircle } from "lucide-react";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
@@ -175,9 +174,8 @@ const UploadAnyFiles: React.FC = () => {
     setRecentlyUploadedManifestFileName(response?.fileName);
     if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
   }
-
   return (
-    <div className="flex  flex-col  h-full pb-16 ">
+    <div className="flex  flex-col  h-full pb-16">
       <UploadHeader
         title={manifestFile ? "Update" : "Upload" + " Data"}
         name={name}
@@ -194,7 +192,7 @@ const UploadAnyFiles: React.FC = () => {
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
       />
-      <DragAndDropZone idxId={1} setFile={addNewFile} dropZoneStyles="w-full" />
+      <DragAndDropZone setFile={addNewFile} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
