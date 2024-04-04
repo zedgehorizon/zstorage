@@ -29,7 +29,7 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
             <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3>File CID - {fileCID} </h3>
               <CopyIcon onClick={() => navigator.clipboard.writeText("ipfs://" + fileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-              <a href={IPFS_GATEWAY + "ipfs/" + fileCID} target="_blank" className=" ml-4 font-semibold underline text-blue-500">
+              <a href={IPFS_GATEWAY + "ipfs/" + fileCID} target="_blank" className=" ml-4  -mt-1 ">
                 <ExternalLink className="text-accent" />
               </a>
             </div>

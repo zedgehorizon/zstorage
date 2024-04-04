@@ -6,40 +6,7 @@ import DataAssetCard from "./DataAssetCard";
 import { toast } from "sonner";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@utils/constants";
-interface DataStream {
-  name: string;
-  category: string;
-  creator: string;
-  created_on: string;
-  last_modified_on: string;
-  marshalManifest: {
-    totalItems: number;
-    nestedStream: boolean;
-  };
-}
-
-interface ManifestFile {
-  data_stream: DataStream;
-  data: [];
-  manifestFileName: string;
-  folderCid: string;
-  hash: string;
-  folderHash: string;
-  ipnsHash?: string;
-  ipnsKey?: string;
-}
-
-type DataAsset = {
-  fileName: string;
-  id: string;
-  folderCid: string;
-  cid: string;
-  mimeType: string;
-  hash: string;
-  folderHash: string;
-  ipnsHash?: string;
-  ipnsKey?: string;
-};
+import StaticDataAssetCard from "./StaticDataAssetCard";
 
 export const DataAssetList: React.FC = () => {
   const { tokenLogin } = useGetLoginInfo();
@@ -51,6 +18,7 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[1]]: [],
     [CATEGORIES[2]]: [],
   });
+  const [staticDataAssets, setStaticDataAssets] = useState<StaticDataAsset[]>([]);
 
   useEffect(() => {
     toast.promise(fetchAllDataAssetsOfAnAddress(), {
@@ -105,6 +73,7 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     const dataAssets: DataAsset[] = await fetchAllManifestsOfAnAddress();
+    fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[3]);
     await downloadAllTheManifestFiles(dataAssets);
   }
 
@@ -161,6 +130,30 @@ export const DataAssetList: React.FC = () => {
     }
   };
 
+  async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
+    try {
+      const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
+      setIsLoading(true);
+
+      const response = await axios.get(apiUrlGet, {
+        headers: {
+          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
+        },
+      });
+      console.log("response.data", response.data);
+      const staticDataAssetsMap = response.data;
+
+      const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
+        const array = staticDataAssetsMap[key];
+        return array[0];
+      });
+
+      setStaticDataAssets(staticDataAssetsList);
+    } catch (error: any) {
+      console.error("Error fetching data assets", error);
+    }
+  }
+
   return (
     <div className="p-4 flex flex-col">
       {(isLoading && (
@@ -169,7 +162,18 @@ export const DataAssetList: React.FC = () => {
         </div>
       )) || (
         <>
-          <span className="text-accent text-2xl py-12">Your Folder / Files</span>
+          <span className="text-accent text-2xl py-12">Static Files</span>
+          {(staticDataAssets.length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid lg:grid-cols-3">
+              {showCategories && staticDataAssets.map((staticFile: StaticDataAsset, index) => <StaticDataAssetCard key={index} {...staticFile} />)}
+            </div>
+          )}
+
+          <span className="text-accent text-2xl py-12">Dynamic Folders</span>
           {(categoryManifestFiles[CATEGORIES[0]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
