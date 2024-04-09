@@ -213,7 +213,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropZone idxId={index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
+            <DragAndDropZone setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>

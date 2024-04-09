@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import zImage from "@assets/img/z-image.png";
 import { toast } from "sonner";
 
-const CampaignPage: React.FC = () => {
+const CampaignPage = () => {
   const isLoggedIn = useGetIsLoggedIn();
   useEffect(() => {
     if (window.innerWidth <= 800) {

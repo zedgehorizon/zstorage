@@ -2,9 +2,9 @@ import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@utils/functions";
+import { whitelistMimeTypes } from "@utils/constants";
 
 interface DragAndDropZoneProps {
-  idxId: number;
   setFile: (file: File) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
@@ -12,7 +12,7 @@ interface DragAndDropZoneProps {
 }
 
 const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
-  const { idxId, setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
+  const { setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
@@ -47,7 +47,14 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   };
 
   const handleFileChange = (file: File) => {
-    if (file && file.type.startsWith("image/")) {
+    const mimeType = file.type;
+    const extension = file.name.split(".")[1];
+    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "1" && !(whitelistMimeTypes[extension] === mimeType)) {
+      toast.warning("We currently do not support this file type");
+      return;
+    }
+
+    if (mimeType?.startsWith("image/")) {
       setFile(file);
       if (setImagePreview) displayPreview(file);
     } else {
@@ -76,7 +83,6 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   return (
     <div
       className={cn("relative w-[15rem] h-[15rem] mb-6 mt-2 rounded-xl border-[2px] border-dashed border-accent/20", dropZoneStyles)}
-      id={`dropzone-${idxId}`}
       ref={dropzoneRef}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

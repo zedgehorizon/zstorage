@@ -27,7 +27,7 @@ type FilePair = {
   media?: File;
 };
 
-export const UploadTrailblazerData: React.FC = () => {
+export const UploadTrailblazerData = () => {
   const location = useLocation();
   const { manifestFile, decentralized } = location.state || {};
   const manifestFileName = manifestFile?.manifestFileName;

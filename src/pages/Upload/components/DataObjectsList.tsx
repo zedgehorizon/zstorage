@@ -83,7 +83,6 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
 
     try {
       const data = await transformFilesToDataArray();
-      if (progressValue < 45) setProgressValue(65);
 
       if (data === undefined) {
         return;

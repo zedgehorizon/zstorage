@@ -18,6 +18,7 @@ import CampaignPage from "./pages/CampaignPage/CampaignPage";
 import { ELROND_NETWORK } from "./utils/constants";
 import { PageNotFound } from "pages/PageNotFound/PageNotFound";
 import { Toaster } from "@libComponents/Sooner";
+import UploadStaticData from "pages/Upload/UploadStaticData";
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
     path: "/upload",
     title: "Upload Files",
     component: UploadAnyFiles,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/upload-static",
+    title: "Upload Static Data to IPFS",
+    component: UploadStaticData,
     authenticatedRoute: true,
   },
   {
@@ -75,6 +82,12 @@ const routes = [
     component: CampaignPage,
     authenticatedRoute: false,
   },
+  {
+    path: "*",
+    title: "Page Not Found",
+    component: PageNotFound,
+    authenticatedRoute: false,
+  },
 ];
 
 function App() {
@@ -108,16 +121,9 @@ function App() {
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/start" element={<Start />} />
-                <Route path="/unlock" element={<Unlock />} />
-                <Route path="/upload-music" element={<UploadMusicData />} />
-                <Route path="/upload-trailblazer" element={<UploadTrailblazerData />} />
-                <Route path="/upload" element={<UploadAnyFiles />} />
-                <Route path="/data-bunker" element={<DataBunker />} />
-                <Route path="/storage" element={<StoreDataAsset />} />
-                <Route path="/itheum-music-data-nft" element={<CampaignPage />} />
-                <Route path="*" element={<PageNotFound />} />
+                {routes.map((route) => (
+                  <Route path={route.path} element={<route.component />} />
+                ))}
               </Routes>
             </AuthenticatedRoutesWrapper>
           </Content>
