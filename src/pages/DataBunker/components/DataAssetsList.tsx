@@ -140,7 +140,6 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
-      console.log("response.data", response.data);
       const staticDataAssetsMap = response.data;
 
       const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {

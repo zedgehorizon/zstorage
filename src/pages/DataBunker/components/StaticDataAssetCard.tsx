@@ -24,13 +24,13 @@ const StaticDataAssetCard: React.FC<StaticDataAsset> = (props) => {
         <h2 className="text-2xl font-bold text-ellipsis whitespace-nowrap overflow-hidden">{fileName}</h2>
       </div>
       <div className="text-foreground/75 gap-2 p-2">
-        <div className="w-full text-foreground/75 gap-2 p-2">
-          <p>Myme Type : {mimeType}</p>
+        <div className="w-full text-foreground/75 gap-2  ">
+          <p className="truncate">Mime Type : {mimeType}</p>
           <p>Size: {sizeToShow}</p>
           <p>Created On: {new Date(timestamp * 1000).toDateString()}</p>
-          <div className="flex flex-row justify-between">
-            <p>Cid: {shortenAddress(hash, 16)} </p>
-            <CopyIcon onClick={() => navigator.clipboard.writeText("ipfs://" + hash)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+          <div className="flex flex-row  ">
+            <p>Cid: {shortenAddress(hash, 6)} </p>
+            <CopyIcon onClick={() => navigator.clipboard.writeText("ipfs://" + hash)} className=" ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
           </div>
           <a href={IPFS_GATEWAY + "ipfs/" + hash} target="_blank" className="flex flex-row items-center hover:underline hover:text-accent ">
             Check on IPFS

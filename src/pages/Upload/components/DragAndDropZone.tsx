@@ -2,6 +2,7 @@ import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@utils/functions";
+import { whitelistMimeTypes } from "@utils/constants";
 
 interface DragAndDropZoneProps {
   setFile: (file: File) => void;
@@ -46,7 +47,14 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   };
 
   const handleFileChange = (file: File) => {
-    if (file && file.type.startsWith("image/")) {
+    const mimeType = file.type;
+    const extension = file.name.split(".")[1];
+    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "1" && !(whitelistMimeTypes[extension] === mimeType)) {
+      toast.warning("We currently do not support this file type");
+      return;
+    }
+
+    if (mimeType?.startsWith("image/")) {
       setFile(file);
       if (setImagePreview) displayPreview(file);
     } else {

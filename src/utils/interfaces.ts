@@ -44,3 +44,7 @@ type StaticDataAsset = {
   timestamp: number;
   uuid: number;
 };
+
+interface Whitelist {
+  [extension: string]: string;
+}
