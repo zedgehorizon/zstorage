@@ -49,7 +49,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
   const handleFileChange = (file: File) => {
     const mimeType = file.type;
     const extension = file.name.split(".")[1];
-    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "1" && !(whitelistMimeTypes[extension] === mimeType)) {
+    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "true" && !(whitelistMimeTypes[extension] === mimeType)) {
       toast.warning("We currently do not support this file type");
       return;
     }
