@@ -157,9 +157,14 @@ export const UploadTrailblazerData = () => {
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
-    if (response.response && response.response.data.statusCode === 402) {
-      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-      return undefined;
+    if (response.response) {
+      if (response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      } else {
+        setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
+        return undefined;
+      }
     }
     return response;
   }

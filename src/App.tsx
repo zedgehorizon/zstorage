@@ -114,9 +114,9 @@ function App() {
       <TransactionsToastList successfulToastLifetime={1000} customToastClassName="absolute" />
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
-      <div className="">
+      <div>
+        <Toaster position="top-right" richColors closeButton duration={6000} />
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
-          <Toaster position="top-right" richColors closeButton />
           <Navbar />
           <Content>
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
