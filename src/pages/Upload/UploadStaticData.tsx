@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import UploadHeader from "./components/UploadHeader";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
-import { Button } from "@libComponents/Button";
 import { onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
 import { toast } from "sonner";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
@@ -17,8 +15,10 @@ const UploadStaticData = () => {
   const { tokenLogin } = useGetLoginInfo();
   const [progressValue, setProgressValue] = useState(0);
   const [fileCid, setFileCid] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+
   useEffect(() => {
-    if (progressValue > 0 && progressValue < 99) {
+    if (progressValue > 0 && progressValue < 99 && !errorMessage) {
       const interval = 100; // Time interval in milliseconds
       const totalTime = 5000; // Total time for the progress to reach 100 (in milliseconds) - 5 seconds
       const steps = 100 / (totalTime / interval);
@@ -45,9 +45,14 @@ const UploadStaticData = () => {
 
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
 
-    if (response.response && response.response.data.statusCode === 402) {
-      toast.error("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-      return undefined;
+    if (response.response) {
+      if (response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+        return undefined;
+      } else {
+        setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
+        return undefined;
+      }
     }
     setProgressValue(100);
     setFileCid(response[0].hash);
@@ -68,21 +73,28 @@ const UploadStaticData = () => {
           <button
             id="validateDataObjectsButton"
             onClick={uploadFile}
-            disabled={!file || progressValue > 0}
+            disabled={!file || progressValue > 0 || errorMessage != undefined}
             className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
             Upload Data
           </button>
         }
+        footerContent={errorMessage && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
         closeOnOverlayClick={false}>
         {
           <div className="flex flex-col gap-4 h-full text-foreground items-center justify-center pt-8">
             <span className="text-3xl">{progressValue}%</span>
             <Progress className="bg-background w-[40rem]" value={progressValue} />
-            <span className="">{progressValue > 60 ? (progressValue === 100 ? "Upload completed!" : "Almost there...") : "Uploading files..."}</span>
-            {/* {errorMessage && <span className="text-red-500">{errorMessage}</span>}
-            {errors && <span className="text-red-500">{errors}</span>} */}
-
+            <span className="">
+              {errorMessage
+                ? "Uploading has stopped because of an error"
+                : progressValue > 60
+                  ? progressValue === 100
+                    ? "Upload completed!"
+                    : "Almost there..."
+                  : "Uploading files..."}
+            </span>
+            {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {fileCid && progressValue === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressValue === 100 && (

@@ -113,9 +113,14 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       formDataFormat.append("category", CATEGORIES[category]);
 
       const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrors("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
+      if (response.response) {
+        if (response.response.data.statusCode === 402) {
+          setErrors("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+          return undefined;
+        } else {
+          setErrors("There was an error uploading the file. " + response.response.data?.message);
+          return undefined;
+        }
       }
 
       // check here on how to add the errors form transform data function to the errors array
@@ -155,9 +160,11 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     return true;
   }
   function handleUploadFileToIpfs() {
-    verifyHeaderFields();
+    if (verifyHeaderFields() === false) {
+      return;
+    }
     if (validateDataObjects() === false) {
-      toast.error("There were some validation errors", { id: "validationError" });
+      toast.warning("There were some validation errors", { id: "validationError" });
       return;
     }
 
