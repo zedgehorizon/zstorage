@@ -6,17 +6,15 @@ import { Progress } from "@libComponents/Progress";
 import { Link } from "react-router-dom";
 import CidsView from "./CidsView";
 import NextStepsModal from "@components/Modals/NextStepsModal";
-import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
 import { generateRandomString, publishIpns, uploadFilesRequest } from "@utils/functions";
 import { CATEGORIES } from "@utils/constants";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import toast from "react-hot-toast";
-import { Lightbulb, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { XCircle } from "lucide-react";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
   addButton?: React.ReactNode;
-  isUploadButtonDisabled: boolean;
   transformFilesToDataArray: () => Promise<any>;
   headerValues: { name: string; creator: string; createdOn: string; stream: boolean; category: number };
   setResponsesOnSuccess: (response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) => void;
@@ -32,7 +30,6 @@ interface DataObjectsListProps {
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   const {
-    isUploadButtonDisabled,
     addButton,
     DataObjectsComponents,
     manifestCid,
@@ -86,7 +83,6 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
 
     try {
       const data = await transformFilesToDataArray();
-      if (progressValue < 60) setProgressValue(60);
 
       if (data === undefined) {
         return;
@@ -117,12 +113,15 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       formDataFormat.append("category", CATEGORIES[category]);
 
       const response = await uploadFilesRequest(formDataFormat, tokenLogin?.nativeAuthToken || "");
-      if (response.response && response.response.data.statusCode === 402) {
-        setErrors("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        //setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-        return undefined;
+      if (response.response) {
+        if (response.response.data.statusCode === 402) {
+          setErrors("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+          return undefined;
+        } else {
+          setErrors("There was an error uploading the file. " + response.response.data?.message);
+          return undefined;
+        }
       }
-      if (progressValue < 80) setProgressValue(80);
 
       // check here on how to add the errors form transform data function to the errors array
       if (response[0]) {
@@ -131,33 +130,15 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           folderHash: response[0]?.folderHash,
           fileName: response[0]?.fileName,
         };
-
-        toast.success("Manifest file uploaded successfully", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <Lightbulb color="yellow" />
-            </button>
-          ),
-        });
+        toast.success("Manifest file uploaded successfully");
         if (storageType === "IPNS + IPFS" || ipnsKey) {
           const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, ipnsKey);
+
           if (ipnsResponse) {
             theResponse = { ...theResponse, ipnsResponseHash: ipnsResponse.hash };
-            toast.success("IPNS published successfully", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <Lightbulb color="yellow" />
-                </button>
-              ),
-            });
+            toast.success("IPNS published successfully");
           } else {
-            toast.error("IPNS publishing failed", {
-              icon: (
-                <button onClick={() => toast.dismiss()}>
-                  <XCircle color="red" />
-                </button>
-              ),
-            });
+            toast.error("IPNS publishing failed");
           }
         }
         setResponsesOnSuccess(theResponse);
@@ -167,27 +148,23 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       }
     } catch (error: any) {
       setErrors("Error generating the manifest file : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
+      toast.error("Error generating the manifest file: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`);
       console.error("Error generating the manifest file:", error);
     }
   };
-
+  function verifyHeaderFields() {
+    if (!name || !creator || !createdOn) {
+      toast.warning("Please fill all the fields from the header section");
+      return false;
+    }
+    return true;
+  }
   function handleUploadFileToIpfs() {
+    if (verifyHeaderFields() === false) {
+      return;
+    }
     if (validateDataObjects() === false) {
-      toast.error("There were some validation errors!", {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-        id: "validationError",
-      });
+      toast.warning("There were some validation errors", { id: "validationError" });
       return;
     }
 
@@ -208,7 +185,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       <button
         id="validateDataObjectsButton"
         onClick={handleUploadFileToIpfs}
-        disabled={isUploadButtonDisabled || progressValue === 100}
+        disabled={errorMessage != undefined || progressValue === 100}
         className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
         Upload Data
       </button>

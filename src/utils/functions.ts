@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { API_VERSION } from "./constants";
 import axios from "axios";
 
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -37,12 +37,9 @@ export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToke
 
     if (error?.response.data.statusCode === 403) {
       toast("Native auth token expired. Re-login and try again!");
-    }
-
-    if (error?.response.data.statusCode === 402) {
+    } else if (error?.response.data.statusCode === 402) {
       toast("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
-    }
-    toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
+    } else toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     return error;
   }
 }

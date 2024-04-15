@@ -92,69 +92,100 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="lg:!hidden !visible flex items-center justify-center z-10">
             <DropdownMenu>
-              <div className="flex flex-row">
+              <div className="flex flex-row justify-center items-center">
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="mr-2">
                     <Menu />
                   </Button>
                 </DropdownMenuTrigger>
               </div>
-              <DropdownMenuContent className="w-56 border border-accent rounded-3xl bg-muted p-4 ">
+              <DropdownMenuContent className="w-56 border border-accent rounded-3xl bg-muted p-4">
                 <DropdownMenuGroup>
                   <Link to={"/"}>
-                    <DropdownMenuItem className="flex">
-                      <span>Home</span>
+                    <DropdownMenuItem>
+                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50 to-muted pb-[1px] -z-1">
+                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Home</div>
+                      </div>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
-                    <DropdownMenuItem>Features </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      {" "}
+                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Features</div>
+                      </div>{" "}
+                    </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
-                    <DropdownMenuItem>Solution </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      {" "}
+                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Solution</div>
+                      </div>{" "}
+                    </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
-                    <DropdownMenuItem>Pricing </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Pricing</div>
+                      </div>{" "}
+                    </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
-                    <DropdownMenuItem>Music Data NFT Storage </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Music Data NFT Storage</div>
+                      </div>{" "}
+                    </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>
                       <Link className=" cursor-pointer group " to={"/data-bunker"}>
-                        <DropdownMenuItem>My Data Bunker </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          {" "}
+                          <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                            <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">My Data Bunker</div>
+                          </div>{" "}
+                        </DropdownMenuItem>
                       </Link>
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>
                       <Link className="cursor-pointer group " to={"/start"}>
-                        <p className=" ">Get Started</p>
+                        <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                          <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Get started</div>
+                        </div>{" "}
                       </Link>{" "}
                     </DropdownMenuGroup>
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <div className="mt-4 w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent p-4 lg:px-8 py-2 rounded-full text-accent hover:text-accent-foreground font-bold">
+                  <DropdownMenuItem className="mt-4 w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent   lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
-                      <Link to={"/"} className="flex w-full items-center jusitfy-center text-center ">
-                        <div className="w-full " onClick={handleLogout}>
-                          Logout
-                        </div>
+                      <Link to={"/"} className="w-full ">
+                        <DropdownMenuItem>
+                          <div className="w-full " onClick={handleLogout}>
+                            Logout
+                          </div>
+                        </DropdownMenuItem>
                       </Link>
                     ) : (
                       <Link to={"/unlock"} className="w-full">
-                        <p className="">Login</p>{" "}
+                        <DropdownMenuItem>
+                          <div className="w-full">Login</div>
+                        </DropdownMenuItem>
                       </Link>
                     )}
-                  </div>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

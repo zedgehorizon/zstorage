@@ -4,8 +4,7 @@ import { useLocation } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
-import toast from "react-hot-toast";
-import { XCircle } from "lucide-react";
+import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
@@ -19,7 +18,7 @@ type FileData = {
   size: number;
 };
 
-const UploadAnyFiles: React.FC = () => {
+const UploadAnyFiles = () => {
   const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
@@ -68,13 +67,7 @@ const UploadAnyFiles: React.FC = () => {
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
         setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
-        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "", {
-          icon: (
-            <button onClick={() => toast.dismiss()}>
-              <XCircle color="red" />
-            </button>
-          ),
-        });
+        toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
     }
   }, [manifestFile]);
@@ -126,24 +119,19 @@ const UploadAnyFiles: React.FC = () => {
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);
       setErrorMessage("Error iterating through files : " + (error instanceof Error) ? error.message : "");
-      toast.error(
-        "Error iterating through files : " +
-          `${error ? error.message + ". " + error?.response?.data.message : ""}` +
-          {
-            icon: (
-              <button onClick={() => toast.dismiss()}>
-                <XCircle color="red" />
-              </button>
-            ),
-          }
-      );
+      toast.error("Error iterating through files : " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     }
     if (filesToUpload.getAll("files").length === 0) return [];
     filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
-    if (response.response && response.response.data.statusCode === 402) {
-      setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
-      return undefined;
+    if (response.response) {
+      if (response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
+        return undefined;
+      } else {
+        setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
+        return undefined;
+      }
     }
     return response;
   }
@@ -180,13 +168,7 @@ const UploadAnyFiles: React.FC = () => {
       return transformedData.filter((file: any) => file !== null);
     } catch (error: any) {
       setErrorMessage("Error transforming the data : " + (error instanceof Error) ? error.message : "");
-      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`, {
-        icon: (
-          <button onClick={() => toast.dismiss()}>
-            <XCircle color="red" />
-          </button>
-        ),
-      });
+      toast.error("Error transforming the data: " + `${error ? error?.message + ". " + error?.response?.data.message : ""}`);
       console.error("ERROR transforming the data: ", error);
     }
   }
@@ -197,16 +179,8 @@ const UploadAnyFiles: React.FC = () => {
     setRecentlyUploadedManifestFileName(response?.fileName);
     if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
   }
-
-  function checkIsDisabled() {
-    if (!name || !creator || !createdOn || totalItems === 0) {
-      return true;
-    }
-    return false;
-  }
-
   return (
-    <div className="flex  flex-col  h-full pb-16 ">
+    <div className="flex  flex-col  h-full pb-16">
       <UploadHeader
         title={manifestFile ? "Update" : "Upload" + " Data"}
         name={name}
@@ -223,7 +197,7 @@ const UploadAnyFiles: React.FC = () => {
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
       />
-      <DragAndDropZone idxId={1} setFile={addNewFile} dropZoneStyles="w-full" />
+      <DragAndDropZone setFile={addNewFile} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
@@ -241,7 +215,6 @@ const UploadAnyFiles: React.FC = () => {
             })}
           transformFilesToDataArray={transformFilesToDataArray}
           setResponsesOnSuccess={setResponsesOnSuccess}
-          isUploadButtonDisabled={checkIsDisabled()}
           manifestCid={manifestCid}
           folderHash={folderHash}
           recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
@@ -256,9 +229,7 @@ const UploadAnyFiles: React.FC = () => {
             stream: stream,
             category: 0, // anyfile
           }}
-          validateDataObjects={() => {
-            return true;
-          }} /// TODO add validation
+          validateDataObjects={() => true}
         />
       </div>
     </div>

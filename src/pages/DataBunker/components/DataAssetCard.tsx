@@ -5,20 +5,9 @@ import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
 
-interface DataAsset {
-  name: string;
-  creator: string;
-  created_on: string;
-  last_modified_on: string;
-  marshalManifest: {
-    totalItems: number;
-    nestedStream: boolean;
-  };
-}
-
 interface DataAssetCardProps {
-  manifest: any;
   category: number;
+  manifest: any;
 }
 
 const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {

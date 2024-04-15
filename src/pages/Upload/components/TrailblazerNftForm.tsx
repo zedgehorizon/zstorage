@@ -7,8 +7,7 @@ import { ArrowUp, ArrowDown, CheckCircleIcon, Loader2, Upload, Lightbulb } from 
 import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
-import toast from "react-hot-toast";
-import { set } from "date-fns";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -48,7 +47,7 @@ type TrailblazerNftFormProps = {
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  const { validationMessage } = props;
+  const { index, itemData, lastItem, setterFunction, swapFunction, unsavedChanges, setUnsavedChanges, validationMessage } = props;
 
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
@@ -75,44 +74,44 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
   useEffect(() => {
     form.reset({ file: "", file_preview_img: "", file_mimeType: "" });
 
-    form.setValue("date", props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
-    setDate(props.itemData["date"] ? new Date(props.itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
-    form.setValue("category", props.itemData["category"] ? props.itemData["category"] : "");
-    form.setValue("title", props.itemData["title"] ? props.itemData["title"] : "");
-    form.setValue("link", props.itemData["link"] ? props.itemData["link"] : "");
-    form.setValue("file_mimeType", props.itemData["file_mimeType"] ? props.itemData["file_mimeType"] : "");
+    form.setValue("date", itemData["date"] ? new Date(itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    setDate(itemData["date"] ? new Date(itemData["date"]).toISOString().split("T")[0] : new Date().toISOString().split("T")[0]);
+    form.setValue("category", itemData["category"] ? itemData["category"] : "");
+    form.setValue("title", itemData["title"] ? itemData["title"] : "");
+    form.setValue("link", itemData["link"] ? itemData["link"] : "");
+    form.setValue("file_mimeType", itemData["file_mimeType"] ? itemData["file_mimeType"] : "");
 
-    if (props.itemData["file_preview_img"]) {
-      form.setValue("file_preview_img", props.itemData["file_preview_img"]);
-      setImageURL(props.itemData["file_preview_img"]);
+    if (itemData["file_preview_img"]) {
+      form.setValue("file_preview_img", itemData["file_preview_img"]);
+      setImageURL(itemData["file_preview_img"]);
     } else {
       setImageURL("");
     }
-    if (props.itemData["file"]) {
-      form.setValue("file", props.itemData["file"]);
-      setMediaURL(props.itemData["file"]);
+    if (itemData["file"]) {
+      form.setValue("file", itemData["file"]);
+      setMediaURL(itemData["file"]);
     } else {
       setMediaURL("");
     }
 
     setImageFile(undefined);
     setMediaFile(undefined);
-  }, [props.itemData]);
+  }, [itemData]);
 
   useEffect(() => {
     if (imageURL) {
       form.setValue("file_preview_img", imageURL);
-      props.setterFunction(props.index, form.getValues(), imageFile, mediaFile); // setting the cover art url
+      setterFunction(index, form.getValues(), imageFile, mediaFile); // setting the cover art url
     }
   }, [imageURL]);
 
   useEffect(() => {
-    if (mediaFile || imageFile) props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
+    if (mediaFile || imageFile) setterFunction(index, form.getValues(), imageFile, mediaFile);
   }, [imageFile, mediaFile]);
 
   useEffect(() => {
     if (date) form.setValue("date", new Date(date).toISOString().split("T")[0]);
-    props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
+    setterFunction(index, form.getValues(), imageFile, mediaFile);
   }, [date]);
 
   const handleMediaFileChange = (event: any) => {
@@ -124,36 +123,30 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file_mimeType", file.type);
       setMediaURL(mediaURL);
     } else {
-      toast("Please upload a valid file", {
-        icon: <Lightbulb color="yellow"></Lightbulb>,
-      });
+      toast.warning("Please upload a valid file");
     }
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    //console.log("form submitted", props.index, values);
-  }
-
   function handleMoveUp() {
-    if (props.index == 1) return;
-    props.swapFunction(Number(props.index), Number(props.index) - 1);
+    if (index == 1) return;
+    swapFunction(Number(index), Number(index) - 1);
   }
 
   function handleMoveDown() {
-    props.swapFunction(Number(props.index), Number(props.index) + 1);
+    swapFunction(Number(index), Number(index) + 1);
   }
 
   function deleteItem() {
-    props.swapFunction(Number(props.index), -1);
+    swapFunction(Number(index), -1);
   }
 
   return (
     <div className=" p-12 flex flex-col bg-muted w-[100%] max-w-[80rem] mx-auto border-b border-accent/50">
-      <div className="text-2xl text-accent text-center p-3"> 0{props.index}</div>
+      <div className="text-2xl text-accent text-center p-3"> 0{index}</div>
       <div className="relative">
         <div className="absolute top-0 right-0">
           <div className="flex flex-col justify-between">
-            {props.index != 1 && (
+            {index != 1 && (
               <Button
                 tabIndex={-1}
                 onClick={handleMoveUp}
@@ -161,7 +154,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                 <ArrowUp className="text-accent" />
               </Button>
             )}
-            {!props.lastItem && (
+            {!lastItem && (
               <Button
                 tabIndex={-1}
                 onClick={handleMoveDown}
@@ -174,9 +167,8 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       </div>
       <form
         onChange={() => {
-          props.setterFunction(props.index, form.getValues(), imageFile, mediaFile);
+          setterFunction(index, form.getValues(), imageFile, mediaFile);
         }}
-        onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col space-y-4 gap-4 text-accent/50">
         <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 w-[50%]">
@@ -221,7 +213,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           <div className="gap-4 flex-col flex-1 items-center justify-center ">
             <span className="mb-6 text-foreground">Media Image</span>
 
-            <DragAndDropZone idxId={props.index} setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
+            <DragAndDropZone setFile={setImageFile} setImagePreview={setImageURL} imagePreview={imageURL} />
 
             {form.formState.errors.file_preview_img && (
               <p className="text-red-500 absolute -mt-6">{form.formState.errors.file_preview_img.message?.toString()}</p>
@@ -267,7 +259,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
           )}
         </div>
         <div className="w-full flex flex-row justify-between">
-          {props.unsavedChanges != undefined && props.unsavedChanges === false && (
+          {unsavedChanges != undefined && unsavedChanges === false && (
             <div className="mt-2 flex flex-row gap-2 text-accent">
               Verified <CheckCircleIcon className="text-accent" />
             </div>
@@ -281,7 +273,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               </p>
             )}
           </div>
-          <Button tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
+          <Button type="button" tabIndex={-1} onClick={deleteItem} className="bg-background rounded-full mr-2 p-2 px-6 text-accent border border-accent">
             Delete
           </Button>
         </div>
