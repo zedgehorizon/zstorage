@@ -41,13 +41,12 @@ type TrailblazerNftFormProps = {
   setterFunction: (index: number, formInputs: any, image: any, media: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parent component
   unsavedChanges: boolean;
-  setUnsavedChanges: (index: number, value: boolean) => void;
   validationMessage?: string;
 };
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  const { index, itemData, lastItem, setterFunction, swapFunction, unsavedChanges, setUnsavedChanges, validationMessage } = props;
+  const { index, itemData, lastItem, setterFunction, swapFunction, unsavedChanges, validationMessage } = props;
 
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
