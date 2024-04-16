@@ -82,6 +82,10 @@ export const UploadTrailblazerData = () => {
 
   function validateItemsData() {
     let isValid = true;
+    if (Object.keys(itemsData).length === 0) {
+      toast.warning("There are no songs to upload. Please add at least one song to upload.");
+    }
+
     if (itemsData) {
       Object.keys(itemsData).forEach((key: string) => {
         isValid = dataAssetObjectValidation(Number(key)) && isValid;
@@ -94,15 +98,46 @@ export const UploadTrailblazerData = () => {
 
   function validateUpload() {
     if (!validateItemsData()) {
+      toast.warning("There are errors in the form. Please fill all the fields correctly.");
       return false;
     }
 
-    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+    if (manifestFile && !checkIfModificationHasBeenMade()) {
       toast.warning("No modification was made");
       return false;
     }
     return true;
   }
+
+  const checkIfModificationHasBeenMade = (): boolean => {
+    const dataStream = manifestFile.data_stream;
+    // check in header values
+    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+      return true;
+    }
+    // check if files were uploaded
+    if (Object.keys(filePairs).length > 0) {
+      return true;
+    }
+
+    // check if the items data has been modified
+    for (let idx = 0; idx < Object.keys(itemsData).length; idx++) {
+      if (!isItemDataObjectEqual(itemsData[idx + 1], manifestFile.data[idx])) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const isItemDataObjectEqual = (songData1: ItemData, songData2: ItemData) => {
+    return (
+      songData1.title === songData2.title &&
+      songData1.link === songData2.link &&
+      songData1.category === songData2.category &&
+      songData1.date.split("T")[0] === songData2.date.split("T")[0]
+    );
+  };
 
   // upload the preview images and media of all the items
   async function uploadItemItemMediaFiles() {
@@ -391,7 +426,6 @@ export const UploadTrailblazerData = () => {
                 setterFunction={handleFilesSelected}
                 swapFunction={swapItemData}
                 unsavedChanges={unsavedChanges[index]}
-                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}
                 validationMessage={validationErrors[index]}
               />
             ))}
