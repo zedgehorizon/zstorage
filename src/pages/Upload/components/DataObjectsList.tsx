@@ -164,7 +164,6 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       return;
     }
     if (validateDataObjects() === false) {
-      toast.warning("There were some validation errors", { id: "validationError" });
       return;
     }
 

@@ -83,6 +83,10 @@ export const UploadMusicData = () => {
 
   function validateSongsData() {
     let isValid = true;
+    if (Object.keys(songsData).length === 0) {
+      toast.warning("There are no songs to upload. Please add at least one song to upload.");
+    }
+
     if (songsData) {
       Object.keys(songsData).forEach((key: string) => {
         isValid = dataAssetObjectValidation(Number(key)) && isValid;
@@ -95,15 +99,37 @@ export const UploadMusicData = () => {
 
   function validateUpload() {
     if (!validateSongsData()) {
+      toast.warning("There are errors in the form. Please fill all the fields correctly.");
       return false;
     }
 
-    if (unsavedChanges && Object.values(unsavedChanges).length == 0) {
+    if (manifestFile && !checkIfModificationHasBeenMade()) {
       toast.warning("No modification was made");
       return false;
     }
     return true;
   }
+
+  const checkIfModificationHasBeenMade = (): boolean => {
+    const dataStream = manifestFile.data_stream;
+    // check in header values
+    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+      return true;
+    }
+    // check if files were uploaded
+    if (Object.keys(filePairs).length > 0) {
+      return true;
+    }
+
+    // check if the songs data has been modified
+    for (let idx = 0; idx < Object.keys(songsData).length; idx++) {
+      if (!isSongDataObjectEqual(songsData[idx + 1], manifestFile.data[idx])) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   // upload the audio and images of all the songs
   async function uploadSongsAndImagesFiles() {
@@ -254,31 +280,6 @@ export const UploadMusicData = () => {
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
     setNumberOfSongs((prev) => prev - 1);
-    //debugger; // setSongsData((prevSongsData) => {
-    //   const updatedSongsData = { ...prevSongsData };
-    //   delete updatedSongsData[index];
-    //   return updatedSongsData;
-    // });
-
-    // setFilePairs((prevFilePairs) => {
-    //   const updatedFilePairs = { ...prevFilePairs };
-    //   delete updatedFilePairs[index];
-    //   return updatedFilePairs;
-    // });
-
-    // setUnsavedChanges((prevUnsavedChanges) => {
-    //   const updatedUnsavedChanges = { ...prevUnsavedChanges };
-    //   delete updatedUnsavedChanges[index];
-    //   return updatedUnsavedChanges;
-    // });
-
-    // setValidationErrors((prevValidationErrors) => {
-    //   const updatedValidationErrors = { ...prevValidationErrors };
-    //   delete updatedValidationErrors[index];
-    //   return updatedValidationErrors;
-    // });
-
-    // setNumberOfSongs((prevNumberOfSongs) => prevNumberOfSongs - 1);
   }
 
   /**
@@ -338,10 +339,22 @@ export const UploadMusicData = () => {
         [index]: { ...prevFilePairs[index], audio: audio },
       }));
     }
+
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
     }
+  };
+
+  const isSongDataObjectEqual = (songData1: SongData, songData2: SongData) => {
+    console.log(songData1, songData2);
+    return (
+      songData1.title === songData2.title &&
+      songData1.artist === songData2.artist &&
+      songData1.album === songData2.album &&
+      songData1.category === songData2.category &&
+      songData1.date.split("T")[0] === songData2.date.split("T")[0]
+    );
   };
 
   const dataAssetObjectValidation = (index: number) => {
@@ -369,6 +382,7 @@ export const UploadMusicData = () => {
         message += "Audio, ";
       }
     }
+
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
     if (message === "") {
       setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
@@ -416,7 +430,7 @@ export const UploadMusicData = () => {
                 swapFunction={swapSongs}
                 unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
-                setUnsavedChanges={(index: number, value: boolean) => setUnsavedChanges({ ...unsavedChanges, [index]: value })}></MusicDataNftForm>
+              />
             ))}
             addButton={
               <div className="flex flex-row justify-center items-center gap-8">

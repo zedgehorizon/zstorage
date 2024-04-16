@@ -43,13 +43,12 @@ type MusicDataNftFormProps = {
   setterFunction: (index: number, formInputs: any, image: any, audio: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
   unsavedChanges: boolean;
-  setUnsavedChanges: (index: number, value: boolean) => void;
   validationMessage?: string;
 };
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
-  const { index, song, lastItem, setterFunction, swapFunction, unsavedChanges, setUnsavedChanges, validationMessage } = props;
+  const { index, song, lastItem, setterFunction, swapFunction, unsavedChanges, validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
