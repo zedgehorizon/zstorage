@@ -6,9 +6,9 @@ import { XStorageCheckBox } from "./components/XStorageCheckBox";
 import { Button } from "@libComponents/Button";
 import { useNavigate } from "react-router-dom";
 
-const StoreDataAsset: React.FC = () => {
+const StoreDataAsset = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [storageType, setStorageType] = useState();
+  const [storageType, setStorageType] = useState("");
   const [template, setTemplate] = useState("");
   const [storagePreference, setStoragePreference] = useState();
   const [storageOption, setStorageOption] = useState();
@@ -49,7 +49,7 @@ const StoreDataAsset: React.FC = () => {
               "This is a type of storage for your dynamic data assets typically that is constantly changing or updating and evolve over time.",
             ]}
             setterFunction={setStorageType}
-            disabled={[true, false]}
+            disabled={[false, false]}
           />
         )}
 
@@ -102,9 +102,17 @@ const StoreDataAsset: React.FC = () => {
             Go Back
           </Button>
 
-          {currentStep === 4 ? (
+          {currentStep === 4 || storageType.includes("Static Data") ? (
             <Link
-              to={template.includes("Upload My Files") ? "/upload" : template.includes("Trailblazer Data NFT") ? "/upload-trailblazer" : "/upload-music"}
+              to={
+                currentStep === 1
+                  ? "/upload-static"
+                  : template.includes("Upload My Files")
+                    ? "/upload"
+                    : template.includes("Trailblazer Data NFT")
+                      ? "/upload-trailblazer"
+                      : "/upload-music"
+              }
               state={{
                 type: storageType,
                 template: template,

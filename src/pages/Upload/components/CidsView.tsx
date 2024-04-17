@@ -9,10 +9,11 @@ interface CidsViewProps {
   currentManifestFileCID?: string;
   manifestFileName?: string;
   ipnsHash?: string;
+  fileCID?: string;
 }
 
 const CidsView: React.FC<CidsViewProps> = (props) => {
-  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash } = props;
+  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash, fileCID } = props;
 
   return (
     <div>
@@ -24,7 +25,15 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
               <CopyIcon onClick={() => navigator.clipboard.writeText(folderCid)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
           )}
-
+          {fileCID && (
+            <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
+              <h3>File CID - {fileCID} </h3>
+              <CopyIcon onClick={() => navigator.clipboard.writeText("ipfs://" + fileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+              <a href={IPFS_GATEWAY + "ipfs/" + fileCID} target="_blank" className=" ml-4  -mt-1 ">
+                <ExternalLink className="text-accent" />
+              </a>
+            </div>
+          )}
           {currentManifestFileCID && (
             <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3>Manifest CID - {currentManifestFileCID} </h3>
@@ -81,7 +90,7 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
                   <ExternalLink className="text-accent" />
                 </a>
                 <TooltipContent>
-                  <p>This CID is the target of the IPNS pointer, ensuring consistency between the two.</p>
+                  <p>This CID is the target of the IPNS pointer, ensuring consistency between the two</p>
                 </TooltipContent>
               </Tooltip>{" "}
             </div>{" "}

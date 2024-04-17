@@ -3,7 +3,7 @@ import { DataAssetList } from "./components/DataAssetsList";
 import { FolderPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const DataBunker: React.FC = () => {
+const DataBunker = () => {
   return (
     <div className="flex flex-col gap-8 w-[80%] h-full min-h-[100svh] pb-16">
       <span className="text-4xl text-accent mt-8">Your Data Bunker</span>
