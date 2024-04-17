@@ -167,23 +167,22 @@ export const Navbar: React.FC = () => {
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>
                       <Link className="cursor-pointer group " to={"/start"}>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem className="">
                           <div className="w-full bg-muted flex justify-center text-accent font-medium py-1 animate-none">Get started</div>
                           <div className="w-[90%] ml-[5%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[3px] -z-1 animate-rubberBand "></div>{" "}
                         </DropdownMenuItem>
                       </Link>{" "}
                     </DropdownMenuGroup>{" "}
-                    <DropdownMenuGroup>
-                      <div className="w-[100%]  mt-3 bg-gradient-to-r from-muted via-accent/50  to-muted -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium ">
-                          {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
-                        </div>
-                      </div>{" "}
-                    </DropdownMenuGroup>
+                    {/* <DropdownMenuGroup></DropdownMenuGroup> */}
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className=" w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
+                  <div className="mt-3 w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted -z-1">
+                    <div className="w-full bg-muted flex justify-center text-accent font-medium ">
+                      {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
+                    </div>
+                  </div>{" "}
+                  <DropdownMenuItem className="w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
                       <Link to={"/"} className="w-full ">
                         <DropdownMenuItem>

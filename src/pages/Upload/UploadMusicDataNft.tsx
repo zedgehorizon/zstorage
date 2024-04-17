@@ -347,7 +347,6 @@ export const UploadMusicData = () => {
   };
 
   const isSongDataObjectEqual = (songData1: SongData, songData2: SongData) => {
-    console.log(songData1, songData2);
     return (
       songData1.title === songData2.title &&
       songData1.artist === songData2.artist &&

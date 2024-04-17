@@ -5,7 +5,7 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
@@ -72,27 +72,32 @@ const UploadAnyFiles = () => {
     }
   }, [manifestFile]);
 
-  function addNewFile(file: File) {
-    setFiles((prevFiles) => {
-      return {
-        ...prevFiles,
-        [nextIndex]: file,
-      };
+  function addNewFiles(files: File[]) {
+    Array.from(files).forEach((file, index) => {
+      const newIndex = nextIndex + index;
+      setFiles((prevFiles) => {
+        return {
+          ...prevFiles,
+          [newIndex]: file,
+        };
+      });
+
+      setFileObjects((prevFileObjects) => {
+        const updatedFileObjects = { ...prevFileObjects };
+        updatedFileObjects[newIndex] = {
+          idx: newIndex,
+          name: file.name,
+          file: file.name,
+          date: new Date().toISOString(),
+          mime_type: file.type,
+          size: file.size,
+        };
+        return updatedFileObjects;
+      });
     });
-    setFileObjects((prevFileObjects) => {
-      const updatedFileObjects = { ...prevFileObjects };
-      updatedFileObjects[nextIndex] = {
-        idx: nextIndex,
-        name: file.name,
-        file: file.name,
-        date: new Date().toISOString(),
-        mime_type: file.type,
-        size: file.size,
-      };
-      return updatedFileObjects;
-    });
-    setTotalItems((prev) => prev + 1);
-    setNextIndex((prev) => prev + 1);
+
+    setTotalItems((prev) => prev + files.length);
+    setNextIndex((prev) => prev + files.length);
   }
 
   function deleteFile(index: number) {
@@ -197,7 +202,7 @@ const UploadAnyFiles = () => {
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
       />
-      <DragAndDropZone setFile={addNewFile} dropZoneStyles="w-full" />
+      <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)

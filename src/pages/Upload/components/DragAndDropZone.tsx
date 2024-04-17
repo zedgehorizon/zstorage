@@ -1,18 +1,19 @@
-import { Edit2, File, ImagePlus, Lightbulb } from "lucide-react";
+import { Edit2, File, ImagePlus } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@utils/functions";
 import { whitelistMimeTypes } from "@utils/constants";
 
 interface DragAndDropZoneProps {
-  setFile: (file: File) => void;
+  setFile?: (file: File) => void;
+  addMultipleFiles?: (files: File[]) => void;
   setImagePreview?: (previewSrc: string) => void; // if not set, means we are not working with Image Files
   imagePreview?: string;
   dropZoneStyles?: string;
 }
 
 const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
-  const { setFile, setImagePreview, imagePreview, dropZoneStyles } = props;
+  const { setFile, addMultipleFiles, setImagePreview, imagePreview, dropZoneStyles } = props;
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
@@ -42,33 +43,50 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
       dropzoneRef.current.classList.remove("border-accent");
       dropzoneRef.current.classList.add("border-accent/20");
     }
-
-    handleFileChange(e.dataTransfer.files[0]);
+    handleFilesChange(e.dataTransfer.files);
   };
 
-  const handleFileChange = (file: File) => {
-    const mimeType = file.type;
-    const extension = file.name.split(".")[1];
-    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "1" && !(whitelistMimeTypes[extension] === mimeType)) {
-      toast.warning("We currently do not support this file type");
-      return;
-    }
+  const fileValidation = (name: string, type: string) => {
+    const splitedName = name.split(".");
+    const extension = splitedName[splitedName.length - 1];
 
-    if (mimeType?.startsWith("image/")) {
-      setFile(file);
-      if (setImagePreview) displayPreview(file);
-    } else {
-      if (setImagePreview) {
-        toast.warning("Please upload an image file");
+    if (import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION === "true" && !(whitelistMimeTypes[extension] === type)) {
+      toast.warning("We currently do not support this file extension: " + name + "; type " + type);
+      return false;
+    }
+    return true;
+  };
+
+  const handleFilesChange = (files: FileList | null) => {
+    if (files) {
+      if (addMultipleFiles) {
+        const verifiedFiles = Array.from(files).filter((file) => fileValidation(file.name, file.type));
+        addMultipleFiles(verifiedFiles);
       } else {
-        setFile(file);
+        const file = files[0];
+        if (!fileValidation(file.name, file.type)) return;
+        if (!setFile) {
+          toast.warning("There is an error with the file upload. Please try again later.");
+          return;
+        }
+        if (file.type?.startsWith("image/")) {
+          setFile(file);
+          if (setImagePreview) displayPreview(file);
+        } else {
+          if (setImagePreview) {
+            toast.warning("Please upload an image file");
+          } else {
+            setFile(file);
+          }
+        }
       }
+    } else {
+      toast.warning("Please upload a file");
     }
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFileChange(file);
+    handleFilesChange(e.target.files);
   };
 
   const displayPreview = (file: File) => {
@@ -102,6 +120,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
             <input
               className="absolute inset-0 opacity-0 cursor-pointer"
               type="file"
+              multiple={addMultipleFiles ? true : false}
               name="file-upload"
               accept={setImagePreview ? "image/*" : ""}
               onChange={handleInputChange}
@@ -127,6 +146,7 @@ const DragAndDropZone: React.FC<DragAndDropZoneProps> = (props) => {
           </div>
           <input
             type="file"
+            multiple={addMultipleFiles ? true : false}
             accept={setImagePreview ? "image/*" : ""}
             className="mx-auto w-full h-full rounded-xl cursor-pointer absolute inset-0   opacity-0 z-50"
             onChange={handleInputChange}
