@@ -87,12 +87,42 @@ module.exports = {
             transform: "translate(0px,0px) scale(1)",
           },
         },
+
+        "rubberBand": {
+          from: {
+            transform: "scale3d(1, 1, 1)",
+          },
+
+          "30%": {
+            transform: "scale3d(1.25, 0.75, 1)",
+          },
+
+          "40%": {
+            transform: "scale3d(0.75, 1.25, 1)",
+          },
+
+          "50%": {
+            transform: "scale3d(1.15, 0.85, 1)",
+          },
+
+          "65%": {
+            transform: "scale3d(0.95, 1.05, 1)",
+          },
+
+          "75%": {
+            transform: "scale3d(1.05, 0.95, 1)",
+          },
+          to: {
+            transform: "scale3d(1, 1, 1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spin-slow": "spin 3s linear infinite",
         blob: "blob 40s infinite",
+        "rubberBand": "rubberBand 1s infinite",
       },
     },
   },
