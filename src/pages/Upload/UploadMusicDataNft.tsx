@@ -5,7 +5,7 @@ import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -13,6 +13,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
+import { useHeaderStore } from "store/header";
 
 type SongData = {
   date: string;
@@ -39,13 +40,22 @@ export const UploadMusicData = () => {
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+
+  //header
+  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn } = useHeaderStore((state: any) => ({
+    name: state.name,
+    creator: state.creator,
+    modifiedOn: state.modifiedOn,
+    createdOn: state.createdOn,
+    stream: state.stream,
+    updateName: state.updateName,
+    updateCreator: state.updateCreator,
+    updateModifiedOn: state.updateModifiedOn,
+    updateCreatedOn: state.updateCreatedOn,
+  }));
+
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -56,10 +66,11 @@ export const UploadMusicData = () => {
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateName(dataStream.name);
+        updateCreator(dataStream.creator);
+        updateCreatedOn(dataStream.created_on);
+        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
@@ -112,7 +123,7 @@ export const UploadMusicData = () => {
   const checkIfModificationHasBeenMade = (): boolean => {
     const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
       return true;
     }
     // check if files were uploaded
@@ -395,13 +406,6 @@ export const UploadMusicData = () => {
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
-            name={name}
-            creator={creator}
-            createdOn={createdOn}
-            modifiedOn={modifiedOn}
-            setName={setName}
-            setCreator={setCreator}
-            setCreatedOn={setCreatedOn}
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
@@ -468,13 +472,7 @@ export const UploadMusicData = () => {
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
             ipnsKey={manifestFile?.ipnsKey}
-            headerValues={{
-              name: name,
-              creator: creator,
-              createdOn: createdOn,
-              stream: true,
-              category: 1, // musicplaylist
-            }}
+            category={1} // music playlist
             setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>

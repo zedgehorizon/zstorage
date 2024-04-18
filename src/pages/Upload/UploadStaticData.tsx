@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import { onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
-import { toast } from "sonner";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
