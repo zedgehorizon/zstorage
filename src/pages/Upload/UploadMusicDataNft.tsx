@@ -44,7 +44,7 @@ export const UploadMusicData = () => {
   const { tokenLogin } = useGetLoginInfo();
 
   //header
-  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn } = useHeaderStore((state: any) => ({
+  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
     name: state.name,
     creator: state.creator,
     modifiedOn: state.modifiedOn,
@@ -54,6 +54,7 @@ export const UploadMusicData = () => {
     updateCreator: state.updateCreator,
     updateModifiedOn: state.updateModifiedOn,
     updateCreatedOn: state.updateCreatedOn,
+    updateStream: state.updateStream,
   }));
 
   const [manifestCid, setManifestCid] = useState<string>();
@@ -70,6 +71,7 @@ export const UploadMusicData = () => {
         updateCreator(dataStream.creator);
         updateCreatedOn(dataStream.created_on);
         updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateStream(true);
 
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
@@ -88,6 +90,12 @@ export const UploadMusicData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
+    } else {
+      updateName("");
+      updateCreator("");
+      updateCreatedOn("");
+      updateModifiedOn(new Date().toISOString().split("T")[0]);
+      updateStream(true);
     }
   }, [manifestFile]);
 
