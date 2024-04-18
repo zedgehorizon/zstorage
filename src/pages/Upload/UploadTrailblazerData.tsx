@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
-import { Lightbulb, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
@@ -36,7 +35,6 @@ export const UploadTrailblazerData = () => {
 
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
@@ -278,27 +276,22 @@ export const UploadTrailblazerData = () => {
   const handleAddMoreItems = () => {
     setItemsData((prev) => Object.assign(prev, { [numberOfItems]: {} }));
     setNumberOfItems((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfItems]: true }));
   };
   function deleteItem(index: number) {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
-    const variableUnsavedChanges = { ...unsavedChanges };
     const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
-      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
       variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableItemsData[numberOfItems - 1];
     delete variableFilePairs[numberOfItems - 1];
-    delete variableUnsavedChanges[numberOfItems - 1];
     delete variableValidationErrors[numberOfItems - 1];
 
-    setUnsavedChanges(variableUnsavedChanges);
     setItemsData(variableItemsData);
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
@@ -367,6 +360,7 @@ export const UploadTrailblazerData = () => {
       dataAssetObjectValidation(index);
     }
   };
+
   const dataAssetObjectValidation = (index: number) => {
     let message: string = "";
     if (itemsData[index]) {
@@ -387,13 +381,9 @@ export const UploadTrailblazerData = () => {
       }
     }
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
-    if (message === "") {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
-      return true;
-    } else {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
-      return false;
-    }
+
+    if (message === "") return true;
+    else return false;
   };
 
   return (
@@ -425,7 +415,6 @@ export const UploadTrailblazerData = () => {
                 itemData={itemsData[index]}
                 setterFunction={handleFilesSelected}
                 swapFunction={swapItemData}
-                unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
               />
             ))}

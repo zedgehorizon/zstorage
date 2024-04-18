@@ -40,13 +40,12 @@ type TrailblazerNftFormProps = {
   lastItem: boolean;
   setterFunction: (index: number, formInputs: any, image: any, media: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parent component
-  unsavedChanges: boolean;
   validationMessage?: string;
 };
 
 /// the form for each itemData that is going to be uploaded
 export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
-  const { index, itemData, lastItem, setterFunction, swapFunction, unsavedChanges, validationMessage } = props;
+  const { index, itemData, lastItem, setterFunction, swapFunction, validationMessage } = props;
 
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
@@ -257,13 +256,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
             <p className="w-full text-red-500 flex flex-col justify-center items-center">{form.formState.errors?.min_media_files.message}</p>
           )}
         </div>
-        <div className="w-full flex flex-row justify-between">
-          {unsavedChanges != undefined && unsavedChanges === false && (
-            <div className="mt-2 flex flex-row gap-2 text-accent">
-              Verified <CheckCircleIcon className="text-accent" />
-            </div>
-          )}
-
+        <div className="w-full flex flex-row justify-between items-center">
           <div className="w-full flex flex-col justify-start items-start max-w-[30rem]">
             {validationMessage && (
               <p className="text-red-500">

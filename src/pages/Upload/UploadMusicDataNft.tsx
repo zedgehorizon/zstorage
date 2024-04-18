@@ -38,7 +38,6 @@ export const UploadMusicData = () => {
 
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const [numberOfSongs, setNumberOfSongs] = useState(1);
@@ -254,28 +253,23 @@ export const UploadMusicData = () => {
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
   };
 
   function deleteSong(index: number) {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
-    const variableUnsavedChanges = { ...unsavedChanges };
     const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
-      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
       variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
-    delete variableUnsavedChanges[numberOfSongs - 1];
     delete variableValidationErrors[numberOfSongs - 1];
 
-    setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
@@ -383,13 +377,8 @@ export const UploadMusicData = () => {
     }
 
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
-    if (message === "") {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
-      return true;
-    } else {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
-      return false;
-    }
+    if (message === "") return true;
+    return false;
   };
 
   const handleModalUploadButton = () => {
@@ -427,7 +416,6 @@ export const UploadMusicData = () => {
                 song={songsData[index]}
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
-                unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
               />
             ))}
@@ -440,7 +428,7 @@ export const UploadMusicData = () => {
                 </Button>
                 <Modal
                   closeOnOverlayClick={true}
-                  modalClassName="p-0 m-0 max-w-[80%] "
+                  modalClassName="p-0 m-0 max-w-[80%]"
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={

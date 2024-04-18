@@ -42,13 +42,12 @@ type MusicDataNftFormProps = {
   lastItem: boolean;
   setterFunction: (index: number, formInputs: any, image: any, audio: any) => void;
   swapFunction: (first: number, second: number) => void; // will swap first index with the second in the parrent component
-  unsavedChanges: boolean;
   validationMessage?: string;
 };
 
 /// the form for each song that is going to be uploaded
 export function MusicDataNftForm(props: MusicDataNftFormProps) {
-  const { index, song, lastItem, setterFunction, swapFunction, unsavedChanges, validationMessage } = props;
+  const { index, song, lastItem, setterFunction, swapFunction, validationMessage } = props;
   const [wantToEditAudio, setwantToEditAudio] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     mode: "onChange",
@@ -268,17 +267,10 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
           </div>
         </div>
 
-        <div className="w-full flex flex-row ">
-          {unsavedChanges != undefined && unsavedChanges === false && (
-            <div className="mt-2  flex flex-row gap-2 text-accent">
-              Verified <CheckCircleIcon className="text-accent" />
-            </div>
-          )}
-
-          <div className="w-full flex flex-col justify-start items-start ">
+        <div className="w-full flex flex-row justify-between items-center">
+          <div className="w-full flex flex-col justify-start items-start max-w-[30rem]">
             {validationMessage && (
               <p className="text-red-500">
-                {" "}
                 Please fill the folowing fields: <br></br> {validationMessage}{" "}
               </p>
             )}
