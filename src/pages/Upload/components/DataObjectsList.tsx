@@ -10,13 +10,13 @@ import { generateRandomString, publishIpns, uploadFilesRequest } from "@utils/fu
 import { CATEGORIES } from "@utils/constants";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { toast } from "sonner";
-import { XCircle } from "lucide-react";
+import { useHeaderStore } from "store/header";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
+  category: number;
   addButton?: React.ReactNode;
   transformFilesToDataArray: () => Promise<any>;
-  headerValues: { name: string; creator: string; createdOn: string; stream: boolean; category: number };
   setResponsesOnSuccess: (response: { hash: string; folderHash: string; fileName: string; ipnsResponseHash?: string }) => void;
   validateDataObjects: () => boolean;
   manifestCid?: string;
@@ -31,20 +31,27 @@ interface DataObjectsListProps {
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
   const {
     addButton,
+    category,
     DataObjectsComponents,
     manifestCid,
     recentlyUploadedManifestFileName,
     folderHash,
     transformFilesToDataArray,
     setResponsesOnSuccess,
-    headerValues,
     validateDataObjects,
     errorMessage,
     ipnsHash,
     ipnsKey,
     storageType,
   } = props;
-  const { name, creator, createdOn, stream, category } = headerValues;
+
+  const { name, creator, createdOn, stream } = useHeaderStore((state: any) => ({
+    name: state.name,
+    creator: state.creator,
+    createdOn: state.createdOn,
+    stream: state.stream,
+  }));
+
   const { tokenLogin } = useGetLoginInfo();
   const [progressValue, setProgressValue] = React.useState(0);
   const [errors, setErrors] = React.useState<string>();

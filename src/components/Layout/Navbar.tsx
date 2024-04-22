@@ -2,14 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
 import logo from "@assets/logo/logo.png";
-import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
-import { Dot, Home, Menu } from "lucide-react";
+import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
+import { Dot, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
 import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import { shortenAddress } from "@utils/functions";
 
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
+  const { address } = useGetAccount();
 
   const handleLogout = () => {
     logout(`${window.location.origin}`, undefined, false);
@@ -77,19 +79,23 @@ export const Navbar: React.FC = () => {
               </div>
             )}
           </div>
-          <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
-            {isLoggedIn ? (
-              <Link to={"/"}>
-                <p className="px-8 py-2" onClick={handleLogout}>
-                  Logout
-                </p>
-              </Link>
-            ) : (
-              <Link to={"/unlock"}>
-                <p className="px-8 py-2">Login</p>{" "}
-              </Link>
-            )}
+          <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
+            {address && <p className="text-accent !opacity-100"> {shortenAddress(address, 4)}</p>}{" "}
+            <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
+              {isLoggedIn ? (
+                <Link to={"/"}>
+                  <p className="px-8 py-2" onClick={handleLogout}>
+                    Logout
+                  </p>
+                </Link>
+              ) : (
+                <Link to={"/unlock"}>
+                  <p className="px-8 py-2">Login</p>{" "}
+                </Link>
+              )}
+            </div>{" "}
           </div>
+
           <div className="lg:!hidden !visible flex items-center justify-center z-10">
             <DropdownMenu>
               <div className="flex flex-row justify-center items-center">
@@ -161,15 +167,22 @@ export const Navbar: React.FC = () => {
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>
                       <Link className="cursor-pointer group " to={"/start"}>
-                        <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                          <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Get started</div>
-                        </div>{" "}
+                        <DropdownMenuItem className="">
+                          <div className="w-full bg-muted flex justify-center text-accent font-medium py-1 animate-none">Get started</div>
+                          <div className="w-[90%] ml-[5%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[3px] -z-1 animate-rubberBand "></div>{" "}
+                        </DropdownMenuItem>
                       </Link>{" "}
-                    </DropdownMenuGroup>
+                    </DropdownMenuGroup>{" "}
+                    {/* <DropdownMenuGroup></DropdownMenuGroup> */}
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className="mt-4 w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent   lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
+                  <div className="mt-3 w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted -z-1">
+                    <div className="w-full bg-muted flex justify-center text-accent font-medium ">
+                      {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
+                    </div>
+                  </div>{" "}
+                  <DropdownMenuItem className="w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
                       <Link to={"/"} className="w-full ">
                         <DropdownMenuItem>

@@ -7,18 +7,10 @@ import NextStepsModal from "@components/Modals/NextStepsModal";
 import { Switch } from "@libComponents/Switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
 import HowIpnsWorkModal from "@components/Modals/HowIpnsWork";
+import { useHeaderStore } from "store/header";
 
 interface UploadHeaderProps {
   title: string;
-  name?: string;
-  creator?: string;
-  modifiedOn: string;
-  createdOn?: string;
-  stream?: boolean;
-  setName: (name: string) => void;
-  setCreator: (creator: string) => void;
-  setCreatedOn: (createdOn: string) => void;
-  setStream?: (stream: boolean) => void;
   folderCid?: string;
   currentManifestFileCID?: string;
   manifestFileName?: string;
@@ -26,22 +18,20 @@ interface UploadHeaderProps {
 }
 
 const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
-  const {
-    title,
-    name,
-    creator,
-    createdOn,
-    modifiedOn,
-    stream,
-    setName,
-    setCreator,
-    setCreatedOn,
-    setStream,
-    currentManifestFileCID,
-    folderCid,
-    manifestFileName,
-    ipnsHash,
-  } = props;
+  const { title, currentManifestFileCID, folderCid, manifestFileName, ipnsHash } = props;
+
+  const { name, creator, modifiedOn, createdOn, stream, updateName, updateCreator, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
+    name: state.name,
+    creator: state.creator,
+    modifiedOn: state.modifiedOn,
+    createdOn: state.createdOn,
+    stream: state.stream,
+    updateName: state.updateName,
+    updateCreator: state.updateCreator,
+    updatemodifiedOn: state.updatemodifiedOn,
+    updateCreatedOn: state.updateCreatedOn,
+    updateStream: state.updateStream,
+  }));
 
   return (
     <div className="flex flex-col mx-auto">
@@ -58,8 +48,8 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-
-          <Switch disabled={setStream ? false : true} checked={stream} defaultChecked={true} onCheckedChange={setStream} className=" mx-auto" />
+          {/* TODO FIND ANOTHER WAY  disabled={setStream ? false : true} */}
+          <Switch checked={stream} defaultChecked={true} onCheckedChange={updateStream} className=" mx-auto" />
         </div>
       </div>
       <div className="flex gap-x-4">
@@ -73,7 +63,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             name="name"
             pattern="[a-zA-Z0-9\s] "
             value={name}
-            onChange={(event) => setName(event.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
+            onChange={(event) => updateName(event.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
             className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
             required
           />
@@ -88,7 +78,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
             id="creator"
             name="creator"
             value={creator}
-            onChange={(event) => setCreator(event.target.value.replace(/[^a-zA-Z0-9\s]/g, ""))}
+            onChange={(event) => updateCreator(event.target.value.replace(/[^a-zA-Z0-9\s]/g, ""))}
             className="w-full fill-accent hover:text-accent text-accent/50 bg-background p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
             required={true}
           />
@@ -96,7 +86,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
 
         <div className="flex flex-col mb-4">
           <label className="text-foreground mb-2 ">Created On:</label>
-          <DatePicker setterFunction={setCreatedOn} previousDate={createdOn ? createdOn : ""} />
+          <DatePicker setterFunction={updateCreatedOn} previousDate={createdOn ? createdOn : ""} />
         </div>
 
         <div className="mb-4">

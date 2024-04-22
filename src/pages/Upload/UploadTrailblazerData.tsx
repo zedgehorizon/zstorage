@@ -4,13 +4,13 @@ import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
-import { Lightbulb, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
+import { useHeaderStore } from "store/header";
 
 type ItemData = {
   date: string;
@@ -36,15 +36,23 @@ export const UploadTrailblazerData = () => {
 
   const [itemsData, setItemsData] = useState<Record<number, ItemData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState("");
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [stream, setStream] = useState(true);
+
+  //header
+  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
+    name: state.name,
+    creator: state.creator,
+    createdOn: state.createdOn,
+    stream: state.stream,
+    updateName: state.updateName,
+    updateCreator: state.updateCreator,
+    updateModifiedOn: state.updateModifiedOn,
+    updateCreatedOn: state.updateCreatedOn,
+    updateStream: state.updateStream,
+  }));
+
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -55,12 +63,13 @@ export const UploadTrailblazerData = () => {
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateName(dataStream.name);
+        updateCreator(dataStream.creator);
+        updateCreatedOn(dataStream.created_on);
+        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateStream(dataStream.marshalManifest.nestedStream);
+
         setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
-        setStream(dataStream.marshalManifest.nestedStream);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
@@ -77,6 +86,12 @@ export const UploadTrailblazerData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
+    } else {
+      updateName("");
+      updateCreator("");
+      updateCreatedOn("");
+      updateModifiedOn(new Date().toISOString().split("T")[0]);
+      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -112,7 +127,7 @@ export const UploadTrailblazerData = () => {
   const checkIfModificationHasBeenMade = (): boolean => {
     const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
       return true;
     }
     // check if files were uploaded
@@ -149,7 +164,7 @@ export const UploadTrailblazerData = () => {
           if (filePairs[idx + 1]?.image) {
             filesToUpload.append(
               "files",
-              filePairs[idx + 1].image,
+              filePairs[idx + 1].image as Blob,
               generateRandomString() +
                 (idx + 1) +
                 "." +
@@ -157,14 +172,14 @@ export const UploadTrailblazerData = () => {
                 "_" +
                 onlyAlphaNumericChars(mediaData.title) +
                 "." +
-                filePairs[idx + 1].image.name.split(".")[1]
+                (filePairs[idx + 1].image?.name.split(".")[1] ?? "")
             );
           }
 
           if (filePairs[idx + 1]?.media) {
             filesToUpload.append(
               "files",
-              filePairs[idx + 1].media,
+              filePairs[idx + 1].media as Blob,
               generateRandomString() +
                 (idx + 1) +
                 "." +
@@ -172,7 +187,7 @@ export const UploadTrailblazerData = () => {
                 "_" +
                 onlyAlphaNumericChars(mediaData.title) +
                 "." +
-                filePairs[idx + 1].media.name.split(".")[1]
+                filePairs[idx + 1].media?.name.split(".")[1]
             );
           }
         }
@@ -278,27 +293,22 @@ export const UploadTrailblazerData = () => {
   const handleAddMoreItems = () => {
     setItemsData((prev) => Object.assign(prev, { [numberOfItems]: {} }));
     setNumberOfItems((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfItems]: true }));
   };
   function deleteItem(index: number) {
     const variableItemsData = { ...itemsData };
     const variableFilePairs = { ...filePairs };
-    const variableUnsavedChanges = { ...unsavedChanges };
     const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
-      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
       variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableItemsData[numberOfItems - 1];
     delete variableFilePairs[numberOfItems - 1];
-    delete variableUnsavedChanges[numberOfItems - 1];
     delete variableValidationErrors[numberOfItems - 1];
 
-    setUnsavedChanges(variableUnsavedChanges);
     setItemsData(variableItemsData);
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
@@ -367,6 +377,7 @@ export const UploadTrailblazerData = () => {
       dataAssetObjectValidation(index);
     }
   };
+
   const dataAssetObjectValidation = (index: number) => {
     let message: string = "";
     if (itemsData[index]) {
@@ -387,13 +398,9 @@ export const UploadTrailblazerData = () => {
       }
     }
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
-    if (message === "") {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
-      return true;
-    } else {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
-      return false;
-    }
+
+    if (message === "") return true;
+    else return false;
   };
 
   return (
@@ -402,15 +409,6 @@ export const UploadTrailblazerData = () => {
         <div className="min-h-screen flex flex-col items-center justify-start rounded-3xl">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Trailblazer Data"}
-            name={name}
-            creator={creator}
-            createdOn={createdOn}
-            modifiedOn={modifiedOn}
-            setName={setName}
-            stream={stream}
-            setStream={setStream}
-            setCreator={setCreator}
-            setCreatedOn={setCreatedOn}
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
@@ -425,7 +423,6 @@ export const UploadTrailblazerData = () => {
                 itemData={itemsData[index]}
                 setterFunction={handleFilesSelected}
                 swapFunction={swapItemData}
-                unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
               />
             ))}
@@ -448,13 +445,7 @@ export const UploadTrailblazerData = () => {
             ipnsKey={manifestFile?.ipnsKey}
             errorMessage={errorMessage}
             storageType={decentralized}
-            headerValues={{
-              name: name,
-              creator: creator,
-              createdOn: createdOn,
-              stream: stream,
-              category: 2, // trailblazer
-            }}
+            category={2} // trailblazer
           />
         </div>
       </div>

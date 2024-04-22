@@ -5,9 +5,10 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
+import { useHeaderStore } from "store/header";
 
 type FileData = {
   idx: number;
@@ -27,11 +28,15 @@ const UploadAnyFiles = () => {
   const folderCid = manifestFile?.folderHash;
   const currentManifestFileCID = manifestFile?.hash;
 
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState("");
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [stream, setStream] = useState(true);
+  //header
+  const { updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
+    updateName: state.updateName,
+    updateCreator: state.updateCreator,
+    updateModifiedOn: state.updateModifiedOn,
+    updateCreatedOn: state.updateCreatedOn,
+    updateStream: state.updateStream,
+  }));
+
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -47,12 +52,13 @@ const UploadAnyFiles = () => {
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateName(dataStream.name);
+        updateCreator(dataStream.creator);
+        updateCreatedOn(dataStream.created_on);
+        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateStream(dataStream.marshalManifest.nestedStream);
+
         setTotalItems(dataStream.marshalManifest.totalItems);
-        setStream(dataStream.marshalManifest.nestedStream);
         setNextIndex(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
@@ -69,30 +75,41 @@ const UploadAnyFiles = () => {
         setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
+    } else {
+      updateName("");
+      updateCreator("");
+      updateCreatedOn("");
+      updateModifiedOn(new Date().toISOString().split("T")[0]);
+      updateStream(true);
     }
   }, [manifestFile]);
 
-  function addNewFile(file: File) {
-    setFiles((prevFiles) => {
-      return {
-        ...prevFiles,
-        [nextIndex]: file,
-      };
+  function addNewFiles(files: File[]) {
+    Array.from(files).forEach((file, index) => {
+      const newIndex = nextIndex + index;
+      setFiles((prevFiles) => {
+        return {
+          ...prevFiles,
+          [newIndex]: file,
+        };
+      });
+
+      setFileObjects((prevFileObjects) => {
+        const updatedFileObjects = { ...prevFileObjects };
+        updatedFileObjects[newIndex] = {
+          idx: newIndex,
+          name: file.name,
+          file: file.name,
+          date: new Date().toISOString(),
+          mime_type: file.type,
+          size: file.size,
+        };
+        return updatedFileObjects;
+      });
     });
-    setFileObjects((prevFileObjects) => {
-      const updatedFileObjects = { ...prevFileObjects };
-      updatedFileObjects[nextIndex] = {
-        idx: nextIndex,
-        name: file.name,
-        file: file.name,
-        date: new Date().toISOString(),
-        mime_type: file.type,
-        size: file.size,
-      };
-      return updatedFileObjects;
-    });
-    setTotalItems((prev) => prev + 1);
-    setNextIndex((prev) => prev + 1);
+
+    setTotalItems((prev) => prev + files.length);
+    setNextIndex((prev) => prev + files.length);
   }
 
   function deleteFile(index: number) {
@@ -183,21 +200,12 @@ const UploadAnyFiles = () => {
     <div className="flex  flex-col  h-full pb-16">
       <UploadHeader
         title={manifestFile ? "Update" : "Upload" + " Data"}
-        name={name}
-        creator={creator}
-        createdOn={createdOn}
-        modifiedOn={modifiedOn}
-        stream={stream}
-        setStream={setStream}
-        setName={setName}
-        setCreator={setCreator}
-        setCreatedOn={setCreatedOn}
         folderCid={folderCid}
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
       />
-      <DragAndDropZone setFile={addNewFile} dropZoneStyles="w-full" />
+      <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
@@ -222,13 +230,7 @@ const UploadAnyFiles = () => {
           ipnsKey={manifestFile?.ipnsKey}
           errorMessage={errorMessage}
           storageType={decentralized}
-          headerValues={{
-            name: name,
-            creator: creator,
-            createdOn: createdOn,
-            stream: stream,
-            category: 0, // anyfile
-          }}
+          category={0} // anyfile
           validateDataObjects={() => true}
         />
       </div>

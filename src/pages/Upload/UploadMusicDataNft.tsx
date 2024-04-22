@@ -5,7 +5,7 @@ import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -13,6 +13,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
+import { useHeaderStore } from "store/header";
 
 type SongData = {
   date: string;
@@ -38,15 +39,24 @@ export const UploadMusicData = () => {
 
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+
+  //header
+  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
+    name: state.name,
+    creator: state.creator,
+    modifiedOn: state.modifiedOn,
+    createdOn: state.createdOn,
+    stream: state.stream,
+    updateName: state.updateName,
+    updateCreator: state.updateCreator,
+    updateModifiedOn: state.updateModifiedOn,
+    updateCreatedOn: state.updateCreatedOn,
+    updateStream: state.updateStream,
+  }));
+
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -57,10 +67,12 @@ export const UploadMusicData = () => {
     if (manifestFile && manifestFile.data_stream) {
       try {
         const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateName(dataStream.name);
+        updateCreator(dataStream.creator);
+        updateCreatedOn(dataStream.created_on);
+        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+        updateStream(true);
+
         setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
@@ -78,6 +90,12 @@ export const UploadMusicData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
+    } else {
+      updateName("");
+      updateCreator("");
+      updateCreatedOn("");
+      updateModifiedOn(new Date().toISOString().split("T")[0]);
+      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -113,7 +131,7 @@ export const UploadMusicData = () => {
   const checkIfModificationHasBeenMade = (): boolean => {
     const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
       return true;
     }
     // check if files were uploaded
@@ -254,28 +272,23 @@ export const UploadMusicData = () => {
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
   };
 
   function deleteSong(index: number) {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
-    const variableUnsavedChanges = { ...unsavedChanges };
     const variableValidationErrors = { ...validationErrors };
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
-      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
       variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
-    delete variableUnsavedChanges[numberOfSongs - 1];
     delete variableValidationErrors[numberOfSongs - 1];
 
-    setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
@@ -347,7 +360,6 @@ export const UploadMusicData = () => {
   };
 
   const isSongDataObjectEqual = (songData1: SongData, songData2: SongData) => {
-    console.log(songData1, songData2);
     return (
       songData1.title === songData2.title &&
       songData1.artist === songData2.artist &&
@@ -384,13 +396,8 @@ export const UploadMusicData = () => {
     }
 
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
-    if (message === "") {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
-      return true;
-    } else {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
-      return false;
-    }
+    if (message === "") return true;
+    return false;
   };
 
   const handleModalUploadButton = () => {
@@ -407,13 +414,6 @@ export const UploadMusicData = () => {
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
-            name={name}
-            creator={creator}
-            createdOn={createdOn}
-            modifiedOn={modifiedOn}
-            setName={setName}
-            setCreator={setCreator}
-            setCreatedOn={setCreatedOn}
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
@@ -428,7 +428,6 @@ export const UploadMusicData = () => {
                 song={songsData[index]}
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
-                unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
               />
             ))}
@@ -441,7 +440,7 @@ export const UploadMusicData = () => {
                 </Button>
                 <Modal
                   closeOnOverlayClick={true}
-                  modalClassName="p-0 m-0 max-w-[80%] "
+                  modalClassName="p-0 m-0 max-w-[80%]"
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
@@ -481,13 +480,7 @@ export const UploadMusicData = () => {
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
             ipnsKey={manifestFile?.ipnsKey}
-            headerValues={{
-              name: name,
-              creator: creator,
-              createdOn: createdOn,
-              stream: true,
-              category: 1, // musicplaylist
-            }}
+            category={1} // music playlist
             setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>
