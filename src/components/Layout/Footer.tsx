@@ -60,11 +60,16 @@ export const Footer: React.FC = () => {
           <span> Cookies Settings</span>
         </div>
       </div>
-      <div className="text-sm flex items-center justify-center pb-4 text-background ">
+      <div className="text-sm flex items-center justify-center pb-4 text-background">
         Made with <Heart className="mx-1" color="black" /> by Zedge Horizon |&nbsp;(
         <span className="text-sm">
           {ELROND_NETWORK} {appVersion})
         </span>
+      </div>
+      <div className="text-sm flex items-center justify-center pb-4 text-background">
+        <a href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank" className="hover:underline">
+          Terms of use
+        </a>
       </div>
     </footer>
   );
