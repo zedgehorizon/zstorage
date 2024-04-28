@@ -64,6 +64,13 @@ export const Unlock = () => {
             </div>
           </div>
 
+          <div className="text-sm flex items-center justify-center mb-5 mt-3">
+            <p className="flex justify-center">❗By logging in, you are agreeing to the</p>
+            <a href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank" className="ml-2 text-accent hover:underline ml-1">
+              Terms of use
+            </a>
+          </div>
+
           <p className="text-xs flex justify-center mt-2">Use your Google Account to generate your sovereign digital wallet.</p>
           <div className="text-sm text-center text-red-400">
             Google Login is in BETA; You may have some issues logging in :
