@@ -90,10 +90,10 @@ export const Navbar: React.FC = () => {
                 </Link>
               ) : (
                 <Link to={"/unlock"}>
-                  <p className="px-8 py-2">Login</p>{" "}
+                  <p className="px-8 py-2">Login</p>
                 </Link>
               )}
-            </div>{" "}
+            </div>
           </div>
 
           <div className="lg:!hidden !visible flex items-center justify-center z-10">
@@ -118,20 +118,18 @@ export const Navbar: React.FC = () => {
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
                     <DropdownMenuItem>
-                      {" "}
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                         <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Features</div>
-                      </div>{" "}
+                      </div>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
                     <DropdownMenuItem>
-                      {" "}
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                         <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Solution</div>
-                      </div>{" "}
+                      </div>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
@@ -140,7 +138,7 @@ export const Navbar: React.FC = () => {
                     <DropdownMenuItem>
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                         <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Pricing</div>
-                      </div>{" "}
+                      </div>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
@@ -149,7 +147,7 @@ export const Navbar: React.FC = () => {
                     <DropdownMenuItem>
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                         <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Music Data NFT Storage</div>
-                      </div>{" "}
+                      </div>
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
@@ -158,22 +156,20 @@ export const Navbar: React.FC = () => {
                     <DropdownMenuGroup>
                       <Link className=" cursor-pointer group " to={"/data-bunker"}>
                         <DropdownMenuItem>
-                          {" "}
                           <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                             <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">My Data Bunker</div>
-                          </div>{" "}
+                          </div>
                         </DropdownMenuItem>
                       </Link>
                     </DropdownMenuGroup>
                     <DropdownMenuGroup>
                       <Link className="cursor-pointer group " to={"/start"}>
-                        <DropdownMenuItem className="">
+                        <DropdownMenuItem>
                           <div className="w-full bg-muted flex justify-center text-accent font-medium py-1 animate-none">Get started</div>
-                          <div className="w-[90%] ml-[5%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[3px] -z-1 animate-rubberBand "></div>{" "}
+                          <div className="w-[90%] ml-[5%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[3px] -z-1 animate-rubberBand "></div>
                         </DropdownMenuItem>
-                      </Link>{" "}
-                    </DropdownMenuGroup>{" "}
-                    {/* <DropdownMenuGroup></DropdownMenuGroup> */}
+                      </Link>
+                    </DropdownMenuGroup>
                   </>
                 )}
                 <DropdownMenuGroup>
@@ -181,7 +177,7 @@ export const Navbar: React.FC = () => {
                     <div className="w-full bg-muted flex justify-center text-accent font-medium ">
                       {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
                     </div>
-                  </div>{" "}
+                  </div>
                   <DropdownMenuItem className="w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
                       <Link to={"/"} className="w-full ">

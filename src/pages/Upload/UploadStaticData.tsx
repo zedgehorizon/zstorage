@@ -4,7 +4,7 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import { onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES } from "@utils/constants";
+import { AssetCategories, CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
 import { Progress } from "@libComponents/Progress";
 import CidsView from "./components/CidsView";
@@ -40,7 +40,7 @@ const UploadStaticData = () => {
     if (!file) return;
     const filesToUpload = new FormData();
     filesToUpload.append("files", file, onlyAlphaNumericChars(file.name.split(".")[0]) + "." + file.name.split(".")[1]);
-    filesToUpload.append("category", CATEGORIES[3]); // static data
+    filesToUpload.append("category", CATEGORIES[AssetCategories.STATICDATA]);
 
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
 
@@ -61,6 +61,7 @@ const UploadStaticData = () => {
     <div className="w-full xl:w-[60%]">
       <h1 className="text-4xl text-accent mb-8">Upload Static Data to IPFS</h1>
       <DragAndDropZone setFile={setFile} dropZoneStyles="w-full" />
+
       {file && (
         <div className="w-full flex items-center justify-center">
           {" "}

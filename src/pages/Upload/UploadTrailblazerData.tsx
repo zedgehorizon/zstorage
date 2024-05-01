@@ -3,7 +3,7 @@ import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
@@ -445,7 +445,7 @@ export const UploadTrailblazerData = () => {
             ipnsKey={manifestFile?.ipnsKey}
             errorMessage={errorMessage}
             storageType={decentralized}
-            category={2} // trailblazer
+            category={AssetCategories.TRALBLAZER}
           />
         </div>
       </div>

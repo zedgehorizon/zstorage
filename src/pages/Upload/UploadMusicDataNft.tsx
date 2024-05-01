@@ -3,7 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
@@ -419,6 +419,7 @@ export const UploadMusicData = () => {
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
           />
+
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
               <MusicDataNftForm
@@ -480,7 +481,7 @@ export const UploadMusicData = () => {
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
             ipnsKey={manifestFile?.ipnsKey}
-            category={1} // music playlist
+            category={AssetCategories.MUSICPLAYLIST}
             setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>

@@ -58,3 +58,10 @@ export const whitelistMimeTypes: Whitelist = {
   php: "application/x-httpd-php",
   py: "text/x-python",
 };
+
+export enum AssetCategories {
+  ANYFILE,
+  MUSICPLAYLIST,
+  TRALBLAZER,
+  STATICDATA,
+}
