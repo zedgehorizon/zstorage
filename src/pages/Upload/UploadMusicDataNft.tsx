@@ -43,38 +43,18 @@ export const UploadMusicData = () => {
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
 
-  //header
-  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    name: state.name,
-    creator: state.creator,
-    modifiedOn: state.modifiedOn,
-    createdOn: state.createdOn,
-    stream: state.stream,
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updateModifiedOn: state.updateModifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
-
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
   const [sizeToUpload, setSizeToUpload] = useState(0);
+  const [modificationMadeInHeader, setModificationMadeInHeader] = useState<boolean>(false);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        updateName(dataStream.name);
-        updateCreator(dataStream.creator);
-        updateCreatedOn(dataStream.created_on);
-        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        updateStream(true);
-
-        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setNumberOfSongs(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
@@ -91,12 +71,6 @@ export const UploadMusicData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
-    } else {
-      updateName("");
-      updateCreator("");
-      updateCreatedOn("");
-      updateModifiedOn(new Date().toISOString().split("T")[0]);
-      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -130,9 +104,8 @@ export const UploadMusicData = () => {
   }
 
   const checkIfModificationHasBeenMade = (): boolean => {
-    const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
+    if (modificationMadeInHeader) {
       return true;
     }
     // check if files were uploaded
@@ -279,9 +252,7 @@ export const UploadMusicData = () => {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableValidationErrors = { ...validationErrors };
-    console.log("variableSongsData[ ]", variableFilePairs);
-    console.log("variableFilePairs[index]", variableFilePairs[index]);
-    console.log("variableFilePairs audio", variableFilePairs[index]?.audio);
+
     if (variableFilePairs[index]) {
       let sizeToRemove = 0;
       if (variableFilePairs[index].audio) sizeToRemove += variableFilePairs[index].audio.size;
@@ -437,6 +408,9 @@ export const UploadMusicData = () => {
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
+            dataStream={manifestFile?.data_stream}
+            setModificationMadeInHeader={setModificationMadeInHeader}
+            disableStream={true}
           />
           <div className="flex flex-row  text-accent pt-4">
             <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>

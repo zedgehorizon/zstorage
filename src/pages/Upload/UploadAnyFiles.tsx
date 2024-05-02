@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
-import { useHeaderStore } from "store/header";
 
 type FileData = {
   idx: number;
@@ -27,15 +26,6 @@ const UploadAnyFiles = () => {
   const folderCid = manifestFile?.folderHash;
   const currentManifestFileCID = manifestFile?.hash;
 
-  //header
-  const { updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updateModifiedOn: state.updateModifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
-
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -52,15 +42,8 @@ const UploadAnyFiles = () => {
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        updateName(dataStream.name);
-        updateCreator(dataStream.creator);
-        updateCreatedOn(dataStream.created_on);
-        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        updateStream(dataStream.marshalManifest.nestedStream);
-
-        setTotalItems(dataStream.marshalManifest.totalItems);
-        setNextIndex(dataStream.marshalManifest.totalItems + 1);
+        setTotalItems(manifestFile.data_stream.marshalManifest.totalItems);
+        setNextIndex(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
         let _totalSum = 0;
@@ -81,12 +64,6 @@ const UploadAnyFiles = () => {
         setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
-    } else {
-      updateName("");
-      updateCreator("");
-      updateCreatedOn("");
-      updateModifiedOn(new Date().toISOString().split("T")[0]);
-      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -216,6 +193,7 @@ const UploadAnyFiles = () => {
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
+        dataStream={manifestFile?.data_stream}
       />
       <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
       <div className="flex flex-row justify-between text-accent">

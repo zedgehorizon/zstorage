@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { DatePicker } from "@libComponents/DatePicker";
 import CidsView from "./CidsView";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { Modal } from "@components/Modal";
 import NextStepsModal from "@components/Modals/NextStepsModal";
 import { Switch } from "@libComponents/Switch";
@@ -15,23 +15,57 @@ interface UploadHeaderProps {
   currentManifestFileCID?: string;
   manifestFileName?: string;
   ipnsHash?: string;
+  dataStream?: any;
+  setModificationMadeInHeader?: (value: boolean) => void;
+  disableStream?: boolean;
 }
 
 const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
-  const { title, currentManifestFileCID, folderCid, manifestFileName, ipnsHash } = props;
+  const { title, currentManifestFileCID, folderCid, manifestFileName, ipnsHash, dataStream, setModificationMadeInHeader, disableStream } = props;
+  const { name, creator, modifiedOn, createdOn, stream, updateName, updateCreator, updateCreatedOn, updateStream, updateModifiedOn } = useHeaderStore(
+    (state: any) => ({
+      name: state.name,
+      creator: state.creator,
+      modifiedOn: state.modifiedOn,
+      createdOn: state.createdOn,
+      stream: state.stream,
+      updateName: state.updateName,
+      updateCreator: state.updateCreator,
+      updatemodifiedOn: state.updatemodifiedOn,
+      updateCreatedOn: state.updateCreatedOn,
+      updateStream: state.updateStream,
+      updateModifiedOn: state.updateModifiedOn,
+    })
+  );
 
-  const { name, creator, modifiedOn, createdOn, stream, updateName, updateCreator, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    name: state.name,
-    creator: state.creator,
-    modifiedOn: state.modifiedOn,
-    createdOn: state.createdOn,
-    stream: state.stream,
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updatemodifiedOn: state.updatemodifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
+  useEffect(() => {
+    if (dataStream) {
+      updateName(dataStream.name);
+      updateCreator(dataStream.creator);
+      updateCreatedOn(dataStream.created_on);
+      updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
+      updateStream(dataStream.marshalManifest.nestedStream);
+    } else {
+      updateName("");
+      updateCreator("");
+      updateCreatedOn("");
+      updateModifiedOn(new Date().toISOString().split("T")[0]);
+      updateStream(true);
+    }
+  }, [dataStream]);
+
+  useEffect(() => {
+    if (setModificationMadeInHeader) {
+      if (
+        dataStream.name !== name ||
+        dataStream.creator !== creator ||
+        dataStream.created_on !== createdOn ||
+        dataStream.marshalManifest.nestedStream !== stream
+      ) {
+        setModificationMadeInHeader(true);
+      } else setModificationMadeInHeader(false);
+    }
+  }, [name, creator, createdOn, modifiedOn, stream]);
 
   return (
     <div className="flex flex-col mx-auto">
@@ -48,8 +82,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          {/* TODO FIND ANOTHER WAY  disabled={setStream ? false : true} */}
-          <Switch checked={stream} defaultChecked={true} onCheckedChange={updateStream} className=" mx-auto" />
+          <Switch checked={stream} disabled={disableStream} defaultChecked={true} onCheckedChange={updateStream} className=" mx-auto" />
         </div>
       </div>
       <div className="flex gap-x-4">
