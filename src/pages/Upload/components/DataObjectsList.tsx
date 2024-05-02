@@ -245,7 +245,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
                             </button>
                           }
                           closeOnOverlayClick={true}
-                          footerContent={<p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>}>
+                          footerContent={<p className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>}>
                           {<NextStepsModal manifestCid={manifestCid} />}
                         </Modal>
                       )}

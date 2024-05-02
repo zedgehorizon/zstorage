@@ -24,7 +24,7 @@ export const useHeaderStore = create<State & Action>((set) => ({
   modifiedOn: new Date().toISOString().split("T")[0],
   createdOn: "",
   stream: true,
-  availableSpaceToUpload: 0,
+  availableSpaceToUpload: -1,
 
   updateName: (value: string) => set(() => ({ name: value })),
   updateCreator: (value: string) => set(() => ({ creator: value })),

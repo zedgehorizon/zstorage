@@ -51,13 +51,12 @@ export async function getUserAvailableSpace(nativeAuthToken: string) {
         "authorization": `Bearer ${nativeAuthToken}`,
       },
     });
-
     return Number(response.data.maxSize) - response.data.size;
   } catch (error: any) {
     if (error?.response.data.statusCode === 403) {
-      toast("Native auth token expired. Re-login and try again!");
+      toast("Fetching the available space failed.Native auth token expired. Re-login and try again!");
     } else toast.warning("Error while fetching the available space: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
-    return error;
+    return -1;
   }
 }
 export async function publishIpns(nativeAuthToken: string, pointingToManifestCid: string, ipnsKey?: string) {

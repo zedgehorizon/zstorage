@@ -39,6 +39,7 @@ export const UploadTrailblazerData = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
+  const [sizeToUpload, setSizeToUpload] = useState(0);
 
   //header
   const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
@@ -299,6 +300,12 @@ export const UploadTrailblazerData = () => {
     const variableFilePairs = { ...filePairs };
     const variableValidationErrors = { ...validationErrors };
 
+    if (variableFilePairs[index]) {
+      let sizeToRemove = 0;
+      if (variableFilePairs[index].media) sizeToRemove += variableFilePairs[index]?.media.size;
+      if (variableFilePairs[index].image) sizeToRemove += variableFilePairs[index]?.image.size;
+      setSizeToUpload((prev) => prev - sizeToRemove);
+    }
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
@@ -353,25 +360,34 @@ export const UploadTrailblazerData = () => {
   }
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
+    let _sizeToUpload = 0;
     if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, media: media },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      if (filePairs[index]?.media) _sizeToUpload -= filePairs[index]?.media.size;
+      _sizeToUpload += image.size + media.size;
     } else if (image) {
       // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      _sizeToUpload += image.size;
     } else if (media) {
       // Only media file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], media: media },
       }));
+      if (filePairs[index]?.media) _sizeToUpload -= filePairs[index]?.media.size;
+      _sizeToUpload += media.size;
     }
+    setSizeToUpload((prev) => prev + _sizeToUpload);
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
@@ -414,6 +430,9 @@ export const UploadTrailblazerData = () => {
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
           />
+          <div className="flex flex-row  text-accent pt-4">
+            <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          </div>
           <DataObjectsList
             DataObjectsComponents={Object.keys(itemsData).map((index: any) => (
               <TrailblazerNftForm

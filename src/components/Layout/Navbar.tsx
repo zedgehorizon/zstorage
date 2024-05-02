@@ -9,6 +9,7 @@ import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { getUserAvailableSpace, shortenAddress } from "@utils/functions";
 import { useHeaderStore } from "store/header";
+import { add } from "date-fns";
 
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -20,6 +21,7 @@ export const Navbar: React.FC = () => {
   }));
 
   const handleLogout = () => {
+    updateAvailableSpaceToUpload(-1);
     logout(`${window.location.origin}`, undefined, false);
   };
 
@@ -36,13 +38,15 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const fetchAvailableSpace = async () => {
-      const availableSpace = await getUserAvailableSpace(tokenLogin?.nativeAuthToken ?? "");
-      if (availableSpace.response.data.statusCode)
-        updateAvailableSpaceToUpload(0); // a error has been returned
-      else updateAvailableSpaceToUpload(availableSpace);
+      if (address) {
+        const availableSpace = await getUserAvailableSpace(tokenLogin?.nativeAuthToken ?? "");
+        if (availableSpace >= 0) updateAvailableSpaceToUpload(availableSpace);
+      } else {
+        if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
+      }
     };
     fetchAvailableSpace();
-  }, [updateAvailableSpaceToUpload]);
+  }, [address, availableSpaceToUpload]);
 
   return (
     <nav>
@@ -97,12 +101,11 @@ export const Navbar: React.FC = () => {
             )}
           </div>
           <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
-            {address && (
-              <div className=" flex flex-col justify-center items-center ">
-                <p className=" text-accent w-full "> Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>{" "}
-                <p className=" text-accent "> {shortenAddress(address, 6)}</p>
-              </div>
-            )}
+            <div className=" flex flex-col justify-center items-center ">
+              {availableSpaceToUpload >= 0 && <p className=" text-accent w-full "> Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>}
+              {address && <p className=" text-accent "> {shortenAddress(address, 6)}</p>}
+            </div>
+
             <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
               {isLoggedIn ? (
                 <Link to={"/"}>
@@ -195,7 +198,7 @@ export const Navbar: React.FC = () => {
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <p className="text-accent text-sm"> Available Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>{" "}
+                  <p className="text-accent text-xs text-center"> Available Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</p>{" "}
                   <div className="w-full bg-muted flex justify-center text-accent font-medium ">
                     {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
                   </div>

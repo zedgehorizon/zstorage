@@ -62,6 +62,7 @@ export const UploadMusicData = () => {
   const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
+  const [sizeToUpload, setSizeToUpload] = useState(0);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -278,6 +279,15 @@ export const UploadMusicData = () => {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
     const variableValidationErrors = { ...validationErrors };
+    console.log("variableSongsData[ ]", variableFilePairs);
+    console.log("variableFilePairs[index]", variableFilePairs[index]);
+    console.log("variableFilePairs audio", variableFilePairs[index]?.audio);
+    if (variableFilePairs[index]) {
+      let sizeToRemove = 0;
+      if (variableFilePairs[index].audio) sizeToRemove += variableFilePairs[index].audio.size;
+      if (variableFilePairs[index].image) sizeToRemove += variableFilePairs[index].image.size;
+      setSizeToUpload((prev) => prev - sizeToRemove);
+    }
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
@@ -333,26 +343,35 @@ export const UploadMusicData = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    let _sizeToUpload = 0;
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, audio: audio },
       }));
+
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += image.size + audio.size;
     } else if (image) {
       // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      _sizeToUpload += image.size;
     } else if (audio) {
       // Only audio file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], audio: audio },
       }));
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += audio.size;
     }
-
+    setSizeToUpload((prev) => prev + _sizeToUpload);
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
@@ -419,7 +438,9 @@ export const UploadMusicData = () => {
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
           />
-
+          <div className="flex flex-row  text-accent pt-4">
+            <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          </div>
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
               <MusicDataNftForm
