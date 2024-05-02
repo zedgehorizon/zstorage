@@ -9,7 +9,6 @@ import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from 
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 import { useHeaderStore } from "store/header";
-import { set } from "date-fns";
 
 type FileData = {
   idx: number;
@@ -21,7 +20,6 @@ type FileData = {
 };
 
 const UploadAnyFiles = () => {
-  const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
   const { manifestFile, decentralized } = location.state || {};
@@ -153,7 +151,7 @@ const UploadAnyFiles = () => {
       toast.error("Error iterating through files : " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     }
     if (filesToUpload.getAll("files").length === 0) return [];
-    filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
+    filesToUpload.append("category", CATEGORIES[AssetCategories.ANYFILE]);
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response) {
       if (response.response.data.statusCode === 402) {

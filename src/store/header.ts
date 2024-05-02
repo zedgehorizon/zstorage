@@ -6,6 +6,7 @@ type State = {
   modifiedOn: string;
   createdOn: string;
   stream: boolean;
+  availableSpaceToUpload: number;
 };
 
 type Action = {
@@ -14,6 +15,7 @@ type Action = {
   updateModifiedOn: (creator: State["modifiedOn"]) => void;
   updateCreatedOn: (creator: State["createdOn"]) => void;
   updateStream: (creator: State["stream"]) => void;
+  updateAvailableSpaceToUpload: (availableSpaceToUpload: State["availableSpaceToUpload"]) => void;
 };
 
 export const useHeaderStore = create<State & Action>((set) => ({
@@ -22,10 +24,12 @@ export const useHeaderStore = create<State & Action>((set) => ({
   modifiedOn: new Date().toISOString().split("T")[0],
   createdOn: "",
   stream: true,
+  availableSpaceToUpload: 0,
 
   updateName: (value: string) => set(() => ({ name: value })),
   updateCreator: (value: string) => set(() => ({ creator: value })),
   updateModifiedOn: (value: string) => set(() => ({ modifiedOn: value })),
   updateCreatedOn: (value: string) => set(() => ({ createdOn: value })),
   updateStream: (value: boolean) => set(() => ({ stream: value })),
+  updateAvailableSpaceToUpload: (value: number) => set(() => ({ availableSpaceToUpload: value })),
 }));

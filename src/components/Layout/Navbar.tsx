@@ -1,17 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
 import logo from "@assets/logo/logo.png";
-import { useGetAccount, useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
+import { useGetAccount, useGetIsLoggedIn, useGetLoginInfo } from "@multiversx/sdk-dapp/hooks/account";
 import { Dot, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
 import { Button } from "@libComponents/Button";
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
-import { shortenAddress } from "@utils/functions";
+import { DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { getUserAvailableSpace, shortenAddress } from "@utils/functions";
+import { useHeaderStore } from "store/header";
 
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
+  const { tokenLogin } = useGetLoginInfo();
+  const { updateAvailableSpaceToUpload, availableSpaceToUpload } = useHeaderStore((state: any) => ({
+    updateAvailableSpaceToUpload: state.updateAvailableSpaceToUpload,
+    availableSpaceToUpload: state.availableSpaceToUpload,
+  }));
 
   const handleLogout = () => {
     logout(`${window.location.origin}`, undefined, false);
@@ -27,6 +33,17 @@ export const Navbar: React.FC = () => {
       });
     }
   };
+
+  useEffect(() => {
+    const fetchAvailableSpace = async () => {
+      const availableSpace = await getUserAvailableSpace(tokenLogin?.nativeAuthToken ?? "");
+      if (availableSpace.response.data.statusCode)
+        updateAvailableSpaceToUpload(0); // a error has been returned
+      else updateAvailableSpaceToUpload(availableSpace);
+    };
+    fetchAvailableSpace();
+  }, [updateAvailableSpaceToUpload]);
+
   return (
     <nav>
       <div className="bg-gradient-to-r from-black via-accent/50 to-black pb-[1px] z-11">
@@ -80,7 +97,12 @@ export const Navbar: React.FC = () => {
             )}
           </div>
           <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
-            {address && <p className="text-accent !opacity-100"> {shortenAddress(address, 4)}</p>}{" "}
+            {address && (
+              <div className=" flex flex-col justify-center items-center ">
+                <p className=" text-accent w-full "> Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>{" "}
+                <p className=" text-accent "> {shortenAddress(address, 6)}</p>
+              </div>
+            )}
             <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
               {isLoggedIn ? (
                 <Link to={"/"}>
@@ -173,10 +195,9 @@ export const Navbar: React.FC = () => {
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <div className="mt-3 w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted -z-1">
-                    <div className="w-full bg-muted flex justify-center text-accent font-medium ">
-                      {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
-                    </div>
+                  <p className="text-accent text-sm"> Available Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>{" "}
+                  <div className="w-full bg-muted flex justify-center text-accent font-medium ">
+                    {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
                   </div>
                   <DropdownMenuItem className="w-full flex items-center jusitfy-center text-center border-2 border-accent hover:bg-accent lg:px-8  rounded-full text-accent hover:text-accent-foreground font-bold">
                     {isLoggedIn ? (
