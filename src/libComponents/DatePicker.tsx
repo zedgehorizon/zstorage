@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -16,6 +14,7 @@ interface DatePickerProps {
 export function DatePicker(props: DatePickerProps) {
   const { setterFunction, previousDate } = props;
   const [date, setDate] = React.useState<Date | undefined>();
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
   function handleDateChange(date: Date | undefined) {
     if (date) {
@@ -33,12 +32,12 @@ export function DatePicker(props: DatePickerProps) {
   }, [previousDate]);
 
   return (
-    <Popover>
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
-            "justify-between text-accent/50 hover:bg-background/1 hover:text-accent w-full fill-accent text-md   bg-background p-6 px-4 border border-accent/50 rounded ",
+            "justify-between text-accent/50 hover:bg-background/1 hover:text-accent min-w-[11.5rem] w-full fill-accent text-md   bg-background p-6 px-4 border border-accent/50 rounded ",
             !date && "text-accent"
           )}>
           {date ? format(date, "dd/MM/yyyy") : <span> Pick a date</span>}
@@ -46,9 +45,13 @@ export function DatePicker(props: DatePickerProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <PopoverClose>
-          <Calendar mode="single" selected={date} onSelect={(date: Date | undefined) => handleDateChange(date)} initialFocus />
-        </PopoverClose>
+        <Calendar
+          onDayClick={() => setIsPopoverOpen(false)}
+          mode="single"
+          selected={date}
+          onSelect={(date: Date | undefined) => handleDateChange(date)}
+          initialFocus
+        />
       </PopoverContent>
     </Popover>
   );
