@@ -3,14 +3,13 @@ import { TrailblazerNftForm } from "./components/TrailblazerNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
 import DataObjectsList from "./components/DataObjectsList";
-import { useHeaderStore } from "store/header";
 
 type ItemData = {
   date: string;
@@ -39,37 +38,18 @@ export const UploadTrailblazerData = () => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfItems, setNumberOfItems] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-
-  //header
-  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    name: state.name,
-    creator: state.creator,
-    createdOn: state.createdOn,
-    stream: state.stream,
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updateModifiedOn: state.updateModifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
+  const [sizeToUpload, setSizeToUpload] = useState(0);
 
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
-
+  const [modificationMadeInHeader, setModificationMadeInHeader] = useState<boolean>(false);
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        updateName(dataStream.name);
-        updateCreator(dataStream.creator);
-        updateCreatedOn(dataStream.created_on);
-        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        updateStream(dataStream.marshalManifest.nestedStream);
-
-        setNumberOfItems(dataStream.marshalManifest.totalItems + 1);
+        setNumberOfItems(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
@@ -86,12 +66,6 @@ export const UploadTrailblazerData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
-    } else {
-      updateName("");
-      updateCreator("");
-      updateCreatedOn("");
-      updateModifiedOn(new Date().toISOString().split("T")[0]);
-      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -125,9 +99,8 @@ export const UploadTrailblazerData = () => {
   }
 
   const checkIfModificationHasBeenMade = (): boolean => {
-    const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
+    if (modificationMadeInHeader) {
       return true;
     }
     // check if files were uploaded
@@ -299,6 +272,12 @@ export const UploadTrailblazerData = () => {
     const variableFilePairs = { ...filePairs };
     const variableValidationErrors = { ...validationErrors };
 
+    if (variableFilePairs[index]) {
+      let sizeToRemove = 0;
+      if (variableFilePairs[index].media) sizeToRemove += variableFilePairs[index]?.media.size;
+      if (variableFilePairs[index].image) sizeToRemove += variableFilePairs[index]?.image.size;
+      setSizeToUpload((prev) => prev - sizeToRemove);
+    }
     for (let i = index; i < numberOfItems - 1; ++i) {
       variableItemsData[i] = variableItemsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
@@ -353,25 +332,34 @@ export const UploadTrailblazerData = () => {
   }
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, media: File) => {
+    let _sizeToUpload = 0;
     if (image && media) {
       // Both image and media files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, media: media },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      if (filePairs[index]?.media) _sizeToUpload -= filePairs[index]?.media.size;
+      _sizeToUpload += image.size + media.size;
     } else if (image) {
       // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      _sizeToUpload += image.size;
     } else if (media) {
       // Only media file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], media: media },
       }));
+      if (filePairs[index]?.media) _sizeToUpload -= filePairs[index]?.media.size;
+      _sizeToUpload += media.size;
     }
+    setSizeToUpload((prev) => prev + _sizeToUpload);
     setItemsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
@@ -413,7 +401,12 @@ export const UploadTrailblazerData = () => {
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
+            dataStream={manifestFile?.data_stream}
+            setModificationMadeInHeader={setModificationMadeInHeader}
           />
+          <div className="flex flex-row  text-accent pt-4">
+            <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          </div>
           <DataObjectsList
             DataObjectsComponents={Object.keys(itemsData).map((index: any) => (
               <TrailblazerNftForm
@@ -445,7 +438,7 @@ export const UploadTrailblazerData = () => {
             ipnsKey={manifestFile?.ipnsKey}
             errorMessage={errorMessage}
             storageType={decentralized}
-            category={2} // trailblazer
+            category={AssetCategories.TRALBLAZER}
           />
         </div>
       </div>

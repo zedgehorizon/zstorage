@@ -7,8 +7,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
-import { useHeaderStore } from "store/header";
+import { AssetCategories, CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
 type FileData = {
   idx: number;
@@ -20,7 +19,6 @@ type FileData = {
 };
 
 const UploadAnyFiles = () => {
-  const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
   const { manifestFile, decentralized } = location.state || {};
@@ -28,21 +26,14 @@ const UploadAnyFiles = () => {
   const folderCid = manifestFile?.folderHash;
   const currentManifestFileCID = manifestFile?.hash;
 
-  //header
-  const { updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updateModifiedOn: state.updateModifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
-
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
+  const [sizeToUpload, setSizeToUpload] = useState(0);
+  const [totalSize, setTotalSize] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -51,41 +42,35 @@ const UploadAnyFiles = () => {
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        updateName(dataStream.name);
-        updateCreator(dataStream.creator);
-        updateCreatedOn(dataStream.created_on);
-        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        updateStream(dataStream.marshalManifest.nestedStream);
-
-        setTotalItems(dataStream.marshalManifest.totalItems);
-        setNextIndex(dataStream.marshalManifest.totalItems + 1);
+        setTotalItems(manifestFile.data_stream.marshalManifest.totalItems);
+        setNextIndex(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
+        let _totalSum = 0;
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
-            if (file) acc[file.idx] = file;
+            if (file) {
+              acc[file.idx] = file;
+              _totalSum += file.size;
+            }
             return acc;
           },
           {} as Record<number, FileData>
         );
+        setTotalSize(_totalSum);
         setFileObjects(filesMap);
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
         setErrorMessage("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
-    } else {
-      updateName("");
-      updateCreator("");
-      updateCreatedOn("");
-      updateModifiedOn(new Date().toISOString().split("T")[0]);
-      updateStream(true);
     }
   }, [manifestFile]);
 
   function addNewFiles(files: File[]) {
+    let sizeSum = 0;
     Array.from(files).forEach((file, index) => {
+      sizeSum += file.size;
       const newIndex = nextIndex + index;
       setFiles((prevFiles) => {
         return {
@@ -107,12 +92,16 @@ const UploadAnyFiles = () => {
         return updatedFileObjects;
       });
     });
-
+    setSizeToUpload((prev) => prev + sizeSum);
     setTotalItems((prev) => prev + files.length);
     setNextIndex((prev) => prev + files.length);
   }
 
   function deleteFile(index: number) {
+    // if we remove a file that is not uploaded yet, we need to decrease the size to upload
+    if (files[index]) {
+      setSizeToUpload((prev) => prev - files[index].size);
+    }
     setFiles((prevFiles) => {
       const updatedFiles = { ...prevFiles };
       delete updatedFiles[index];
@@ -139,7 +128,7 @@ const UploadAnyFiles = () => {
       toast.error("Error iterating through files : " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     }
     if (filesToUpload.getAll("files").length === 0) return [];
-    filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
+    filesToUpload.append("category", CATEGORIES[AssetCategories.ANYFILE]);
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response) {
       if (response.response.data.statusCode === 402) {
@@ -204,8 +193,14 @@ const UploadAnyFiles = () => {
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
+        dataStream={manifestFile?.data_stream}
       />
       <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
+      <div className="flex flex-row justify-between text-accent">
+        <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+        <div>Uploaded size: {(totalSize / (1024 * 1024)).toFixed(2)} MB </div>
+      </div>
+
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
@@ -230,7 +225,7 @@ const UploadAnyFiles = () => {
           ipnsKey={manifestFile?.ipnsKey}
           errorMessage={errorMessage}
           storageType={decentralized}
-          category={0} // anyfile
+          category={AssetCategories.ANYFILE}
           validateDataObjects={() => true}
         />
       </div>

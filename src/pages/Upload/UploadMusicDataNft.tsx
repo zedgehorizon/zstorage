@@ -3,7 +3,7 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
 import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
@@ -43,37 +43,18 @@ export const UploadMusicData = () => {
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
 
-  //header
-  const { name, creator, createdOn, stream, updateName, updateCreator, updateModifiedOn, updateCreatedOn, updateStream } = useHeaderStore((state: any) => ({
-    name: state.name,
-    creator: state.creator,
-    modifiedOn: state.modifiedOn,
-    createdOn: state.createdOn,
-    stream: state.stream,
-    updateName: state.updateName,
-    updateCreator: state.updateCreator,
-    updateModifiedOn: state.updateModifiedOn,
-    updateCreatedOn: state.updateCreatedOn,
-    updateStream: state.updateStream,
-  }));
-
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
+  const [sizeToUpload, setSizeToUpload] = useState(0);
+  const [modificationMadeInHeader, setModificationMadeInHeader] = useState<boolean>(false);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        updateName(dataStream.name);
-        updateCreator(dataStream.creator);
-        updateCreatedOn(dataStream.created_on);
-        updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        updateStream(true);
-
-        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setNumberOfSongs(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
@@ -90,12 +71,6 @@ export const UploadMusicData = () => {
         console.error("ERROR parsing manifest file : ", err);
         toast.error("Error parsing manifest file. Invalid format manifest file fetched : " + (err instanceof Error) ? err.message : "");
       }
-    } else {
-      updateName("");
-      updateCreator("");
-      updateCreatedOn("");
-      updateModifiedOn(new Date().toISOString().split("T")[0]);
-      updateStream(true);
     }
   }, [manifestFile]);
 
@@ -129,9 +104,8 @@ export const UploadMusicData = () => {
   }
 
   const checkIfModificationHasBeenMade = (): boolean => {
-    const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn || dataStream.stream !== stream) {
+    if (modificationMadeInHeader) {
       return true;
     }
     // check if files were uploaded
@@ -279,6 +253,13 @@ export const UploadMusicData = () => {
     const variableFilePairs = { ...filePairs };
     const variableValidationErrors = { ...validationErrors };
 
+    if (variableFilePairs[index]) {
+      let sizeToRemove = 0;
+      if (variableFilePairs[index].audio) sizeToRemove += variableFilePairs[index].audio.size;
+      if (variableFilePairs[index].image) sizeToRemove += variableFilePairs[index].image.size;
+      setSizeToUpload((prev) => prev - sizeToRemove);
+    }
+
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
@@ -333,26 +314,35 @@ export const UploadMusicData = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    let _sizeToUpload = 0;
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, audio: audio },
       }));
+
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += image.size + audio.size;
     } else if (image) {
       // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      _sizeToUpload += image.size;
     } else if (audio) {
       // Only audio file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], audio: audio },
       }));
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += audio.size;
     }
-
+    setSizeToUpload((prev) => prev + _sizeToUpload);
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
@@ -418,7 +408,13 @@ export const UploadMusicData = () => {
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
+            dataStream={manifestFile?.data_stream}
+            setModificationMadeInHeader={setModificationMadeInHeader}
+            disableStream={true}
           />
+          <div className="flex flex-row  text-accent pt-4">
+            <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          </div>
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
               <MusicDataNftForm
@@ -480,7 +476,7 @@ export const UploadMusicData = () => {
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
             ipnsKey={manifestFile?.ipnsKey}
-            category={1} // music playlist
+            category={AssetCategories.MUSICPLAYLIST}
             setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>
