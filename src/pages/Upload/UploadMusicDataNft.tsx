@@ -3,9 +3,9 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -13,6 +13,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
+import { useHeaderStore } from "store/header";
 
 type SongData = {
   date: string;
@@ -38,30 +39,22 @@ export const UploadMusicData = () => {
 
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
+
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
+  const [sizeToUpload, setSizeToUpload] = useState(0);
+  const [modificationMadeInHeader, setModificationMadeInHeader] = useState<boolean>(false);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        setNumberOfSongs(dataStream.marshalManifest.totalItems + 1);
+        setNumberOfSongs(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
 
@@ -111,9 +104,8 @@ export const UploadMusicData = () => {
   }
 
   const checkIfModificationHasBeenMade = (): boolean => {
-    const dataStream = manifestFile.data_stream;
     // check in header values
-    if (dataStream.name !== name || dataStream.creator !== creator || dataStream.created_on !== createdOn) {
+    if (modificationMadeInHeader) {
       return true;
     }
     // check if files were uploaded
@@ -254,28 +246,30 @@ export const UploadMusicData = () => {
   const handleAddMoreSongs = () => {
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
-    setUnsavedChanges((prev) => ({ ...prev, [numberOfSongs]: true }));
   };
 
   function deleteSong(index: number) {
     const variableSongsData = { ...songsData };
     const variableFilePairs = { ...filePairs };
-    const variableUnsavedChanges = { ...unsavedChanges };
     const variableValidationErrors = { ...validationErrors };
+
+    if (variableFilePairs[index]) {
+      let sizeToRemove = 0;
+      if (variableFilePairs[index].audio) sizeToRemove += variableFilePairs[index].audio.size;
+      if (variableFilePairs[index].image) sizeToRemove += variableFilePairs[index].image.size;
+      setSizeToUpload((prev) => prev - sizeToRemove);
+    }
 
     for (let i = index; i < numberOfSongs - 1; ++i) {
       variableSongsData[i] = variableSongsData[i + 1];
       variableFilePairs[i] = variableFilePairs[i + 1];
-      variableUnsavedChanges[i] = variableUnsavedChanges[i + 1];
       variableValidationErrors[i] = variableValidationErrors[i + 1];
     }
 
     delete variableSongsData[numberOfSongs - 1];
     delete variableFilePairs[numberOfSongs - 1];
-    delete variableUnsavedChanges[numberOfSongs - 1];
     delete variableValidationErrors[numberOfSongs - 1];
 
-    setUnsavedChanges(variableUnsavedChanges);
     setSongsData(variableSongsData);
     setFilePairs(variableFilePairs);
     setValidationErrors(variableValidationErrors);
@@ -320,26 +314,35 @@ export const UploadMusicData = () => {
 
   // setter function for a music Data nft form fields and files
   const handleFilesSelected = (index: number, formInputs: any, image: File, audio: File) => {
+    let _sizeToUpload = 0;
     if (image && audio) {
       // Both image and audio files uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { image: image, audio: audio },
       }));
+
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += image.size + audio.size;
     } else if (image) {
       // Only image file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], image: image },
       }));
+      if (filePairs[index]?.image) _sizeToUpload -= filePairs[index]?.image.size;
+      _sizeToUpload += image.size;
     } else if (audio) {
       // Only audio file uploaded
       setFilePairs((prevFilePairs) => ({
         ...prevFilePairs,
         [index]: { ...prevFilePairs[index], audio: audio },
       }));
+      if (filePairs[index]?.audio) _sizeToUpload -= filePairs[index]?.audio.size;
+      _sizeToUpload += audio.size;
     }
-
+    setSizeToUpload((prev) => prev + _sizeToUpload);
     setSongsData((prev) => Object.assign({}, prev, { [index]: formInputs }));
     if (validationErrors[index] && validationErrors[index] !== "") {
       dataAssetObjectValidation(index);
@@ -347,7 +350,6 @@ export const UploadMusicData = () => {
   };
 
   const isSongDataObjectEqual = (songData1: SongData, songData2: SongData) => {
-    console.log(songData1, songData2);
     return (
       songData1.title === songData2.title &&
       songData1.artist === songData2.artist &&
@@ -384,13 +386,8 @@ export const UploadMusicData = () => {
     }
 
     setValidationErrors((prev) => ({ ...prev, [index]: message.slice(0, -2) }));
-    if (message === "") {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: false }));
-      return true;
-    } else {
-      setUnsavedChanges((prev) => ({ ...prev, [index]: true }));
-      return false;
-    }
+    if (message === "") return true;
+    return false;
   };
 
   const handleModalUploadButton = () => {
@@ -407,18 +404,17 @@ export const UploadMusicData = () => {
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
-            name={name}
-            creator={creator}
-            createdOn={createdOn}
-            modifiedOn={modifiedOn}
-            setName={setName}
-            setCreator={setCreator}
-            setCreatedOn={setCreatedOn}
             folderCid={folderCid}
             manifestFileName={manifestFileName}
             currentManifestFileCID={currentManifestFileCID}
             ipnsHash={ipnsHash}
+            dataStream={manifestFile?.data_stream}
+            setModificationMadeInHeader={setModificationMadeInHeader}
+            disableStream={true}
           />
+          <div className="flex flex-row  text-accent pt-4">
+            <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          </div>
           <DataObjectsList
             DataObjectsComponents={Object.keys(songsData).map((index: any) => (
               <MusicDataNftForm
@@ -428,7 +424,6 @@ export const UploadMusicData = () => {
                 song={songsData[index]}
                 setterFunction={handleFilesSelected}
                 swapFunction={swapSongs}
-                unsavedChanges={unsavedChanges[index]}
                 validationMessage={validationErrors[index]}
               />
             ))}
@@ -441,7 +436,7 @@ export const UploadMusicData = () => {
                 </Button>
                 <Modal
                   closeOnOverlayClick={true}
-                  modalClassName="p-0 m-0 max-w-[80%] "
+                  modalClassName="p-0 m-0 max-w-[80%]"
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
@@ -481,13 +476,7 @@ export const UploadMusicData = () => {
             errorMessage={errorMessage}
             ipnsHash={ipnsHash}
             ipnsKey={manifestFile?.ipnsKey}
-            headerValues={{
-              name: name,
-              creator: creator,
-              createdOn: createdOn,
-              stream: true,
-              category: 1, // musicplaylist
-            }}
+            category={AssetCategories.MUSICPLAYLIST}
             setResponsesOnSuccess={setResponsesOnSuccess}
           />
         </div>

@@ -5,9 +5,9 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, publishIpns } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
 type FileData = {
   idx: number;
@@ -19,7 +19,6 @@ type FileData = {
 };
 
 const UploadAnyFiles = () => {
-  const currentCategory = 0; // anyfile
   const location = useLocation();
   const { tokenLogin } = useGetLoginInfo();
   const { manifestFile, decentralized } = location.state || {};
@@ -27,17 +26,14 @@ const UploadAnyFiles = () => {
   const folderCid = manifestFile?.folderHash;
   const currentManifestFileCID = manifestFile?.hash;
 
-  const [name, setName] = useState("");
-  const [creator, setCreator] = useState("");
-  const [createdOn, setCreatedOn] = useState("");
-  const [modifiedOn, setModifiedOn] = useState(new Date().toISOString().split("T")[0]);
-  const [stream, setStream] = useState(true);
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
   const [ipnsHash, setIpnsHash] = useState<string>();
   const [totalItems, setTotalItems] = useState(0);
   const [nextIndex, setNextIndex] = useState(0);
+  const [sizeToUpload, setSizeToUpload] = useState(0);
+  const [totalSize, setTotalSize] = useState(0);
   const [files, setFiles] = useState<Record<number, File>>({}); //files to upload
   const [fileObjects, setFileObjects] = useState<Record<number, FileData>>({}); // all files from manifest file
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -46,23 +42,22 @@ const UploadAnyFiles = () => {
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
       try {
-        const dataStream = manifestFile.data_stream;
-        setName(dataStream.name);
-        setCreator(dataStream.creator);
-        setCreatedOn(dataStream.created_on);
-        setModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
-        setTotalItems(dataStream.marshalManifest.totalItems);
-        setStream(dataStream.marshalManifest.nestedStream);
-        setNextIndex(dataStream.marshalManifest.totalItems + 1);
+        setTotalItems(manifestFile.data_stream.marshalManifest.totalItems);
+        setNextIndex(manifestFile.data_stream.marshalManifest.totalItems + 1);
         setIpnsHash(manifestFile.ipnsHash);
         setRecentlyUploadedManifestFileName(manifestFile.manifestFileName);
+        let _totalSum = 0;
         const filesMap = manifestFile.data.reduce(
           (acc: any, file: any) => {
-            if (file) acc[file.idx] = file;
+            if (file) {
+              acc[file.idx] = file;
+              _totalSum += file.size;
+            }
             return acc;
           },
           {} as Record<number, FileData>
         );
+        setTotalSize(_totalSum);
         setFileObjects(filesMap);
       } catch (err: any) {
         console.error("ERROR parsing manifest file : ", err);
@@ -72,30 +67,41 @@ const UploadAnyFiles = () => {
     }
   }, [manifestFile]);
 
-  function addNewFile(file: File) {
-    setFiles((prevFiles) => {
-      return {
-        ...prevFiles,
-        [nextIndex]: file,
-      };
+  function addNewFiles(files: File[]) {
+    let sizeSum = 0;
+    Array.from(files).forEach((file, index) => {
+      sizeSum += file.size;
+      const newIndex = nextIndex + index;
+      setFiles((prevFiles) => {
+        return {
+          ...prevFiles,
+          [newIndex]: file,
+        };
+      });
+
+      setFileObjects((prevFileObjects) => {
+        const updatedFileObjects = { ...prevFileObjects };
+        updatedFileObjects[newIndex] = {
+          idx: newIndex,
+          name: file.name,
+          file: file.name,
+          date: new Date().toISOString(),
+          mime_type: file.type,
+          size: file.size,
+        };
+        return updatedFileObjects;
+      });
     });
-    setFileObjects((prevFileObjects) => {
-      const updatedFileObjects = { ...prevFileObjects };
-      updatedFileObjects[nextIndex] = {
-        idx: nextIndex,
-        name: file.name,
-        file: file.name,
-        date: new Date().toISOString(),
-        mime_type: file.type,
-        size: file.size,
-      };
-      return updatedFileObjects;
-    });
-    setTotalItems((prev) => prev + 1);
-    setNextIndex((prev) => prev + 1);
+    setSizeToUpload((prev) => prev + sizeSum);
+    setTotalItems((prev) => prev + files.length);
+    setNextIndex((prev) => prev + files.length);
   }
 
   function deleteFile(index: number) {
+    // if we remove a file that is not uploaded yet, we need to decrease the size to upload
+    if (files[index]) {
+      setSizeToUpload((prev) => prev - files[index].size);
+    }
     setFiles((prevFiles) => {
       const updatedFiles = { ...prevFiles };
       delete updatedFiles[index];
@@ -122,7 +128,7 @@ const UploadAnyFiles = () => {
       toast.error("Error iterating through files : " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     }
     if (filesToUpload.getAll("files").length === 0) return [];
-    filesToUpload.append("category", CATEGORIES[currentCategory]); // anyfile
+    filesToUpload.append("category", CATEGORIES[AssetCategories.ANYFILE]);
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     if (response.response) {
       if (response.response.data.statusCode === 402) {
@@ -183,21 +189,18 @@ const UploadAnyFiles = () => {
     <div className="flex  flex-col  h-full pb-16">
       <UploadHeader
         title={manifestFile ? "Update" : "Upload" + " Data"}
-        name={name}
-        creator={creator}
-        createdOn={createdOn}
-        modifiedOn={modifiedOn}
-        stream={stream}
-        setStream={setStream}
-        setName={setName}
-        setCreator={setCreator}
-        setCreatedOn={setCreatedOn}
         folderCid={folderCid}
         manifestFileName={manifestFileName}
         currentManifestFileCID={currentManifestFileCID}
         ipnsHash={ipnsHash}
+        dataStream={manifestFile?.data_stream}
       />
-      <DragAndDropZone setFile={addNewFile} dropZoneStyles="w-full" />
+      <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
+      <div className="flex flex-row justify-between text-accent">
+        <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+        <div>Uploaded size: {(totalSize / (1024 * 1024)).toFixed(2)} MB </div>
+      </div>
+
       <div className="flex justify-center items-center">
         <DataObjectsList
           DataObjectsComponents={Object.keys(fileObjects)
@@ -222,13 +225,7 @@ const UploadAnyFiles = () => {
           ipnsKey={manifestFile?.ipnsKey}
           errorMessage={errorMessage}
           storageType={decentralized}
-          headerValues={{
-            name: name,
-            creator: creator,
-            createdOn: createdOn,
-            stream: stream,
-            category: 0, // anyfile
-          }}
+          category={AssetCategories.ANYFILE}
           validateDataObjects={() => true}
         />
       </div>

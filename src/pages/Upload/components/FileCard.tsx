@@ -17,7 +17,7 @@ const FileCard: React.FC<FileCardProps> = (props) => {
   return (
     <div className="flex text-accent flex-row items-center p-4 justify-center gap-3 border-b border-accent/20 max-w-[50rem]">
       <span className="text-3xl">
-        {index < 9 ? "0" : ""}
+        {index <= 9 ? "0" : ""}
         {index}
       </span>
       <File className="h-16 w-16" />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { API_VERSION } from "@utils/constants";
+import { API_VERSION, AssetCategories } from "@utils/constants";
 import DataAssetCard from "./DataAssetCard";
 import { toast } from "sonner";
 import { Lightbulb, Loader2 } from "lucide-react";
@@ -14,9 +14,9 @@ export const DataAssetList: React.FC = () => {
   const [manifestFiles, setManifestFiles] = useState<ManifestFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryManifestFiles, setCategoryManifestFiles] = useState<{ [key: string]: ManifestFile[] }>({
-    [CATEGORIES[0]]: [],
-    [CATEGORIES[1]]: [],
-    [CATEGORIES[2]]: [],
+    [CATEGORIES[AssetCategories.ANYFILE]]: [],
+    [CATEGORIES[AssetCategories.MUSICPLAYLIST]]: [],
+    [CATEGORIES[AssetCategories.TRALBLAZER]]: [],
   });
   const [staticDataAssets, setStaticDataAssets] = useState<StaticDataAsset[]>([]);
 
@@ -73,7 +73,7 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     const dataAssets: DataAsset[] = await fetchAllManifestsOfAnAddress();
-    fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[3]);
+    fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
     await downloadAllTheManifestFiles(dataAssets);
   }
 
@@ -173,43 +173,43 @@ export const DataAssetList: React.FC = () => {
           )}
 
           <span className="text-accent text-2xl py-12">Dynamic Folders</span>
-          {(categoryManifestFiles[CATEGORIES[0]].length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[AssetCategories.ANYFILE]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
             <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
-                categoryManifestFiles[CATEGORIES[0]].map((manifest: ManifestFile, index) => (
-                  <DataAssetCard key={index} category={0} manifest={manifest}></DataAssetCard>
+                categoryManifestFiles[CATEGORIES[AssetCategories.ANYFILE]].map((manifest: ManifestFile, index) => (
+                  <DataAssetCard key={index} category={AssetCategories.ANYFILE} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
 
           <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
-          {(categoryManifestFiles[CATEGORIES[1]].length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[AssetCategories.MUSICPLAYLIST]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
             <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
-                categoryManifestFiles[CATEGORIES[1]].map((manifest: ManifestFile, index) => (
-                  <DataAssetCard key={index} category={1} manifest={manifest}></DataAssetCard>
+                categoryManifestFiles[CATEGORIES[AssetCategories.MUSICPLAYLIST]].map((manifest: ManifestFile, index) => (
+                  <DataAssetCard key={index} category={AssetCategories.MUSICPLAYLIST} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
 
           <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
-          {(categoryManifestFiles[CATEGORIES[2]].length === 0 && (
+          {(categoryManifestFiles[CATEGORIES[AssetCategories.TRALBLAZER]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
             </div>
           )) || (
             <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
-                categoryManifestFiles[CATEGORIES[2]].map((manifest: ManifestFile, index) => (
-                  <DataAssetCard key={index} category={2} manifest={manifest}></DataAssetCard>
+                categoryManifestFiles[CATEGORIES[AssetCategories.TRALBLAZER]].map((manifest: ManifestFile, index) => (
+                  <DataAssetCard key={index} category={AssetCategories.TRALBLAZER} manifest={manifest}></DataAssetCard>
                 ))}
             </div>
           )}
