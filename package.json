@@ -1,7 +1,7 @@
 {
   "name": "zstorage-dapp",
   "description": "Decentralized Storage Application",
-  "version": "1.13.0",
+  "version": "1.15.0",
   "author": "Zedge Horizon",
   "private": true,
   "dependencies": {
@@ -36,7 +36,8 @@
     "tailwind-merge": "2.2.0",
     "tailwindcss-animate": "1.0.7",
     "web-vitals": "3.5.1",
-    "zod": "3.22.4"
+    "zod": "3.22.4",
+    "zustand": "4.5.2"
   },
   "scripts": {
     "start": "vite dev",
