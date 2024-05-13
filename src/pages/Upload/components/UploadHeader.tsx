@@ -57,10 +57,10 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
   useEffect(() => {
     if (setModificationMadeInHeader) {
       if (
-        dataStream.name !== name ||
-        dataStream.creator !== creator ||
-        dataStream.created_on !== createdOn ||
-        dataStream.marshalManifest.nestedStream !== stream
+        dataStream?.name !== name ||
+        dataStream?.creator !== creator ||
+        dataStream?.created_on !== createdOn ||
+        dataStream?.marshalManifest.nestedStream !== stream
       ) {
         setModificationMadeInHeader(true);
       } else setModificationMadeInHeader(false);
