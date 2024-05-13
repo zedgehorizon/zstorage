@@ -22,7 +22,7 @@ export const useHeaderStore = create<State & Action>((set) => ({
   name: "",
   creator: "",
   modifiedOn: new Date().toISOString().split("T")[0],
-  createdOn: "",
+  createdOn: new Date().toISOString().split("T")[0],
   stream: true,
   availableSpaceToUpload: -1,
 
