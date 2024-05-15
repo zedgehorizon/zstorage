@@ -115,7 +115,7 @@ function App() {
       <NotificationModal />
       <SignTransactionsModals className="custom-class-for-modals" />
       <div>
-        <Toaster position="top-right" richColors closeButton duration={6000} />
+        <Toaster position="bottom-right" richColors closeButton duration={6000} />
         <div className="flex flex-col min-h-[100svh] text-white backdrop-blur-xl">
           <Navbar />
           <Content>
