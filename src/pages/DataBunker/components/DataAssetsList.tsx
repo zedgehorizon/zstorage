@@ -134,12 +134,13 @@ export const DataAssetList: React.FC = () => {
     try {
       const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
       setIsLoading(true);
-
+      console.log("apiUrlGet", apiUrlGet);
       const response = await axios.get(apiUrlGet, {
         headers: {
           "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
+      console.log("response", response.data);
       const staticDataAssetsMap = response.data;
 
       const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
@@ -152,7 +153,6 @@ export const DataAssetList: React.FC = () => {
       console.error("Error fetching data assets", error);
     }
   }
-
   return (
     <div className="p-4 flex flex-col">
       {(isLoading && (
