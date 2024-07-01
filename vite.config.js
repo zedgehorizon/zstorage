@@ -10,10 +10,6 @@ export default defineConfig(() => {
   return {
     define: {
       "import.meta.env.VITE_APP_VERSION": JSON.stringify(process.env.npm_package_version),
-      "import.meta.env.VITE_ENV_WALLETCONNECTV2_PROJECTID": JSON.stringify(process.env.VITE_ENV_WALLETCONNECTV2_PROJECTID),
-      "import.meta.env.VITE_ENV_BACKEND_API": JSON.stringify(process.env.VITE_ENV_BACKEND_API),
-      "import.meta.env.VITE_ENV_NETWORK": JSON.stringify(process.env.VITE_ENV_NETWORK),
-      "import.meta.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION": JSON.stringify(process.env.VITE_ENV_FILE_MIME_TYPE_VALIDATION),
     },
     server: {
       port: Number(process.env.PORT) || 3000,
