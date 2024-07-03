@@ -6,7 +6,6 @@ import { shortenAddress } from "@utils/functions";
 
 const StaticDataAssetCard: React.FC<StaticDataAsset> = (props) => {
   const { fileName, mimeType, hash, size, timestamp } = props;
-
   let sizeToShow;
   if (size < 1024) {
     sizeToShow = `${size} bytes`;
