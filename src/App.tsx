@@ -122,7 +122,7 @@ function App() {
             <AuthenticatedRoutesWrapper routes={routes} unlockRoute="/unlock">
               <Routes>
                 {routes.map((route) => (
-                  <Route path={route.path} element={<route.component />} />
+                  <Route key={route.path.trim()} path={route.path} element={<route.component />} />
                 ))}
               </Routes>
             </AuthenticatedRoutesWrapper>

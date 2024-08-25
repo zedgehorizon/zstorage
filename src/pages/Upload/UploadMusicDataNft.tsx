@@ -23,6 +23,7 @@ type SongData = {
   title: string;
   file: string;
   cover_art_url: string;
+  numbers_nid?: string;
 };
 
 type FilePair = {
@@ -36,13 +37,11 @@ export const UploadMusicData = () => {
   const manifestFileName = manifestFile?.manifestFileName;
   const folderCid = manifestFile?.folderHash;
   const currentManifestFileCID = manifestFile?.hash;
-
   const [songsData, setSongsData] = useState<Record<number, SongData>>({});
   const [filePairs, setFilePairs] = useState<Record<number, FilePair>>({});
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [numberOfSongs, setNumberOfSongs] = useState(1);
   const { tokenLogin } = useGetLoginInfo();
-
   const [manifestCid, setManifestCid] = useState<string>();
   const [recentlyUploadedManifestFileName, setRecentlyUploadedManifestFileName] = useState<string>();
   const [folderHash, setFolderHash] = useState<string>();
@@ -76,17 +75,16 @@ export const UploadMusicData = () => {
 
   function validateSongsData() {
     let isValid = true;
+
     if (Object.keys(songsData).length === 0) {
       toast.warning("There are no songs to upload. Please add at least one song to upload.");
-    }
-
-    if (songsData) {
+      isValid = false;
+    } else {
       Object.keys(songsData).forEach((key: string) => {
         isValid = dataAssetObjectValidation(Number(key)) && isValid;
       });
-    } else {
-      isValid = false;
     }
+
     return isValid;
   }
 
@@ -108,6 +106,7 @@ export const UploadMusicData = () => {
     if (modificationMadeInHeader) {
       return true;
     }
+
     // check if files were uploaded
     if (Object.keys(filePairs).length > 0) {
       return true;
@@ -169,10 +168,12 @@ export const UploadMusicData = () => {
           " Please check all the fields to be filled correctly."
       );
     }
+
     filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
+
     if (response.response) {
       if (response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
@@ -195,12 +196,15 @@ export const UploadMusicData = () => {
     try {
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
+
       // Iterate through the response list and find the matching cidv1
       const transformedData = Object.values(songsData).map((songObj, index) => {
         if (songObj && songObj?.title) {
           let matchingObjImage;
           let matchingObjSong;
+
           const fileObj = filePairs[index + 1];
+
           if (fileObj) {
             if (fileObj.image && fileObj.image.name) {
               matchingObjImage = responseDataCIDs.find(
@@ -216,7 +220,7 @@ export const UploadMusicData = () => {
             }
           }
 
-          return {
+          const songData: Record<any, any> = {
             idx: index + 1,
             date: new Date(songObj?.date).toISOString(),
             category: songObj?.category,
@@ -226,6 +230,12 @@ export const UploadMusicData = () => {
             cover_art_url: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : songObj.cover_art_url,
             title: songObj?.title,
           };
+
+          if (songObj?.numbers_nid && songObj?.numbers_nid.trim() !== "") {
+            songData["numbers_nid"] = songObj.numbers_nid;
+          }
+
+          return songData;
         }
       });
       return transformedData.filter((song: any) => song !== null);
@@ -355,12 +365,14 @@ export const UploadMusicData = () => {
       songData1.artist === songData2.artist &&
       songData1.album === songData2.album &&
       songData1.category === songData2.category &&
+      (songData1?.numbers_nid === songData2?.numbers_nid || (songData1?.numbers_nid === "" && !songData2?.numbers_nid)) &&
       songData1.date.split("T")[0] === songData2.date.split("T")[0]
     );
   };
 
   const dataAssetObjectValidation = (index: number) => {
     let message: string = "";
+
     if (songsData[index]) {
       if (!songsData[index].title) {
         message += "Title, ";
@@ -382,6 +394,9 @@ export const UploadMusicData = () => {
       }
       if (!filePairs[index]?.audio && !songsData[index].file) {
         message += "Audio, ";
+      }
+      if (songsData[index]?.numbers_nid && songsData[index].numbers_nid.trim().length < 10) {
+        message += "Numbers NID (more than 10 characters) ";
       }
     }
 
