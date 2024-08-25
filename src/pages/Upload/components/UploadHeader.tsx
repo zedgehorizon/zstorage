@@ -40,9 +40,9 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
 
   useEffect(() => {
     if (dataStream) {
-      updateName(dataStream.name);
-      updateCreator(dataStream.creator);
-      updateCreatedOn(dataStream.created_on);
+      updateName(dataStream?.name);
+      updateCreator(dataStream?.creator);
+      updateCreatedOn(dataStream?.created_on);
       updateModifiedOn(new Date(dataStream.last_modified_on).toISOString().split("T")[0]);
       updateStream(dataStream.marshalManifest.nestedStream);
     } else {
@@ -57,10 +57,10 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
   useEffect(() => {
     if (setModificationMadeInHeader) {
       if (
-        dataStream.name !== name ||
-        dataStream.creator !== creator ||
-        dataStream.created_on !== createdOn ||
-        dataStream.marshalManifest.nestedStream !== stream
+        dataStream?.name !== name ||
+        dataStream?.creator !== creator ||
+        dataStream?.created_on !== createdOn ||
+        dataStream?.marshalManifest.nestedStream !== stream
       ) {
         setModificationMadeInHeader(true);
       } else setModificationMadeInHeader(false);
