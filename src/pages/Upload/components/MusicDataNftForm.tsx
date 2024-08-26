@@ -34,6 +34,8 @@ const formSchema = z.object({
   cover_art_url: z.string().min(1, "Required field"),
 
   file: z.string().min(1, "Required field"),
+
+  numbers_nid: z.string().min(10, "Please enter at least 10 characters").optional().or(z.literal("")),
 });
 
 type MusicDataNftFormProps = {
@@ -60,6 +62,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
       title: "",
       file: "",
       cover_art_url: "",
+      numbers_nid: "",
     },
   });
 
@@ -105,6 +108,8 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     } else {
       setAudioURL("");
     }
+
+    form.setValue("numbers_nid", song["numbers_nid"] ? song["numbers_nid"] : "");
 
     setwantToEditAudio(false);
     setImageFile(undefined);
@@ -176,7 +181,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               Entry details <span className="text-accent">*</span>{" "}
             </span>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent ">
               <input
                 type="text"
                 placeholder="Artist Name"
@@ -186,7 +191,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.artist && <p className="text-red-500 absolute">{form.formState.errors.artist.message}</p>}
             </div>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent ">
               <input
                 type="text"
                 placeholder="Album Name"
@@ -196,7 +201,7 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               {form.formState.errors.album && <p className="text-red-500 absolute ">{form.formState.errors.album.message}</p>}
             </div>
 
-            <div className=" hover:text-accent ">
+            <div className="hover:text-accent ">
               <input
                 type="text"
                 placeholder="Category"
@@ -215,11 +220,23 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
               />
               {form.formState.errors.title && <p className="text-red-500 absolute">{form.formState.errors.title.message}</p>}
             </div>
+
+            <div className="hover:text-accent">
+              <input
+                type="text"
+                placeholder="Numbers Protocol: NID (optional)"
+                className="w-full bg-background p-3 placeholder:text-accent border border-accent/50 rounded focus:outline-none focus:border-accent"
+                {...form.register("numbers_nid")}
+              />
+              {form.formState.errors.numbers_nid && <p className="text-red-500 absolute">{form.formState.errors.numbers_nid.message}</p>}
+            </div>
+
             <div>
               <DatePicker setterFunction={setDate} previousDate={date} />
               {form.formState.errors.date && <p className="text-red-500 absolute">{form.formState.errors.date.message}</p>}
             </div>
           </div>
+
           <div className="gap-4 flex-col flex-1 items-center justify-center">
             <span className="mb-6 text-foreground">Cover Art Image</span>
 

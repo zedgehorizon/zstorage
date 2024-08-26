@@ -76,12 +76,12 @@ export const Navbar: React.FC = () => {
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              <Link className="cursor-pointer group " to={"/itheum-music-data-nft"}>
+              {/* <Link className="cursor-pointer group " to={"/itheum-music-data-nft"}>
                 <p className=" ">Music Data NFT Storage</p>
                 <div className="opacity-0 group-hover:opacity-100">
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
-              </Link>
+              </Link> */}
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
@@ -102,8 +102,10 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
             <div className=" flex flex-col justify-center items-center ">
-              {availableSpaceToUpload >= 0 && <p className=" text-accent w-full "> Space: {(availableSpaceToUpload / 1000 ** 2).toFixed(2)} MB</p>}
-              {address && <p className=" text-accent "> {shortenAddress(address, 6)}</p>}
+              {availableSpaceToUpload >= 0 && (
+                <p className="text-accent w-full text-xs">Available Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</p>
+              )}
+              {address && <p className=" text-accent text-xs"> {shortenAddress(address, 6)}</p>}
             </div>
 
             <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
@@ -167,7 +169,7 @@ export const Navbar: React.FC = () => {
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
-                <DropdownMenuGroup>
+                {/* <DropdownMenuGroup>
                   <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
                     <DropdownMenuItem>
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
@@ -175,7 +177,7 @@ export const Navbar: React.FC = () => {
                       </div>
                     </DropdownMenuItem>
                   </Link>
-                </DropdownMenuGroup>
+                </DropdownMenuGroup> */}
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>
