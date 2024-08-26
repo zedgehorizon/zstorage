@@ -35,7 +35,7 @@ const formSchema = z.object({
 
   file: z.string().min(1, "Required field"),
 
-  numbers_nid: z.string().min(10).optional(),
+  numbers_nid: z.string().min(10, "Please enter at least 10 characters").optional().or(z.literal("")),
 });
 
 type MusicDataNftFormProps = {
