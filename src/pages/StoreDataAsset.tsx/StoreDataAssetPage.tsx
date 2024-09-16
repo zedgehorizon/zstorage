@@ -5,6 +5,7 @@ import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
 import { XStorageCheckBox } from "./components/XStorageCheckBox";
 import { Button } from "@libComponents/Button";
 import { useNavigate } from "react-router-dom";
+import { SUI_WALRUS_STRATEGY_STRING } from "utils/constants";
 
 const StoreDataAsset = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -86,10 +87,10 @@ const StoreDataAsset = () => {
         {currentStep === 4 && (
           <XStorageCheckBox
             title="Do you have a preferred storage platform and architecture?"
-            options={["DNS + IPFS", "IPNS + IPFS", "Arweave", "Ceramic"]}
+            options={["DNS + IPFS", "IPNS + IPFS", SUI_WALRUS_STRATEGY_STRING, "Arweave"]}
             currentOption={storageOption}
             setterFunction={setStorageOption}
-            disabled={[false, false, true, true]}
+            disabled={[false, false, false, true]}
           />
         )}
 

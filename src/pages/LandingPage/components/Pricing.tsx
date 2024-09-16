@@ -29,7 +29,7 @@ const Pricing: React.FC = () => {
         <PriceCard
           plan="ENTERPRISE"
           title="Go Big"
-          price={"?"}
+          price={"Custom"}
           features={["Custom plan that suits your needs"]}
           description="For your custom data bunker needs like sovereign encryption of vital data."
           buttonText="Contact Us"
