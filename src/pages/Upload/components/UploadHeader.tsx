@@ -135,7 +135,7 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
         <Modal
           modalClassName="w-[70%] border-accent/50"
           openTrigger={
-            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+            <button className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8 rounded-full text-accent-foreground font-semibold p-2">
               How IPNS works?
             </button>
           }
