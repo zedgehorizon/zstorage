@@ -7,7 +7,7 @@ import { Dot, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
 import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { getUserAvailableSpace, shortenAddress } from "@utils/functions";
+import { getUserAvailableSpace, shortenAddress, isRunningLowOnSpace } from "@utils/functions";
 import { useHeaderStore } from "store/header";
 import { add } from "date-fns";
 
@@ -48,6 +48,8 @@ export const Navbar: React.FC = () => {
     fetchAvailableSpace();
   }, [address, availableSpaceToUpload]);
 
+  const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
+
   return (
     <nav>
       <div className="bg-gradient-to-r from-black via-accent/50 to-black pb-[1px] z-11">
@@ -56,21 +58,21 @@ export const Navbar: React.FC = () => {
             <img className="h-4" src={logo}></img>
             <p className=" ">EdgeStorage</p>
           </Link>
-          <div className="lg:!flex !hidden  divide-x divide-accent ">
+          <div className="lg:!flex !hidden  divide-x divide-accent">
             <div className="flex flex-row gap-8 mt-4 pr-4">
-              <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
+              <Link className="cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
                 <p className=" ">Features</p>
                 <div className="opacity-0 group-hover:opacity-100">
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
+              <Link className=" cursor-pointer group" to={"/#solution"} onClick={() => scrollToSection("solution")}>
                 <p className=" ">Solution</p>
                 <div className="opacity-0 group-hover:opacity-100">
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              <Link className=" cursor-pointer group " to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
+              <Link className=" cursor-pointer group" to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
                 <p className=" ">Pricing</p>
                 <div className="opacity-0 group-hover:opacity-100">
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
@@ -101,9 +103,27 @@ export const Navbar: React.FC = () => {
             )}
           </div>
           <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
-            <div className=" flex flex-col justify-center items-center ">
+            <div className=" flex flex-col justify-center items-center">
               {availableSpaceToUpload >= 0 && (
-                <p className="text-accent w-full text-xs">Available Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</p>
+                <>
+                  <div className="text-accent w-full text-xs">
+                    {showGetFreeSpaceAlert && (
+                      <span className="tooltip hidden">
+                        <>
+                          {showGetFreeSpaceAlert && <span className="text-lg cursor-pointer mr-1">⚠️</span>}
+                          <span className="tooltiptext border border-accent">
+                            💁🏾 Running out of Storage space? Reach out to us on the{" "}
+                            <a href="https://itheum.io/discord" target="_blank" className="underline hover:no-underline">
+                              Itheum Discord
+                            </a>{" "}
+                            to get some free bonus storage space. Limited time offer!
+                          </span>
+                        </>
+                      </span>
+                    )}{" "}
+                    <span>Available Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</span>
+                  </div>
+                </>
               )}
               {address && <p className=" text-accent text-xs"> {shortenAddress(address, 6)}</p>}
             </div>

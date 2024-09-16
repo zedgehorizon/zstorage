@@ -2,7 +2,6 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { API_VERSION, SUI_WALRUS_PUBLISHER } from "./constants";
 import axios from "axios";
-
 import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
@@ -197,5 +196,14 @@ export async function publishIpns(nativeAuthToken: string, pointingToManifestCid
       toast("Native auth token expired. Re-login and try again! ");
     }
     toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
+  }
+}
+
+export function isRunningLowOnSpace(availableSpaceToUpload: any) {
+  // less than 2 MB is low space
+  if (availableSpaceToUpload && availableSpaceToUpload >= 0 && availableSpaceToUpload / 1024 ** 2 < 2) {
+    return true;
+  } else {
+    return false;
   }
 }
