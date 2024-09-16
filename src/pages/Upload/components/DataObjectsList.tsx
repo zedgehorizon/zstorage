@@ -90,7 +90,6 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
    * @throws {Error} If there is an error transforming the data or if the manifest file is not uploaded correctly.
    */
   const generateManifestFile = async () => {
-    debugger;
     setProgressValue(12);
 
     try {
