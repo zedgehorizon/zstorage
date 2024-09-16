@@ -32,7 +32,13 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
       <span className={cn(colorClass, "text-lg")}>{title}</span>
       <span className="text-sm  ">{description}</span>
       <div className="flex justify-start items-end gap-1">
-        <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm">per month</span>
+        {price === "Custom" ? (
+          <div className={cn(colorClass, "text-5xl")}>{price}</div>
+        ) : (
+          <>
+            <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm">per month</span>
+          </>
+        )}
       </div>
       <div className="w-[100%] bg-gradient-to-r from-muted via-foreground/50 to-muted pb-[1px] -z-1" />
 
