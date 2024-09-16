@@ -201,7 +201,7 @@ export async function publishIpns(nativeAuthToken: string, pointingToManifestCid
 
 export function isRunningLowOnSpace(availableSpaceToUpload: any) {
   // less than 2 MB is low space
-  if (availableSpaceToUpload && availableSpaceToUpload >= 0 && availableSpaceToUpload / 1024 ** 2 < 3) {
+  if (availableSpaceToUpload && availableSpaceToUpload >= 0 && availableSpaceToUpload / 1024 ** 2 < 2) {
     return true;
   } else {
     return false;
