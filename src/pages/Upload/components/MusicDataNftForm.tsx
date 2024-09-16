@@ -8,6 +8,7 @@ import { DatePicker } from "@libComponents/DatePicker";
 import { Input } from "@libComponents/Input";
 import DragAndDropZone from "./DragAndDropZone";
 import { toast } from "sonner";
+import { SUI_WALRUS_AGGREGATOR } from "../../../utils/constants";
 
 const formSchema = z.object({
   date: z.string().min(1, "Required field"),
@@ -96,15 +97,27 @@ export function MusicDataNftForm(props: MusicDataNftFormProps) {
     form.setValue("title", song["title"] ? song["title"] : "");
 
     if (song["cover_art_url"]) {
-      form.setValue("cover_art_url", song["cover_art_url"]);
-      setImageURL(song["cover_art_url"]);
+      let coverArtUrlWithAdjustments = song["cover_art_url"];
+
+      if (coverArtUrlWithAdjustments.includes("suiwalrus://")) {
+        coverArtUrlWithAdjustments = coverArtUrlWithAdjustments.replace("suiwalrus://", SUI_WALRUS_AGGREGATOR);
+      }
+
+      form.setValue("cover_art_url", coverArtUrlWithAdjustments);
+      setImageURL(coverArtUrlWithAdjustments);
     } else {
       setImageURL("");
     }
 
     if (song["file"]) {
-      form.setValue("file", song["file"]);
-      setAudioURL(song["file"]);
+      let fileWithAdjustments = song["file"];
+
+      if (fileWithAdjustments.includes("suiwalrus://")) {
+        fileWithAdjustments = fileWithAdjustments.replace("suiwalrus://", SUI_WALRUS_AGGREGATOR);
+      }
+
+      form.setValue("file", fileWithAdjustments);
+      setAudioURL(fileWithAdjustments);
     } else {
       setAudioURL("");
     }

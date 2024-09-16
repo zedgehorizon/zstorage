@@ -11,6 +11,7 @@ import { CATEGORIES } from "@utils/constants";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { toast } from "sonner";
 import { useHeaderStore } from "store/header";
+import { SUI_WALRUS_STRATEGY_STRING } from "../../../utils/constants";
 
 interface DataObjectsListProps {
   DataObjectsComponents: React.ReactNode[];
@@ -26,6 +27,7 @@ interface DataObjectsListProps {
   ipnsHash?: string; // make one object with ipnsKey and ipnsHash
   ipnsKey?: string;
   storageType?: string;
+  manifestFile?: any;
 }
 
 const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
@@ -43,6 +45,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     ipnsHash,
     ipnsKey,
     storageType,
+    manifestFile,
   } = props;
 
   const { name, creator, createdOn, stream } = useHeaderStore((state: any) => ({
@@ -96,6 +99,9 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
         return;
       }
 
+      // storageType will be used for NEW manifest and manifestFile?.data_stream?.storageStrategy for edits
+      const storageStrategy = storageType || manifestFile?.data_stream?.storageStrategy || "";
+
       const manifest = {
         "data_stream": {
           "category": CATEGORIES[category],
@@ -103,6 +109,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
           "creator": creator,
           "created_on": createdOn,
           "last_modified_on": new Date().toISOString().split("T")[0],
+          "storageStrategy": storageStrategy,
           "marshalManifest": {
             "totalItems": data.length,
             "nestedStream": stream,
@@ -142,7 +149,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
 
         toast.success("Manifest file uploaded successfully");
 
-        if (storageType === "IPNS + IPFS" || ipnsKey) {
+        if (storageType?.includes("IPNS") || ipnsKey) {
           const ipnsResponse = await publishIpns(tokenLogin?.nativeAuthToken || "", response[0]?.hash, ipnsKey);
 
           if (ipnsResponse) {
@@ -186,12 +193,19 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
     generateManifestFile();
   }
 
+  // we don't support edit of SUI Walrus manifest files yet
+  let isEditOfSUIWalrusAsset = false;
+
+  if (manifestFile && manifestFile?.data_stream?.storageStrategy && manifestFile?.data_stream?.storageStrategy === SUI_WALRUS_STRATEGY_STRING) {
+    isEditOfSUIWalrusAsset = true;
+  }
+
   return (
     <div className="flex w-full flex-col">
       <ErrorBoundary
         onError={(err) => <ErrorFallbackMusicDataNfts error={err} />}
         FallbackComponent={({ error, resetErrorBoundary }) => <ErrorFallbackMusicDataNfts error={error} />}>
-        <div className="flex flex-col mt-8 p-8 rounded-lg shadow-md w-[100%] bg-muted  justify-center items-center ">
+        <div className="flex flex-col mt-8 p-8 rounded-lg shadow-md w-[100%] bg-muted  justify-center items-center">
           {DataObjectsComponents}
           {addButton}
         </div>
@@ -199,13 +213,17 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
       <button
         id="validateDataObjectsButton"
         onClick={handleUploadFileToIpfs}
-        disabled={errorMessage != undefined || progressValue === 100}
+        disabled={errorMessage != undefined || progressValue === 100 || isEditOfSUIWalrusAsset}
         className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-        Upload Data
+        {manifestFile ? "Update Data" : "Upload Data"}
       </button>
+
+      {isEditOfSUIWalrusAsset && (
+        <p className="text-lg text-accent text-center mt-2">🚨 As SUI Walrus is in Beta, edits of the manifest file are not supported</p>
+      )}
       <Modal
         openTrigger={<button id="uploadButton"></button>}
-        modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
+        modalClassName={"bg-background bg-muted !max-w-[60%] items-center justify-center border-accent/50"}
         footerContent={
           (errorMessage || errors) && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>
         }

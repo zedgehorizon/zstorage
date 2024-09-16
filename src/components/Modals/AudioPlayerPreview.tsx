@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { toast } from "sonner";
 import DEFAULT_SONG_IMAGE from "@assets/img/audio-player-image.png";
+import { SUI_WALRUS_AGGREGATOR } from "utils/constants";
 type AudioPlayerProps = {
   songs?: any;
   previewUrl?: string;
@@ -12,6 +13,24 @@ type AudioPlayerProps = {
 
 export const AudioPlayerPreview = (props: AudioPlayerProps) => {
   const { songs, previewUrl } = props;
+  let settings = {
+    infinite: false,
+    speed: 1000,
+    slidesToShow: 2,
+    slidesToScroll: 2,
+    initialSlide: 0,
+  };
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [currentTime, setCurrentTime] = useState("00:00");
+  const [displayPlaylist, setDisplayPlaylist] = useState(false);
+  let theme = "dark";
+  const [audio] = useState(new Audio());
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState("00:00");
+  const [isLoaded, setIsLoaded] = useState(false);
+
   useEffect(() => {
     audio.addEventListener("ended", function () {
       setCurrentTrackIndex((prevCurrentTrackIndex) => (prevCurrentTrackIndex < songs.length - 1 ? prevCurrentTrackIndex + 1 : 0));
@@ -34,27 +53,29 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
     };
   }, []);
 
-  let settings = {
-    infinite: false,
-    speed: 1000,
-    slidesToShow: 2,
-    slidesToScroll: 2,
-    initialSlide: 0,
-  };
+  useEffect(() => {
+    updateProgress();
+  }, [audio.src]);
 
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [currentTime, setCurrentTime] = useState("00:00");
-  const [displayPlaylist, setDisplayPlaylist] = useState(false);
-  let theme = "dark";
-  const [audio] = useState(new Audio());
+  useEffect(() => {
+    audio.pause();
+    audio.src = "";
+    setIsPlaying(false);
+    setIsLoaded(false);
+    handleChangeSong();
+  }, [currentTrackIndex]);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState("00:00");
-  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    if (previewUrl) {
+      audio.pause();
+      audio.src = previewUrl;
+      setIsPlaying(false);
+      setIsLoaded(false);
+      handleChangeSong();
+    }
+  }, [previewUrl]);
 
-  /// format time as minutes:seconds
+  // format time as minutes:seconds
   const formatTime = (_seconds: number) => {
     const minutes = Math.floor(_seconds / 60);
     const remainingSeconds = Math.floor(_seconds % 60);
@@ -72,10 +93,6 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
     if (isNaN(_percentage)) _percentage = 0;
     setProgress(_percentage);
   };
-
-  useEffect(() => {
-    updateProgress();
-  }, [audio.src]);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -138,30 +155,12 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
     }
     const index = songs[currentTrackIndex]?.idx;
 
-    audio.src = songs[currentTrackIndex].file;
+    audio.src = mediaUrlsWithAdjustments(songs[currentTrackIndex].file);
     audio.load();
     updateProgress();
     audio.currentTime = 0;
     return true;
   };
-
-  useEffect(() => {
-    audio.pause();
-    audio.src = "";
-    setIsPlaying(false);
-    setIsLoaded(false);
-    handleChangeSong();
-  }, [currentTrackIndex]);
-
-  useEffect(() => {
-    if (previewUrl) {
-      audio.pause();
-      audio.src = previewUrl;
-      setIsPlaying(false);
-      setIsLoaded(false);
-      handleChangeSong();
-    }
-  }, [previewUrl]);
 
   const showPlaylist = () => {
     if (previewUrl) {
@@ -170,6 +169,17 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
       setDisplayPlaylist(true);
     }
   };
+
+  const mediaUrlsWithAdjustments = (originalUrl: string) => {
+    let urlWithAdjustments = originalUrl;
+
+    if (urlWithAdjustments.includes("suiwalrus://")) {
+      urlWithAdjustments = urlWithAdjustments.replace("suiwalrus://", SUI_WALRUS_AGGREGATOR);
+    }
+
+    return urlWithAdjustments;
+  };
+
   return (
     <div className="bg-gradient-to-br from-[#00C79740] to-[#3D00EA20] bg-blend-multiply">
       <div className="bg-[#1b1b1b10] backdrop-contrast-[1.10]">
@@ -193,7 +203,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
                       className={`border-[1px] border-foreground/40 select-none flex flex-col items-center justify-center md:flex-row bg-[#fafafa]/50 dark:bg-[#0f0f0f]/25 p-2 gap-2 text-xs cursor-pointer duration-300 shadow-xl hover:shadow-inner hover:shadow-sky-200 dark:hover:shadow-teal-200 rounded-2xl overflow-hidden text-foreground`}>
                       <div className="w-[80%] md:w-[60%] h-32 flex items-center justify-center">
                         <img
-                          src={song.cover_art_url}
+                          src={mediaUrlsWithAdjustments(song.cover_art_url)}
                           alt={"Not Loaded"}
                           className={`flex items-center justify-center w-24 h-24 rounded-md border border-grey-900 `}
                           onError={({ currentTarget }) => {
@@ -218,7 +228,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
               <div className=" select-none h-[30%] bg-[#FaFaFa]/25 dark:bg-[#0F0F0F]/25   border-[1px] border-foreground/40  relative md:w-[60%] flex flex-col rounded-xl">
                 <div className="px-10 pt-10 pb-4 flex flex-col md:flex-row  items-center">
                   <img
-                    src={songs ? songs[currentTrackIndex]?.cover_art_url : ""}
+                    src={songs ? mediaUrlsWithAdjustments(songs[currentTrackIndex]?.cover_art_url) : ""}
                     alt="Album Cover"
                     className=" select-none w-24 h-24 rounded-md md:mr-6 border border-grey-900"
                     onError={({ currentTarget }) => {
@@ -312,7 +322,7 @@ export const AudioPlayerPreview = (props: AudioPlayerProps) => {
                             className="mx-auto w-32 xl:w-64 select-none flex flex-col xl:flex-row items-center justify-center bg-[#fafafa]/25 dark:bg-[#0f0f0f]/25 cursor-pointer transition-shadow duration-300 shadow-xl hover:shadow-inner hover:shadow-teal-200 rounded-2xl text-foreground border-[1px] border-foreground/40">
                             <div className="w-[80%] xl:w-[40%] justify-center">
                               <img
-                                src={song.cover_art_url}
+                                src={mediaUrlsWithAdjustments(song.cover_art_url)}
                                 alt="Album Cover"
                                 className="h-24 p-2 rounded-md"
                                 onError={({ currentTarget }) => {
