@@ -3,9 +3,9 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY, SUI_WALRUS_STRATEGY_STRING } from "@utils/constants";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, uploadFilesRequestSUIWalrus, onlyAlphaNumericChars } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -172,9 +172,16 @@ export const UploadMusicData = () => {
     filesToUpload.append("category", FILES_CATEGORY); // set the category for files to file
     if (filesToUpload.getAll("files").length === 0) return [];
 
-    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    // SUI walrus code path for now is on the front end
+    let response = null;
 
-    if (response.response) {
+    if (manifestFile?.data_stream?.storageStrategy === SUI_WALRUS_STRATEGY_STRING || decentralized === SUI_WALRUS_STRATEGY_STRING) {
+      response = await uploadFilesRequestSUIWalrus(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    } else {
+      response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    }
+
+    if (response && response.response) {
       if (response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue");
         return undefined;
@@ -183,6 +190,7 @@ export const UploadMusicData = () => {
         return undefined;
       }
     }
+
     return response;
   }
 
@@ -220,14 +228,33 @@ export const UploadMusicData = () => {
             }
           }
 
+          let fileToUse = "";
+          let coverArtUrlToUse = "";
+
+          if (matchingObjSong) {
+            if (matchingObjSong?.isSuiWalrus) {
+              fileToUse = `suiwalrus://${matchingObjSong.hash}`;
+            } else {
+              fileToUse = `${IPFS_GATEWAY}ipfs/${matchingObjSong.folderHash}/${matchingObjSong.fileName}`;
+            }
+          }
+
+          if (matchingObjImage) {
+            if (matchingObjImage?.isSuiWalrus) {
+              coverArtUrlToUse = `suiwalrus://${matchingObjImage.hash}`;
+            } else {
+              coverArtUrlToUse = `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}`;
+            }
+          }
+
           const songData: Record<any, any> = {
             idx: index + 1,
             date: new Date(songObj?.date).toISOString(),
             category: songObj?.category,
             artist: songObj?.artist,
             album: songObj?.album,
-            file: matchingObjSong ? `${IPFS_GATEWAY}ipfs/${matchingObjSong.folderHash}/${matchingObjSong.fileName}` : songObj.file,
-            cover_art_url: matchingObjImage ? `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}` : songObj.cover_art_url,
+            file: matchingObjSong ? fileToUse : songObj.file,
+            cover_art_url: matchingObjImage ? coverArtUrlToUse : songObj.cover_art_url,
             title: songObj?.title,
           };
 
@@ -413,10 +440,21 @@ export const UploadMusicData = () => {
     document.getElementById("mintModalTrigger")?.click();
   };
 
+  const storageStrategy = manifestFile?.data_stream?.storageStrategy || decentralized;
+
   return (
     <ErrorBoundary FallbackComponent={({ error }) => <ErrorFallbackMusicDataNfts error={error} />}>
       <div className="p-4 flex flex-col">
-        <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl  ">
+        <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl">
+          {storageStrategy && (
+            <>
+              <div className="text-accent">Current Storage Strategy: {storageStrategy}</div>
+              {storageStrategy === SUI_WALRUS_STRATEGY_STRING && (
+                <p className="text-accent text-center mt-2">🚨 As SUI Walrus is in Beta, you can only create a new asset. Edits are not supported yet!</p>
+              )}
+            </>
+          )}
+
           <UploadHeader
             title={(manifestFile ? "Update" : "Upload") + " Music Data"}
             folderCid={folderCid}
@@ -493,6 +531,7 @@ export const UploadMusicData = () => {
             ipnsKey={manifestFile?.ipnsKey}
             category={AssetCategories.MUSICPLAYLIST}
             setResponsesOnSuccess={setResponsesOnSuccess}
+            manifestFile={manifestFile}
           />
         </div>
         <MintDataNftModal triggerElement={<Button id="mintModalTrigger"></Button>}></MintDataNftModal>
