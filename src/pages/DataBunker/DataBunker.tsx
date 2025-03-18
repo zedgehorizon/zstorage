@@ -6,8 +6,11 @@ import { useHeaderStore } from "store/header";
 import { isRunningLowOnSpace } from "@utils/functions";
 
 const DataBunker = () => {
-  const { availableSpaceToUpload } = useHeaderStore((state: any) => ({
+  const { availableSpaceToUpload, maxSpace, availableBandwidthToUpload, maxBandwidth } = useHeaderStore((state: any) => ({
     availableSpaceToUpload: state.availableSpaceToUpload,
+    maxSpace: state.maxSpace,
+    availableBandwidthToUpload: state.availableBandwidthToUpload,
+    maxBandwidth: state.maxBandwidth,
   }));
 
   const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
@@ -23,6 +26,22 @@ const DataBunker = () => {
           to get some free bonus storage space. Limited time offer!
         </div>
       )}
+      <div className="text-3xl text-accent mt-8">Your Account</div>
+      <div className="flex flex-row gap-4">
+        <div className="flex flex-col gap-2 border border-accent/25 p-4 rounded-lg">
+          <div className="text-lg">Available Storage</div>
+          <div className="text-sm">
+            {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB of ~{(maxSpace / 1024 ** 2).toFixed(2)} MB
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 border border-accent/25 p-4 rounded-lg">
+          <div className="text-lg">Available Bandwidth</div>
+          <div className="text-sm">
+            {(availableBandwidthToUpload / 1024 ** 2).toFixed(2)} MB of ~{(maxBandwidth / 1024 ** 2).toFixed(2)} MB
+          </div>
+        </div>
+      </div>
+
       <div className="text-4xl text-accent mt-8">Your Data Bunker</div>
       <Link
         to="/storage"

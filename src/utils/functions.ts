@@ -165,19 +165,29 @@ async function storeBlobSUIWalrus(inputFile: any) {
   });
 }
 
-export async function getUserAvailableSpace(nativeAuthToken: string) {
+export async function getUserAvailableSpaceAndBandwidth(nativeAuthToken: string) {
   try {
     const response = await axios.get(`${import.meta.env.VITE_ENV_BACKEND_API}/account`, {
       headers: {
         "authorization": `Bearer ${nativeAuthToken}`,
       },
     });
-    return Number(response.data.maxSize) - response.data.size;
+    return {
+      maxSpace: Number(response.data.maxSize),
+      maxBandwidth: Number(response.data.maxBandwidth),
+      availableSpace: Number(response.data.maxSize) - response.data.size,
+      availableBandwidth: Number(response.data.maxBandwidth) - response.data.bandwidth,
+    };
   } catch (error: any) {
     if (error?.response.data.statusCode === 403) {
       toast("Fetching the available space failed.Native auth token expired. Re-login and try again!");
     } else toast.warning("Error while fetching the available space: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
-    return -1;
+    return {
+      maxSpace: -1,
+      maxBandwidth: -1,
+      availableSpace: -1,
+      availableBandwidth: -1,
+    };
   }
 }
 
@@ -203,6 +213,15 @@ export async function publishIpns(nativeAuthToken: string, pointingToManifestCid
 export function isRunningLowOnSpace(availableSpaceToUpload: any) {
   // less than 2 MB is low space
   if (availableSpaceToUpload && availableSpaceToUpload >= 0 && availableSpaceToUpload / 1024 ** 2 < 2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function isRunningLowOnBandwidth(availableBandwidthToUpload: any) {
+  // less than 2 MB is low bandwidth
+  if (availableBandwidthToUpload && availableBandwidthToUpload >= 0 && availableBandwidthToUpload / 1024 ** 2 < 2) {
     return true;
   } else {
     return false;

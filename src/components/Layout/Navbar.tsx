@@ -7,7 +7,7 @@ import { Dot, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuGroup, DropdownMenuTrigger } from "@libComponents/DropdownMenu";
 import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { getUserAvailableSpace, shortenAddress, isRunningLowOnSpace } from "@utils/functions";
+import { getUserAvailableSpaceAndBandwidth, shortenAddress, isRunningLowOnSpace, isRunningLowOnBandwidth } from "@utils/functions";
 import { useHeaderStore } from "store/header";
 import { add } from "date-fns";
 
@@ -15,13 +15,29 @@ export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
   const { tokenLogin } = useGetLoginInfo();
-  const { updateAvailableSpaceToUpload, availableSpaceToUpload } = useHeaderStore((state: any) => ({
+  const {
+    updateAvailableSpaceToUpload,
+    availableSpaceToUpload,
+    updateAvailableBandwidth,
+    availableBandwidthToUpload,
+    updateMaxSpace,
+    maxSpace,
+    updateMaxBandwidth,
+    maxBandwidth,
+  } = useHeaderStore((state: any) => ({
     updateAvailableSpaceToUpload: state.updateAvailableSpaceToUpload,
     availableSpaceToUpload: state.availableSpaceToUpload,
+    updateAvailableBandwidth: state.updateAvailableBandwidth,
+    availableBandwidthToUpload: state.availableBandwidthToUpload,
+    updateMaxSpace: state.updateMaxSpace,
+    maxSpace: state.maxSpace,
+    updateMaxBandwidth: state.updateMaxBandwidth,
+    maxBandwidth: state.maxBandwidth,
   }));
 
   const handleLogout = () => {
     updateAvailableSpaceToUpload(-1);
+    updateAvailableBandwidth(-1);
     logout(`${window.location.origin}`, undefined, false);
   };
 
@@ -39,16 +55,23 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const fetchAvailableSpace = async () => {
       if (address) {
-        const availableSpace = await getUserAvailableSpace(tokenLogin?.nativeAuthToken ?? "");
+        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth } = await getUserAvailableSpaceAndBandwidth(tokenLogin?.nativeAuthToken ?? "");
         if (availableSpace >= 0) updateAvailableSpaceToUpload(availableSpace);
+        if (availableBandwidth >= 0) updateAvailableBandwidth(availableBandwidth);
+        if (maxSpace >= 0) updateMaxSpace(maxSpace);
+        if (maxBandwidth >= 0) updateMaxBandwidth(maxBandwidth);
       } else {
         if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
+        if (availableBandwidthToUpload >= 0) updateAvailableBandwidth(-1);
+        if (maxSpace >= 0) updateMaxSpace(-1);
+        if (maxBandwidth >= 0) updateMaxBandwidth(-1);
       }
     };
     fetchAvailableSpace();
-  }, [address, availableSpaceToUpload]);
+  }, [address, availableSpaceToUpload, availableBandwidthToUpload, maxSpace, maxBandwidth]);
 
   const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
+  const showGetFreeBandwidthAlert = isRunningLowOnBandwidth(availableBandwidthToUpload);
 
   return (
     <nav>
@@ -103,10 +126,10 @@ export const Navbar: React.FC = () => {
             )}
           </div>
           <div className="lg:!flex !hidden flex-row  justify-center items-center gap-4">
-            <div className=" flex flex-col justify-center items-center">
+            <div className=" flex flex-col justify-center">
               {availableSpaceToUpload >= 0 && (
                 <>
-                  <div className="text-accent w-full text-xs">
+                  <div className="text-accent w-full text-[9px]">
                     {showGetFreeSpaceAlert && (
                       <span className="tooltip hidden">
                         <>
@@ -125,10 +148,31 @@ export const Navbar: React.FC = () => {
                   </div>
                 </>
               )}
-              {address && <p className=" text-accent text-xs"> {shortenAddress(address, 6)}</p>}
+              {availableBandwidthToUpload >= 0 && (
+                <>
+                  <div className="text-accent w-full text-[9px]">
+                    {showGetFreeBandwidthAlert && (
+                      <span className="tooltip hidden">
+                        <>
+                          {showGetFreeBandwidthAlert && <span className="text-lg cursor-pointer mr-1">⚠️</span>}
+                          <span className="tooltiptext border border-accent">
+                            💁🏾 Running out of Bandwidth? Reach out to us on the{" "}
+                            <a href="https://itheum.io/discord" target="_blank" className="underline hover:no-underline">
+                              Itheum Discord
+                            </a>{" "}
+                            to get some free bonus bandwidth. Limited time offer!
+                          </span>
+                        </>
+                      </span>
+                    )}{" "}
+                    <span>Available Bandwidth: {(availableBandwidthToUpload / 1024 ** 2).toFixed(2)} MB</span>
+                  </div>
+                </>
+              )}
+              {address && <p className=" text-accent text-[9px]"> {shortenAddress(address, 6)}</p>}
             </div>
 
-            <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent  rounded-full text-accent hover:text-accent-foreground font-bold">
+            <div className="lg:!flex !hidden border-2 border-accent hover:bg-accent rounded-full text-accent hover:text-accent-foreground font-bold">
               {isLoggedIn ? (
                 <Link to={"/"}>
                   <p className="px-8 py-2" onClick={handleLogout}>
@@ -220,7 +264,8 @@ export const Navbar: React.FC = () => {
                   </>
                 )}
                 <DropdownMenuGroup>
-                  <p className="text-accent text-xs text-center"> Available Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</p>{" "}
+                  <p className="text-accent text-xs text-center">Space: {(availableSpaceToUpload / 1024 ** 2).toFixed(2)} MB</p>{" "}
+                  <p className="text-accent text-xs text-center">Bandwidth: {(availableBandwidthToUpload / 1024 ** 2).toFixed(2)} MB</p>
                   <div className="w-full bg-muted flex justify-center text-accent font-medium ">
                     {address && <p className="text-accent"> {shortenAddress(address, 4)}</p>}
                   </div>
