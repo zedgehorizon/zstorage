@@ -161,8 +161,8 @@ export const Unlock = () => {
             {...commonProps}
             {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
           />
-          <LedgerLoginButton className={buttonStyles} {...commonProps} loginButtonText="Ledger Hardware Wallet" />
-          <WebWalletLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Web Wallet"} />
+          {/* <LedgerLoginButton className={buttonStyles} {...commonProps} loginButtonText="Ledger Hardware Wallet" /> */}
+          {/* <WebWalletLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Web Wallet"} /> */}
         </div>
       </div>
     </div>
