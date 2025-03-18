@@ -38,6 +38,8 @@ export const Navbar: React.FC = () => {
   const handleLogout = () => {
     updateAvailableSpaceToUpload(-1);
     updateAvailableBandwidth(-1);
+    updateMaxSpace(-1);
+    updateMaxBandwidth(-1);
     logout(`${window.location.origin}`, undefined, false);
   };
 
