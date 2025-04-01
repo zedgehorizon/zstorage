@@ -49,6 +49,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
   const [imageURL, setImageURL] = useState("");
   const [mediaURL, setMediaURL] = useState("");
+  const [mediaMimeType, setMediaMimeType] = useState("");
   const [imageFile, setImageFile] = useState<File>();
   const [mediaFile, setMediaFile] = useState<File>();
   const [date, setDate] = useState<string>();
@@ -88,8 +89,13 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
     if (itemData["file"]) {
       form.setValue("file", itemData["file"]);
       setMediaURL(itemData["file"]);
+
+      if (itemData["file_mimeType"]) {
+        setMediaMimeType(itemData["file_mimeType"]);
+      }
     } else {
       setMediaURL("");
+      setMediaMimeType("");
     }
 
     setImageFile(undefined);
@@ -120,8 +126,8 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
 
-      console.log("mediaURL", mediaURL);
       setMediaURL(mediaURL);
+      setMediaMimeType(file.type);
     } else {
       toast.warning("Please upload a valid file");
     }
@@ -227,18 +233,32 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
               {/* {mediaURL && !wantToEditMedia && !mediaFile ? ( */}
               {mediaURL && !mediaFile ? (
-                <div className="mt-2 flex flex-row justify-start items-center  ">
-                  <audio
-                    tabIndex={-1}
-                    onLoadStart={() => setMediaFileIsLoading(true)}
-                    onError={() => {
-                      setMediaFileIsLoading(false);
-                    }}
-                    onLoadedData={() => setMediaFileIsLoading(false)}
-                    src={mediaURL}
-                    className="-ml-9 scale-[0.8]"
-                    controls
-                  />
+                <div className="mt-2 flex flex-row justify-start items-center">
+                  {mediaMimeType.includes("audio") ? (
+                    <audio
+                      tabIndex={-1}
+                      onLoadStart={() => setMediaFileIsLoading(true)}
+                      onError={() => {
+                        setMediaFileIsLoading(false);
+                      }}
+                      onLoadedData={() => setMediaFileIsLoading(false)}
+                      src={mediaURL}
+                      className="-ml-9 scale-[0.8]"
+                      controls
+                    />
+                  ) : mediaMimeType.includes("mp4") || mediaMimeType.includes("pdf") ? (
+                    <>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(mediaURL, "_blank");
+                        }}
+                        className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">
+                        Preview ({mediaMimeType.includes("mp4") ? "Video" : "PDF"} in new tab)
+                      </Button>
+                    </>
+                  ) : null}
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
