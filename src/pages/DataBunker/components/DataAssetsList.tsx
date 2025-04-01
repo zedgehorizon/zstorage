@@ -31,6 +31,10 @@ export const DataAssetList: React.FC = () => {
   // when we got all the manifest files, categorize them and then show the categories
   useEffect(() => {
     if (isLoading === true) return;
+
+    console.log("manifestFiles");
+    console.log(manifestFiles);
+
     manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
         setCategoryManifestFiles((prev) => ({
