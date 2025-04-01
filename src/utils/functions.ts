@@ -176,19 +176,23 @@ export async function getUserAvailableSpaceAndBandwidth(nativeAuthToken: string)
     let isNewUserAccountWithNoUploads = false;
     let maxSize = Number(response.data.maxSize);
     let maxBandwidth = Number(response.data.maxBandwidth);
+    let currSize = response.data.size;
+    let currBandwidth = response.data.bandwidth;
 
     // if a new user joins and they have never uploaded, we dont tier them in the backend so we default in the UI to "Basic" limits
     if (!response.data.accountTier) {
       isNewUserAccountWithNoUploads = true;
       maxSize = 10000000;
       maxBandwidth = 500000000;
+      currSize = 0;
+      currBandwidth = 0;
     }
 
     return {
       maxSpace: maxSize,
       maxBandwidth: maxBandwidth,
-      availableSpace: maxSize - response.data.size,
-      availableBandwidth: maxBandwidth - response.data.bandwidth,
+      availableSpace: maxSize - currSize,
+      availableBandwidth: maxBandwidth - currBandwidth,
       isNewUserAccountWithNoUploads: isNewUserAccountWithNoUploads,
     };
   } catch (error: any) {
