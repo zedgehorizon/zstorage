@@ -263,7 +263,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
                   <Input
-                    accept=".mp3, .mp4, .pdf"
+                    accept=".mp3, .mp4, .pdf, .jpg, .jpeg, .png, .gif, .svg"
                     id="file"
                     type="file"
                     className=" w-24 overflow-hidden border-0 p-0"
