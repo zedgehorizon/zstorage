@@ -157,6 +157,10 @@ export const DataAssetList: React.FC = () => {
       console.error("Error fetching data assets", error);
     }
   }
+
+  console.log("categoryManifestFiles");
+  console.log(categoryManifestFiles);
+
   return (
     <div className="p-4 flex flex-col">
       {(isLoading && (
