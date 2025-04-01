@@ -127,6 +127,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file_mimeType", file.type);
 
       console.log("mediaURL", mediaURL);
+      console.log("file.type", file.type);
       setMediaURL(mediaURL);
       setMediaMimeType(file.type);
     } else {
@@ -235,7 +236,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               {/* {mediaURL && !wantToEditMedia && !mediaFile ? ( */}
               {mediaURL && !mediaFile ? (
                 <div className="mt-2 flex flex-row justify-start items-center">
-                  {mediaMimeType.includes("mp3") ? (
+                  {mediaMimeType.includes("audio") ? (
                     <audio
                       tabIndex={-1}
                       onLoadStart={() => setMediaFileIsLoading(true)}
@@ -248,9 +249,21 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                       controls
                     />
                   ) : mediaMimeType.includes("mp4") || mediaMimeType.includes("pdf") ? (
-                    <Button onClick={() => window.open(mediaURL, "_blank")} className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">
-                      Preview in new tab
-                    </Button>
+                    <>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(mediaURL, "_blank");
+                        }}
+                        className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">
+                        Preview in new tab
+                      </Button>
+
+                      <a href={mediaURL} target="_blank" rel="noopener noreferrer">
+                        <Button className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">Preview in new tab</Button>
+                      </a>
+                    </>
                   ) : null}
                 </div>
               ) : (
