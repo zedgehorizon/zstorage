@@ -227,7 +227,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf, image (.jpg, .png, .gif, .svg))</label>
+                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf, image - .jpg, .png, .gif, .svg)</label>
                 {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
 
