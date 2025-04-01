@@ -119,6 +119,8 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       const mediaURL = URL.createObjectURL(event.target.files[0]);
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
+
+      console.log("mediaURL", mediaURL);
       setMediaURL(mediaURL);
     } else {
       toast.warning("Please upload a valid file");
