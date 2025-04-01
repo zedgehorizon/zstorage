@@ -120,7 +120,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
-    if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio") || file.type.includes("pdf"))) {
+    if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio") || file.type.includes("pdf") || file.type.startsWith("image"))) {
       setMediaFile(file);
       const mediaURL = URL.createObjectURL(event.target.files[0]);
       form.setValue("file", mediaURL);
@@ -227,7 +227,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf)</label>
+                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf, image (.jpg, .png, .gif, .svg))</label>
                 {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
 
@@ -246,7 +246,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                       className="-ml-9 scale-[0.8]"
                       controls
                     />
-                  ) : mediaMimeType.includes("mp4") || mediaMimeType.includes("pdf") ? (
+                  ) : mediaMimeType.includes("mp4") || mediaMimeType.includes("pdf") || mediaMimeType.includes("image") ? (
                     <>
                       <Button
                         onClick={(e) => {
@@ -255,7 +255,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                           window.open(mediaURL, "_blank");
                         }}
                         className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">
-                        Preview ({mediaMimeType.includes("mp4") ? "Video" : "PDF"} in new tab)
+                        Preview ({mediaMimeType.includes("mp4") ? "Video" : mediaMimeType.includes("pdf") ? "PDF" : "Image"} in new tab)
                       </Button>
                     </>
                   ) : null}
