@@ -90,6 +90,13 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
+
+      console.log("================== XXXX");
+      console.log(`${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid);
+      console.log("==================");
+      console.log(response.data);
+      console.log("================== XXXX");
+
       if (!response.data?.data_stream) {
         /// empty manifest file or wrong format might happen only with older versions of manifest file
 
