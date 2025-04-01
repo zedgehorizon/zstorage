@@ -257,12 +257,8 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                           window.open(mediaURL, "_blank");
                         }}
                         className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">
-                        Preview in new tab
+                        Preview ({mediaMimeType.includes("mp4") ? "Video" : "PDF"} in new tab)
                       </Button>
-
-                      <a href={mediaURL} target="_blank" rel="noopener noreferrer">
-                        <Button className="bg-accent/20 hover:bg-accent/50 text-accent border border-accent">Preview in new tab</Button>
-                      </a>
                     </>
                   ) : null}
                 </div>
