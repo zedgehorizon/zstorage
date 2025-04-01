@@ -68,6 +68,12 @@ export const Navbar: React.FC = () => {
         if (isNewUserAccountWithNoUploads) {
           setIsNewUserAccountWithNoUploads(true);
         }
+
+        console.log("availableSpace", availableSpace);
+        console.log("availableBandwidth", availableBandwidth);
+        console.log("maxSpace", maxSpace);
+        console.log("maxBandwidth", maxBandwidth);
+        console.log("isNewUserAccountWithNoUploads", isNewUserAccountWithNoUploads);
       } else {
         if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
         if (availableBandwidthToUpload >= 0) updateAvailableBandwidth(-1);
@@ -81,8 +87,6 @@ export const Navbar: React.FC = () => {
   const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
   const showGetFreeBandwidthAlert = isRunningLowOnBandwidth(availableBandwidthToUpload);
   const showGetFreeSpaceAndBandwidthAlert = isNewUserAccountWithNoUploads;
-
-  console.log("showGetFreeSpaceAndBandwidthAlert", showGetFreeSpaceAndBandwidthAlert);
 
   return (
     <nav>
