@@ -91,13 +91,13 @@ export const DataAssetList: React.FC = () => {
         },
       });
 
-      console.log("================== XXXX");
-      console.log(`${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid);
-      console.log("==================");
-      console.log(response.data);
-      console.log("================== XXXX");
-
       if (!response.data?.data_stream) {
+        console.log("================== XXXX");
+        console.log(`${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid);
+        console.log("==================");
+        console.log(response.data);
+        console.log("================== XXXX");
+
         /// empty manifest file or wrong format might happen only with older versions of manifest file
 
         console.error("empty manifest file or wrong format");
@@ -128,6 +128,10 @@ export const DataAssetList: React.FC = () => {
       setIsLoading(false);
       return;
     }
+
+    console.log("storedDataAssets ***********************");
+    console.log(storedDataAssets);
+
     try {
       await Promise.all(
         storedDataAssets.map(async (manifestAsset) => {
