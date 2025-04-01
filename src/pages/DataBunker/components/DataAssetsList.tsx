@@ -32,9 +32,6 @@ export const DataAssetList: React.FC = () => {
   useEffect(() => {
     if (isLoading === true) return;
 
-    console.log("manifestFiles");
-    console.log(manifestFiles);
-
     manifestFiles.map((manifest: ManifestFile) => {
       if (manifest.data_stream.category) {
         setCategoryManifestFiles((prev) => ({
@@ -92,14 +89,7 @@ export const DataAssetList: React.FC = () => {
       });
 
       if (!response.data?.data_stream) {
-        console.log("================== XXXX");
-        console.log(`${import.meta.env.VITE_ENV_BACKEND_API}/file${API_VERSION}/` + manifestCid);
-        console.log("==================");
-        console.log(response.data);
-        console.log("================== XXXX");
-
-        /// empty manifest file or wrong format might happen only with older versions of manifest file
-
+        // empty manifest file or wrong format might happen only with older versions of manifest file
         console.error("empty manifest file or wrong format");
         return undefined;
       }
@@ -129,9 +119,6 @@ export const DataAssetList: React.FC = () => {
       return;
     }
 
-    console.log("storedDataAssets ***********************");
-    console.log(storedDataAssets);
-
     try {
       await Promise.all(
         storedDataAssets.map(async (manifestAsset) => {
@@ -149,13 +136,11 @@ export const DataAssetList: React.FC = () => {
     try {
       const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
       setIsLoading(true);
-      console.log("apiUrlGet", apiUrlGet);
       const response = await axios.get(apiUrlGet, {
         headers: {
           "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
-      console.log("response", response.data);
       const staticDataAssetsMap = response.data;
 
       const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
@@ -168,9 +153,6 @@ export const DataAssetList: React.FC = () => {
       console.error("Error fetching data assets", error);
     }
   }
-
-  console.log("categoryManifestFiles");
-  console.log(categoryManifestFiles);
 
   return (
     <div className="p-4 flex flex-col">

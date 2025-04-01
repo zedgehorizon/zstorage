@@ -155,7 +155,6 @@ async function storeBlobSUIWalrus(inputFile: any) {
       // Parse successful responses as JSON, and return it along with the
       // mime type from the the file input element.
       return response.json().then((info) => {
-        console.log(info);
         return { info: info, media_type: inputFile.type };
       });
     } else {

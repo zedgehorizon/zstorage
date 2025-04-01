@@ -126,8 +126,6 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
       form.setValue("file", mediaURL);
       form.setValue("file_mimeType", file.type);
 
-      console.log("mediaURL", mediaURL);
-      console.log("file.type", file.type);
       setMediaURL(mediaURL);
       setMediaMimeType(file.type);
     } else {
