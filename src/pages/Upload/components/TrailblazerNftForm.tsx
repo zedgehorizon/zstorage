@@ -114,7 +114,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
   const handleMediaFileChange = (event: any) => {
     const file = event.target.files[0];
-    if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio"))) {
+    if (file && (file.type.startsWith("video/mp4") || file.type.startsWith("audio") || file.type.includes("pdf"))) {
       setMediaFile(file);
       const mediaURL = URL.createObjectURL(event.target.files[0]);
       form.setValue("file", mediaURL);
@@ -219,7 +219,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground text-xs">Media File (.mp3, .mp4)</label>
+                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf)</label>
                 {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
 
@@ -240,7 +240,13 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
                 </div>
               ) : (
                 <div className="mt-2 p-2 w-full flex flex-row items-center justify-center rounded-md border border-accent/50 bg-muted text-sm text-accent/50  ">
-                  <Input accept=".mp3, .mp4" id="file" type="file" className=" w-24 overflow-hidden border-0 p-0" onChange={(e) => handleMediaFileChange(e)} />
+                  <Input
+                    accept=".mp3, .mp4, .pdf"
+                    id="file"
+                    type="file"
+                    className=" w-24 overflow-hidden border-0 p-0"
+                    onChange={(e) => handleMediaFileChange(e)}
+                  />
                   <div className="text-accent/50 w-[10rem] truncate ">
                     {mediaFile ? mediaFile.name : mediaURL?.split("_")[1] ? mediaURL.split("_")[1] : "No chosen file"}{" "}
                   </div>
