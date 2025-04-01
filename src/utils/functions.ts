@@ -172,11 +172,24 @@ export async function getUserAvailableSpaceAndBandwidth(nativeAuthToken: string)
         "authorization": `Bearer ${nativeAuthToken}`,
       },
     });
+
+    let isNewUserAccountWithNoUploads = false;
+    let maxSize = Number(response.data.maxSize);
+    let maxBandwidth = Number(response.data.maxBandwidth);
+
+    // if a new user joins and they have never uploaded, we dont tier them in the backend so we default in the UI to "Basic" limits
+    if (!response.data.accountTier) {
+      isNewUserAccountWithNoUploads = true;
+      maxSize = 10000000;
+      maxBandwidth = 500000000;
+    }
+
     return {
-      maxSpace: Number(response.data.maxSize),
-      maxBandwidth: Number(response.data.maxBandwidth),
-      availableSpace: Number(response.data.maxSize) - response.data.size,
-      availableBandwidth: Number(response.data.maxBandwidth) - response.data.bandwidth,
+      maxSpace: maxSize,
+      maxBandwidth: maxBandwidth,
+      availableSpace: maxSize - response.data.size,
+      availableBandwidth: maxBandwidth - response.data.bandwidth,
+      isNewUserAccountWithNoUploads: isNewUserAccountWithNoUploads,
     };
   } catch (error: any) {
     if (error?.response.data.statusCode === 403) {
@@ -187,6 +200,7 @@ export async function getUserAvailableSpaceAndBandwidth(nativeAuthToken: string)
       maxBandwidth: -1,
       availableSpace: -1,
       availableBandwidth: -1,
+      isNewUserAccountWithNoUploads: false,
     };
   }
 }

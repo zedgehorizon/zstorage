@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { logout } from "@multiversx/sdk-dapp/utils/logout";
 import logo from "@assets/logo/logo.png";
@@ -34,6 +34,7 @@ export const Navbar: React.FC = () => {
     updateMaxBandwidth: state.updateMaxBandwidth,
     maxBandwidth: state.maxBandwidth,
   }));
+  const [isNewUserAccountWithNoUploads, setIsNewUserAccountWithNoUploads] = useState(false);
 
   const handleLogout = () => {
     updateAvailableSpaceToUpload(-1);
@@ -57,11 +58,16 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const fetchAvailableSpace = async () => {
       if (address) {
-        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth } = await getUserAvailableSpaceAndBandwidth(tokenLogin?.nativeAuthToken ?? "");
+        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth, isNewUserAccountWithNoUploads } = await getUserAvailableSpaceAndBandwidth(
+          tokenLogin?.nativeAuthToken ?? ""
+        );
         if (availableSpace >= 0) updateAvailableSpaceToUpload(availableSpace);
         if (availableBandwidth >= 0) updateAvailableBandwidth(availableBandwidth);
         if (maxSpace >= 0) updateMaxSpace(maxSpace);
         if (maxBandwidth >= 0) updateMaxBandwidth(maxBandwidth);
+        if (isNewUserAccountWithNoUploads) {
+          setIsNewUserAccountWithNoUploads(true);
+        }
       } else {
         if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
         if (availableBandwidthToUpload >= 0) updateAvailableBandwidth(-1);
@@ -74,6 +80,9 @@ export const Navbar: React.FC = () => {
 
   const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
   const showGetFreeBandwidthAlert = isRunningLowOnBandwidth(availableBandwidthToUpload);
+  const showGetFreeSpaceAndBandwidthAlert = isNewUserAccountWithNoUploads;
+
+  console.log("showGetFreeSpaceAndBandwidthAlert", showGetFreeSpaceAndBandwidthAlert);
 
   return (
     <nav>
