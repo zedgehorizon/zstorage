@@ -36,7 +36,7 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
           <div className={cn(colorClass, "text-5xl")}>{price}</div>
         ) : (
           <>
-            <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm">per year</span>
+            <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm"> USD / per year</span>
           </>
         )}
       </div>

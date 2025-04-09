@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libCo
 import { Popover, PopoverContent, PopoverTrigger } from "@libComponents/Popover";
 import storageIllustration from "@assets/img/illustration-storage.png";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
+import { SubscriptionTiers } from "config";
 
 const ItheumGatewayService: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -146,8 +147,8 @@ const ItheumGatewayService: React.FC = () => {
             </div>
           </div>
           <div className="flex justify-start items-end gap-1">
-            <div className="text-5xl text-accent">$129</div>
-            <span className="text-sm">per year</span>
+            <div className="text-5xl text-accent">{SubscriptionTiers.GATEWAY.annualPrice}</div>
+            <span className="text-sm">USD / per year</span>
             <div className="ml-2 text-sm text-accent line-through">$199</div>
           </div>
           <div className="w-[100%] bg-gradient-to-r from-muted via-foreground/50 to-muted pb-[1px] -z-1" />
@@ -159,7 +160,9 @@ const ItheumGatewayService: React.FC = () => {
                 content={`Same as PREMIUM STORAGE tier
 
 Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
-                <span className="my-auto">1GB Storage</span>
+                <span className="my-auto">
+                  {SubscriptionTiers.GATEWAY.storage} {SubscriptionTiers.GATEWAY.storageUnit} Storage
+                </span>
               </FeatureTooltip>
             </li>
             <li className="flex">
@@ -168,7 +171,9 @@ Create and store data in bunkers with 1GB storage and bandwidth as part of your 
                 content={`Same as PREMIUM STORAGE tier
 
 Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
-                <span className="my-auto">1GB Bandwidth / month</span>
+                <span className="my-auto">
+                  {SubscriptionTiers.GATEWAY.bandwidth} {SubscriptionTiers.GATEWAY.bandwidthUnit} Bandwidth / month
+                </span>
               </FeatureTooltip>
             </li>
             <li className="flex">

@@ -40,6 +40,30 @@ export const Navbar: React.FC = () => {
   }));
   const [isNewUserAccountWithNoUploads, setIsNewUserAccountWithNoUploads] = useState(false);
 
+  // replace this logic so that only if the user scrolls up to the top of the page, and there are any hash params, let's remove them
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY === 0 && window.location.hash) {
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (sectionId: string) => {
+    if (window.location.pathname === "/") {
+      const section = document.getElementById(sectionId);
+
+      if (section) {
+        window.scrollTo({
+          top: section.offsetTop,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
+
   const handleLogout = () => {
     updateAvailableSpaceToUpload(-1);
     updateAvailableBandwidth(-1);
@@ -47,17 +71,6 @@ export const Navbar: React.FC = () => {
     updateMaxBandwidth(-1);
     updateAccountTier("");
     logout(`${window.location.origin}`, undefined, false);
-  };
-
-  const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-
-    if (section) {
-      window.scrollTo({
-        top: section.offsetTop,
-        behavior: "smooth",
-      });
-    }
   };
 
   useEffect(() => {
@@ -98,7 +111,7 @@ export const Navbar: React.FC = () => {
   const showGetFreeSpaceAndBandwidthAlert = isNewUserAccountWithNoUploads;
 
   return (
-    <nav>
+    <nav className="header-nav">
       <div className="bg-gradient-to-r from-black via-accent/50 to-black pb-[1px] z-11">
         <div className="bg-background flex flex-row justify-left p-4 xl:px-24 items-center h-20 justify-between">
           <Link to={"/"} className="flex flex-row justify-center items-center text-2xl gap-1 ">
@@ -125,12 +138,6 @@ export const Navbar: React.FC = () => {
                   <Dot className="text-accent scale-[2] mx-auto "></Dot>
                 </div>
               </Link>
-              {/* <Link className="cursor-pointer group " to={"/itheum-music-data-nft"}>
-                <p className=" ">Music Data NFT Storage</p>
-                <div className="opacity-0 group-hover:opacity-100">
-                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
-                </div>
-              </Link> */}
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
@@ -231,7 +238,7 @@ export const Navbar: React.FC = () => {
                   </Link>
                 </DropdownMenuGroup>
                 <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
+                  <Link className=" cursor-pointer group" to="/#features" onClick={() => scrollToSection("features")}>
                     <DropdownMenuItem>
                       <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
                         <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Features</div>
@@ -257,15 +264,6 @@ export const Navbar: React.FC = () => {
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
-                {/* <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
-                    <DropdownMenuItem>
-                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Music Data NFT Storage</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuGroup> */}
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>

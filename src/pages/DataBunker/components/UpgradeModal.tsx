@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@libComponents/Button";
 import { X } from "lucide-react";
+import { SubscriptionTiers } from "config";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -22,16 +23,16 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, tier }) =>
   const getTierDetails = () => {
     if (tier === "Premium") {
       return {
-        price: "$99 / per year",
-        storage: "1GB Storage",
-        bandwidth: "1GB Bandwidth / month",
+        price: `${SubscriptionTiers.PREMIUM.annualPrice} USD / per year`,
+        storage: `${SubscriptionTiers.PREMIUM.storage} ${SubscriptionTiers.PREMIUM.storageUnit} Storage`,
+        bandwidth: `${SubscriptionTiers.PREMIUM.bandwidth} ${SubscriptionTiers.PREMIUM.bandwidthUnit} Bandwidth / month`,
         extras: [],
       };
     } else {
       return {
-        price: "$129 / per year",
-        storage: "1GB Storage",
-        bandwidth: "1GB Bandwidth / month",
+        price: `${SubscriptionTiers.GATEWAY.annualPrice} USD / per year`,
+        storage: `${SubscriptionTiers.GATEWAY.storage} ${SubscriptionTiers.GATEWAY.storageUnit} Storage`,
+        bandwidth: `${SubscriptionTiers.GATEWAY.bandwidth} ${SubscriptionTiers.GATEWAY.bandwidthUnit} Bandwidth / month`,
         extras: ["Dedicated support for data tokenization", "Priority data streaming"],
       };
     }
@@ -50,7 +51,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, tier }) =>
         </div>
 
         <div className="space-y-4">
-          <div className="text-xl font-semibold">Price: {details.price}</div>
+          <div className="text-xl font-semibold">Price: ${details.price} </div>
 
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">What you get:</h3>

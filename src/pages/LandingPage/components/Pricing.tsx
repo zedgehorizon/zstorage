@@ -1,5 +1,6 @@
 import React from "react";
 import PriceCard from "./PriceCard";
+import { SubscriptionTiers } from "config";
 
 const Pricing: React.FC = () => {
   return (
@@ -19,15 +20,21 @@ const Pricing: React.FC = () => {
         <PriceCard
           plan="BASIC"
           title="Go Basic"
-          price={"0"}
-          features={["10MB Storage", "500MB Bandwidth / month"]}
+          price={SubscriptionTiers.BASIC.annualPrice.toString()}
+          features={[
+            `${SubscriptionTiers.BASIC.storage} ${SubscriptionTiers.BASIC.storageUnit} Storage`,
+            `${SubscriptionTiers.BASIC.bandwidth} ${SubscriptionTiers.BASIC.bandwidthUnit} Bandwidth / month`,
+          ]}
           description="Upload and manage your vital data. Built-in support for Itheum Data NFTs."
         />
         <PriceCard
           plan="PREMIUM"
           title="Go Scale"
-          price={"99"}
-          features={["1GB Storage", "1GB Bandwidth / month"]}
+          price={SubscriptionTiers.PREMIUM.annualPrice.toString()}
+          features={[
+            `${SubscriptionTiers.PREMIUM.storage} ${SubscriptionTiers.PREMIUM.storageUnit} Storage`,
+            `${SubscriptionTiers.PREMIUM.bandwidth} ${SubscriptionTiers.PREMIUM.bandwidthUnit} Bandwidth / month`,
+          ]}
           description="Everything in basic with more storage and bandwidth for your vital data."
         />
         <PriceCard

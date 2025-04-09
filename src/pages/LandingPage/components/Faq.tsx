@@ -14,6 +14,11 @@ const Faq: React.FC = () => {
         "zEdgeStorage does NOT store data on the blockchain; it uses multiple underlying distributed data storage systems and abstracts them so that you only interact with zEdgeStorage's user interface. zEdgeStorage does integrate with the Itheum protocol, which provides blockchain-powered data licensing technology called Data NFTs, which uses the transparency and immutability features of a blockchain to implement a decentralized 'access control' layer for your data.",
     },
     {
+      question: "How can I login to create an account?",
+      answer:
+        "Logging into Zedge Storage is done via a free blockchain wallet. You can use our Google Login wallet options, that uses your Google account to create a real time wallet for you. But this is in Beta so there may be some issues. We will contine to work to improve the login experience but for now the best option would be to use the free xPortal mobile app wallet. You can get it from here: <a href='https://xportal.com/app' target='_blank'>https://xportal.com/app</a> ",
+    },
+    {
       question: "How is zEdgeStorage different to platforms like IPFS and Arweave?",
       answer:
         "zEdgeStorage abstracts all these distributed data storage systems 'under the hood' and provides 'data portability' between this system and centralized systems like AWS and Google Drive. For example, you can upload some vital data to AWS and then move it to IPFS during an emergency (like a cloud outage event or active hack phase) and then move it back to AWS if you want.",

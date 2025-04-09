@@ -33,6 +33,24 @@ const LandingPage = () => {
       );
     }
   }, []);
+
+  useEffect(() => {
+    // if there are URL hash params like #solution, #pricing, #features, #gateway, let's detect that and scroll to the element
+    const hash = window.location.hash;
+
+    if (hash) {
+      setTimeout(() => {
+        const section = document.getElementById(hash.slice(1));
+        if (section) {
+          window.scrollTo({
+            top: section.offsetTop,
+            behavior: "smooth",
+          });
+        }
+      }, 10);
+    }
+  }, [window.location.hash]);
+
   return (
     <div className="top-0 w-full h-full bg-background flex flex-grow flex-col items-center justify-start  ">
       <div className="py-16 relative flex items-center justify-center">
