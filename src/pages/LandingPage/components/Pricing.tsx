@@ -25,7 +25,7 @@ const Pricing: React.FC = () => {
         />
         <PriceCard
           plan="PREMIUM"
-          title="Go Zzz"
+          title="Go Scale"
           price={"99"}
           features={["1GB Storage", "1GB Bandwidth / month"]}
           description="Everything in basic with more storage and bandwidth for your vital data."

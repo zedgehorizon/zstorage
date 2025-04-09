@@ -12,7 +12,11 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, tier }) =>
   if (!isOpen) return null;
 
   const handlePayment = () => {
-    window.open("https://buy.stripe.com/fZebMCbFe9Oc9Ec3cc?prefilled_email=", "_blank");
+    if (tier === "Premium") {
+      window.open("https://buy.stripe.com/9AQbMCeRq4tS9Ec9AC?prefilled_email=", "_blank");
+    } else {
+      window.open("https://buy.stripe.com/fZebMCbFe9Oc9Ec3cc?prefilled_email=", "_blank");
+    }
   };
 
   const getTierDetails = () => {
@@ -88,8 +92,8 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, tier }) =>
             <Button variant="outline" className="border-accent" onClick={onClose}>
               Close
             </Button>
-            <Button disabled className="bg-accent text-accent-foreground" onClick={handlePayment}>
-              Make Secure Payment (coming soon)
+            <Button className="bg-accent text-accent-foreground" onClick={handlePayment}>
+              Make Secure Payment
             </Button>
           </div>
         </div>

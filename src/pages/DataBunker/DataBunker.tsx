@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DataAssetList } from "./components/DataAssetsList";
 import { FolderPlus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useHeaderStore } from "store/header";
 import { isRunningLowOnSpace } from "@utils/functions";
 import { Button } from "@libComponents/Button";
@@ -18,6 +18,8 @@ const DataBunker = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<"Premium" | "Gateway">("Premium");
+  const [searchParams] = useSearchParams();
+  const paymentsEnabled = searchParams.get("payments") === "true";
 
   const showGetFreeSpaceAlert = isRunningLowOnSpace(availableSpaceToUpload);
 
@@ -60,40 +62,47 @@ const DataBunker = () => {
           <div className="text-md">
             Current Account Tier: <span className="font-bold text-accent bg-accent/25 p-1 rounded-sm">{accountTier.toUpperCase()}</span>
           </div>
-          <div className="flex flex-row gap-4">
-            <p>Upgrade your account tier</p>
-            <div className="flex gap-2">
-              {accountTier === "basic" && (
-                <>
-                  <Button variant="outline" onClick={() => handleUpgradeClick("Premium")}>
-                    Premium
-                  </Button>
-                  <Button variant="outline" onClick={() => handleUpgradeClick("Gateway")}>
-                    Gateway
-                  </Button>
-                </>
-              )}
-              {accountTier === "premium" && (
-                <>
-                  <Button variant="outline" disabled>
-                    Premium
-                  </Button>
-                  <Button variant="outline" onClick={() => handleUpgradeClick("Gateway")}>
-                    Gateway
-                  </Button>
-                </>
-              )}
-              {accountTier === "gateway1" && (
-                <>
-                  <Button variant="outline" disabled>
-                    Premium
-                  </Button>
-                  <Button variant="outline" disabled>
-                    Gateway
-                  </Button>
-                </>
-              )}
+          <div className={`flex flex-col gap-4 ${!paymentsEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+            <div className="flex flex-row gap-4">
+              <p>Upgrade your account tier</p>
+              <div className="flex gap-2">
+                {accountTier === "basic" && (
+                  <>
+                    <Button variant="outline" onClick={() => handleUpgradeClick("Premium")} disabled={!paymentsEnabled}>
+                      Premium
+                    </Button>
+                    <Button variant="outline" onClick={() => handleUpgradeClick("Gateway")} disabled={!paymentsEnabled}>
+                      Gateway
+                    </Button>
+                  </>
+                )}
+                {accountTier === "premium" && (
+                  <>
+                    <Button variant="outline" disabled>
+                      Premium
+                    </Button>
+                    <Button variant="outline" onClick={() => handleUpgradeClick("Gateway")} disabled={!paymentsEnabled}>
+                      Gateway
+                    </Button>
+                  </>
+                )}
+                {accountTier === "gateway1" && (
+                  <>
+                    <Button variant="outline" disabled>
+                      Premium
+                    </Button>
+                    <Button variant="outline" disabled>
+                      Gateway
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
+            {!paymentsEnabled && (
+              <div className="text-sm text-accent bg-accent/10 p-2 rounded">
+                Payments are currently offline, please email us on support@zedgestorage.com to enable payment based upgrade.
+              </div>
+            )}
           </div>
         </div>
 
