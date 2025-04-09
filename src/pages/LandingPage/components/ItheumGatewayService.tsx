@@ -57,7 +57,7 @@ const ItheumGatewayService: React.FC = () => {
       <h3 className="text-foreground/75 text-center">Extend your data storage with optional support for data tokenization</h3>
       <div className="flex flex-col lg:flex-row justify-center items-center gap-8 py-16 px-4 lg:px-32">
         {/* Left Column - Description */}
-        <div className="flex flex-col gap-4 w-full lg:w-1/2">
+        <div className="flex flex-col gap-4 w-full lg:w-1/2 md:max-w-md">
           <img src={storageIllustration} alt="Storage Illustration" className="w-full max-w-md mx-auto" />
           <p className="text-foreground/75 text-center">
             The{" "}
@@ -159,7 +159,16 @@ const ItheumGatewayService: React.FC = () => {
                 content={`Same as PREMIUM STORAGE tier
 
 Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
-                <span className="my-auto">1GB Storage / 1GB Bandwidth</span>
+                <span className="my-auto">1GB Storage</span>
+              </FeatureTooltip>
+            </li>
+            <li className="flex">
+              <CheckCircle2 className="mr-2 scale-75 my-auto text-accent" />
+              <FeatureTooltip
+                content={`Same as PREMIUM STORAGE tier
+
+Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
+                <span className="my-auto">1GB Bandwidth / month</span>
               </FeatureTooltip>
             </li>
             <li className="flex">

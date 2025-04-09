@@ -10,6 +10,7 @@ type State = {
   maxBandwidth: number;
   availableSpaceToUpload: number;
   availableBandwidthToUpload: number;
+  accountTier: string;
 };
 
 type Action = {
@@ -22,6 +23,7 @@ type Action = {
   updateMaxSpace: (maxSpace: State["maxSpace"]) => void;
   updateAvailableBandwidth: (availableBandwidthToUpload: State["availableBandwidthToUpload"]) => void;
   updateMaxBandwidth: (maxBandwidth: State["maxBandwidth"]) => void;
+  updateAccountTier: (accountTier: State["accountTier"]) => void;
 };
 
 export const useHeaderStore = create<State & Action>((set) => ({
@@ -34,6 +36,7 @@ export const useHeaderStore = create<State & Action>((set) => ({
   availableSpaceToUpload: -1,
   maxBandwidth: -1,
   availableBandwidthToUpload: -1,
+  accountTier: "",
 
   updateName: (value: string) => set(() => ({ name: value })),
   updateCreator: (value: string) => set(() => ({ creator: value })),
@@ -44,4 +47,5 @@ export const useHeaderStore = create<State & Action>((set) => ({
   updateAvailableSpaceToUpload: (value: number) => set(() => ({ availableSpaceToUpload: value })),
   updateMaxBandwidth: (value: number) => set(() => ({ maxBandwidth: value })),
   updateAvailableBandwidth: (value: number) => set(() => ({ availableBandwidthToUpload: value })),
+  updateAccountTier: (value: string) => set(() => ({ accountTier: value })),
 }));

@@ -24,6 +24,8 @@ export const Navbar: React.FC = () => {
     maxSpace,
     updateMaxBandwidth,
     maxBandwidth,
+    updateAccountTier,
+    accountTier,
   } = useHeaderStore((state: any) => ({
     updateAvailableSpaceToUpload: state.updateAvailableSpaceToUpload,
     availableSpaceToUpload: state.availableSpaceToUpload,
@@ -33,6 +35,8 @@ export const Navbar: React.FC = () => {
     maxSpace: state.maxSpace,
     updateMaxBandwidth: state.updateMaxBandwidth,
     maxBandwidth: state.maxBandwidth,
+    updateAccountTier: state.updateAccountTier,
+    accountTier: state.accountTier,
   }));
   const [isNewUserAccountWithNoUploads, setIsNewUserAccountWithNoUploads] = useState(false);
 
@@ -41,6 +45,7 @@ export const Navbar: React.FC = () => {
     updateAvailableBandwidth(-1);
     updateMaxSpace(-1);
     updateMaxBandwidth(-1);
+    updateAccountTier("");
     logout(`${window.location.origin}`, undefined, false);
   };
 
@@ -58,9 +63,8 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const fetchAvailableSpace = async () => {
       if (address) {
-        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth, isNewUserAccountWithNoUploads } = await getUserAvailableSpaceAndBandwidth(
-          tokenLogin?.nativeAuthToken ?? ""
-        );
+        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth, isNewUserAccountWithNoUploads, accountTier } =
+          await getUserAvailableSpaceAndBandwidth(tokenLogin?.nativeAuthToken ?? "");
         if (availableSpace >= 0) updateAvailableSpaceToUpload(availableSpace);
         if (availableBandwidth >= 0) updateAvailableBandwidth(availableBandwidth);
         if (maxSpace >= 0) updateMaxSpace(maxSpace);
@@ -68,13 +72,18 @@ export const Navbar: React.FC = () => {
         if (isNewUserAccountWithNoUploads) {
           setIsNewUserAccountWithNoUploads(true);
         }
+        if (accountTier !== "") {
+          updateAccountTier(accountTier);
+        }
 
         console.log("availableSpace", availableSpace);
         console.log("availableBandwidth", availableBandwidth);
         console.log("maxSpace", maxSpace);
         console.log("maxBandwidth", maxBandwidth);
         console.log("isNewUserAccountWithNoUploads", isNewUserAccountWithNoUploads);
+        console.log("accountTier", accountTier);
       } else {
+        updateAccountTier("");
         if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
         if (availableBandwidthToUpload >= 0) updateAvailableBandwidth(-1);
         if (maxSpace >= 0) updateMaxSpace(-1);
@@ -96,7 +105,7 @@ export const Navbar: React.FC = () => {
             <img className="h-4" src={logo}></img>
             <p className=" ">EdgeStorage</p>
           </Link>
-          <div className="lg:!flex !hidden  divide-x divide-accent">
+          <div className="lg:!flex !hidden divide-x divide-accent">
             <div className="flex flex-row gap-8 mt-4 pr-4">
               <Link className="cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
                 <p className=" ">Features</p>
@@ -126,7 +135,7 @@ export const Navbar: React.FC = () => {
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
                 <Link className=" cursor-pointer group" to={"/data-bunker"}>
-                  <p className=" ">My Data Bunker</p>
+                  <p className=" ">My Dashboard</p>
                   <div className="opacity-0 group-hover:opacity-100">
                     <Dot className="text-accent scale-[2] mx-auto "></Dot>
                   </div>
