@@ -21,11 +21,16 @@ const Faq: React.FC = () => {
     {
       question: "What is zEdgeStorage in relation to Itheum Data NFTs?",
       answer:
-        "Itheum's Data NFTs are a revolutionary product that enables anyone to convert their data to Data NFTs (non-fungible tokens). This blockchain-powered data licensing technology uses a blockchain's transparency and immutability features to implement a decentralized 'access control' layer for your data. zEdgeStorage provides seamless integration with Itheum's Data NFTs; for example, if you are a musician and you want to mint your music playlist as a dynamic Music Data NFT, control its royalties and distribution, and activate a direct relationship with your fan base. In that case, you can use zEdgeStorage's built-in UI to manage your Music Data NFT assets like sound files, album art, and metadata. Your Music Data NFTs can then be traded or accessed anywhere NFTs are available, and you can update your music data at any time using storage.",
+        "Itheum's Data NFTs are a revolutionary product that enables anyone to convert their data to Data NFTs (non-fungible tokens). This blockchain-powered data licensing technology uses a blockchain's transparency and immutability features to implement a decentralized 'access control' layer for your data. zEdgeStorage provides seamless integration with Itheum's Data NFTs; for example, if you are a musician and you want to mint your music playlist as a dynamic Music Data NFT, control its royalties and distribution, and activate a direct relationship with your fan base. In that case, you can use zEdgeStorage's built-in UI to manage your Music Data NFT assets like sound files, album art, and metadata. Your Music Data NFTs can then be traded or accessed anywhere NFTs are available, and you can update your music data at any time using storage. You can subscribe to the Gateway service to get started.",
     },
     {
       question: "Is zEdgeStorage free to use",
       answer: "zEdgeStorage currently has a free tier that is enough to get you started. You can upgrade anytime you need.",
+    },
+    {
+      question: "Do you have refund policy?",
+      answer:
+        'Yes, we have a refund policy. Read more about it <a href="https://www.zedgehorizon.com/post/refund-and-dispute-policy-zedge-storage" target="_blank">here</a>.',
     },
   ];
   return (

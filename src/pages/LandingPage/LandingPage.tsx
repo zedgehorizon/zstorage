@@ -12,6 +12,7 @@ import { Footer } from "@components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
+import ItheumGatewayService from "./components/ItheumGatewayService";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { MonitorCheck } from "lucide-react";
 import { motion } from "framer-motion";
@@ -21,6 +22,7 @@ import { toast } from "sonner";
 
 const LandingPage = () => {
   const isLoggedIn = useGetIsLoggedIn();
+
   useEffect(() => {
     if (window.innerWidth <= 800) {
       toast(
@@ -140,8 +142,10 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
-      <div id="pricing"></div>
-      <Pricing />
+      <div id="pricing">
+        <Pricing />
+      </div>
+      <ItheumGatewayService />
       <Faq />
       <Footer />
     </div>

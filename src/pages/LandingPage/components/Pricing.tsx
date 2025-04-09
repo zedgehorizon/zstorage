@@ -8,7 +8,11 @@ const Pricing: React.FC = () => {
         <span className="text-4xl text-center">Get started for Free</span>
         <span className="text-sm text-foreground/75 text-center">
           zEdgeStorage offers a variety of plans tailored to accommodate every phase of your digital data bunker initiatives. Commence with the Free Plan,
-          adjust your subscription according to your requirements.
+          adjust your subscription according to your requirements. Plans are billed annually but come with{" "}
+          <a href="https://www.zedgehorizon.com/post/refund-and-dispute-policy-zedge-storage" target="_blank" className="underline hover:font-bold">
+            a refund policy.
+          </a>{" "}
+          for peace of mind.
         </span>
       </div>
       <div className="flex flex-col lg:flex-row gap-4">
@@ -22,7 +26,7 @@ const Pricing: React.FC = () => {
         <PriceCard
           plan="PREMIUM"
           title="Go Zzz"
-          price={"10"}
+          price={"99"}
           features={["1GB Storage", "1GB Bandwidth"]}
           description="Everything in basic with more storage and bandwidth for your vital data."
         />
