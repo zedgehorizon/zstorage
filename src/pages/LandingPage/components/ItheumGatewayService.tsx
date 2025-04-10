@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { CheckCircle2, X, HelpCircle } from "lucide-react";
@@ -12,6 +12,14 @@ import { SubscriptionTiers } from "config";
 const ItheumGatewayService: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isLoggedIn = useGetIsLoggedIn();
+  const [isGatewayCampaignPage, setIsGatewayCampaignPage] = useState(false);
+
+  useEffect(() => {
+    // if the url path is /itheum-gateway, let's lets set a start variable to indicate this so we can do some custom UI
+    if (window.location.pathname === "/itheum-gateway") {
+      setIsGatewayCampaignPage(true);
+    }
+  }, []);
 
   const FeatureTooltip = ({ children, content }: { children: React.ReactNode; content: string }) => {
     return (
@@ -54,8 +62,19 @@ const ItheumGatewayService: React.FC = () => {
 
   return (
     <div className="flex flex-col px-4 lg:px-24">
-      <h2 className="text-4xl text-foreground text-center">Itheum Gateway Service</h2>
-      <h3 className="text-foreground/75 text-center">Extend your data storage with optional support for data tokenization</h3>
+      <h2 className="text-4xl text-foreground text-center">{isGatewayCampaignPage ? "Subscribe To Get Started" : "Itheum Gateway Service"}</h2>
+      <h3 className="text-foreground/75 text-center">
+        {isGatewayCampaignPage
+          ? "We offer a single annual subscription for simplified data storage, tokenization and access to priority support"
+          : "Extend your data storage with optional support for data tokenization"}
+      </h3>
+      {!isGatewayCampaignPage && (
+        <button className="text-accent">
+          <Link to="/itheum-gateway#case-studies" target="_blank">
+            View Case Studies
+          </Link>
+        </button>
+      )}
       <div className="flex flex-col lg:flex-row justify-center items-center gap-8 py-16 px-4 lg:px-32">
         {/* Left Column - Description */}
         <div className="flex flex-col gap-4 w-full lg:w-1/2 md:max-w-md">
@@ -147,7 +166,7 @@ const ItheumGatewayService: React.FC = () => {
             </div>
           </div>
           <div className="flex justify-start items-end gap-1">
-            <div className="text-5xl text-accent">{SubscriptionTiers.GATEWAY.annualPrice}</div>
+            <div className="text-5xl text-accent">${SubscriptionTiers.GATEWAY.annualPrice}</div>
             <span className="text-sm">USD / per year</span>
             <div className="ml-2 text-sm text-accent line-through">$199</div>
           </div>
@@ -157,7 +176,7 @@ const ItheumGatewayService: React.FC = () => {
             <li className="flex">
               <CheckCircle2 className="mr-2 scale-75 my-auto text-accent" />
               <FeatureTooltip
-                content={`Same as PREMIUM STORAGE tier
+                content={`${isGatewayCampaignPage ? "Decentralized data storage for your assets" : "Same as PREMIUM STORAGE tier"}
 
 Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
                 <span className="my-auto">
@@ -168,9 +187,9 @@ Create and store data in bunkers with 1GB storage and bandwidth as part of your 
             <li className="flex">
               <CheckCircle2 className="mr-2 scale-75 my-auto text-accent" />
               <FeatureTooltip
-                content={`Same as PREMIUM STORAGE tier
+                content={`${isGatewayCampaignPage ? "bandwidth to stream your data assets" : "Same as PREMIUM STORAGE tier"}
 
-Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription.`}>
+Create and store data in bunkers with 1GB storage and bandwidth as part of your gateway subscription. Bandwidth allocations renew every month.`}>
                 <span className="my-auto">
                   {SubscriptionTiers.GATEWAY.bandwidth} {SubscriptionTiers.GATEWAY.bandwidthUnit} Bandwidth / month
                 </span>
