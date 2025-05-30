@@ -12,6 +12,7 @@ import { Footer } from "@components/Layout/Footer";
 import Pricing from "./components/Pricing";
 import Faq from "./components/Faq";
 import UseCase from "./components/UseCase";
+import ItheumGatewayService from "./components/ItheumGatewayService";
 import { useGetIsLoggedIn } from "@multiversx/sdk-dapp/hooks/account";
 import { MonitorCheck } from "lucide-react";
 import { motion } from "framer-motion";
@@ -21,6 +22,7 @@ import { toast } from "sonner";
 
 const LandingPage = () => {
   const isLoggedIn = useGetIsLoggedIn();
+
   useEffect(() => {
     if (window.innerWidth <= 800) {
       toast(
@@ -31,6 +33,24 @@ const LandingPage = () => {
       );
     }
   }, []);
+
+  useEffect(() => {
+    // if there are URL hash params like #solution, #pricing, #features, #gateway, let's detect that and scroll to the element
+    const hash = window.location.hash;
+
+    if (hash) {
+      setTimeout(() => {
+        const section = document.getElementById(hash.slice(1));
+        if (section) {
+          window.scrollTo({
+            top: section.offsetTop,
+            behavior: "smooth",
+          });
+        }
+      }, 10);
+    }
+  }, [window.location.hash]);
+
   return (
     <div className="top-0 w-full h-full bg-background flex flex-grow flex-col items-center justify-start  ">
       <div className="py-16 relative flex items-center justify-center">
@@ -125,8 +145,8 @@ const LandingPage = () => {
       <UseCase />
       <div id="features"></div>
       <KeyFeatures />
-      <div className=" w-full min-h-screen max-h-[120%] flex flex-col items-center xl:pb-32 overflow-hidden">
-        <div className="mt-8 flex flex-col  justify-center items-center relative w-full h-full p-4 pt-16 xl:p-32 ">
+      <div className="w-full flex flex-col items-center overflow-hidden">
+        <div className="mt-8 flex flex-col justify-center items-center relative w-full h-full p-4 pt-16 xl:p-20">
           <img src={whiteRectangle} className="absolute top-0 left-0 w-full min-h-screen object-cover" alt="White Rectangle Background" />
           <div className="z-10 flex flex-col items-center">
             <img className="scale-75 lg:scale-100" src={folders} alt="Folders" />
@@ -140,8 +160,12 @@ const LandingPage = () => {
           </div>
         </div>
       </div>
-      <div id="pricing"></div>
-      <Pricing />
+      <div id="pricing">
+        <Pricing />
+      </div>
+      <div id="gateway">
+        <ItheumGatewayService />
+      </div>
       <Faq />
       <Footer />
     </div>

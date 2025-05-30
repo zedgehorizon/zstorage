@@ -1,5 +1,6 @@
 import React from "react";
 import PriceCard from "./PriceCard";
+import { SubscriptionTiers } from "config";
 
 const Pricing: React.FC = () => {
   return (
@@ -8,22 +9,32 @@ const Pricing: React.FC = () => {
         <span className="text-4xl text-center">Get started for Free</span>
         <span className="text-sm text-foreground/75 text-center">
           zEdgeStorage offers a variety of plans tailored to accommodate every phase of your digital data bunker initiatives. Commence with the Free Plan,
-          adjust your subscription according to your requirements.
+          adjust your subscription according to your requirements. Plans are billed annually but come with{" "}
+          <a href="https://www.zedgehorizon.com/post/refund-and-dispute-policy-zedge-storage" target="_blank" className="underline hover:font-bold">
+            a refund policy.
+          </a>{" "}
+          for peace of mind.
         </span>
       </div>
       <div className="flex flex-col lg:flex-row gap-4">
         <PriceCard
           plan="BASIC"
           title="Go Basic"
-          price={"0"}
-          features={["10MB Storage", "500MB Bandwidth"]}
+          price={SubscriptionTiers.BASIC.annualPrice.toString()}
+          features={[
+            `${SubscriptionTiers.BASIC.storage} ${SubscriptionTiers.BASIC.storageUnit} Storage`,
+            `${SubscriptionTiers.BASIC.bandwidth} ${SubscriptionTiers.BASIC.bandwidthUnit} Bandwidth / month`,
+          ]}
           description="Upload and manage your vital data. Built-in support for Itheum Data NFTs."
         />
         <PriceCard
           plan="PREMIUM"
-          title="Go Zzz"
-          price={"10"}
-          features={["1GB Storage", "1GB Bandwidth"]}
+          title="Go Scale"
+          price={SubscriptionTiers.PREMIUM.annualPrice.toString()}
+          features={[
+            `${SubscriptionTiers.PREMIUM.storage} ${SubscriptionTiers.PREMIUM.storageUnit} Storage`,
+            `${SubscriptionTiers.PREMIUM.bandwidth} ${SubscriptionTiers.PREMIUM.bandwidthUnit} Bandwidth / month`,
+          ]}
           description="Everything in basic with more storage and bandwidth for your vital data."
         />
         <PriceCard

@@ -48,10 +48,10 @@ export const Unlock = () => {
   }
 
   return (
-    <div className="p-8 flex flex-col items-center justify-center w-full h-full gap-4 bg-background z-[-2] min-h-[100svh]">
+    <div className="p-8 flex flex-col items-center justify-center w-full h-full bg-background z-[-2] min-h-[100svh]">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
-      <div className="w-full lg:w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4">
+      <div className="w-full lg:w-[38%] relative bg-muted rounded-[20px] border border-accent/25 border-opacity-5 p-4 -mt-20">
         <div className="flex flex-col w-full gap-2">
           <Link to={onCloseReturnRoute} className="bg-muted rounded-r-2xl flex items-center pr-4 absolute right-0">
             <XCircle className="w-6 h-6 text-foreground cursor-pointer" />
@@ -64,15 +64,8 @@ export const Unlock = () => {
             </div>
           </div>
 
-          <div className="text-sm flex items-center justify-center mb-5 mt-3">
-            <p className="flex justify-center">❗By logging in, you are agreeing to the</p>
-            <a href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank" className="ml-2 text-accent hover:underline ml-1">
-              Terms of use
-            </a>
-          </div>
-
           <p className="text-xs flex justify-center mt-2">Use your Google Account to generate your sovereign digital wallet.</p>
-          <div className="text-sm text-center text-red-400">
+          <div className="text-xs text-center text-red-200">
             Google Login is in BETA; You may have some issues logging in :
             <Modal
               modalClassName="w-[70%] border-accent/50"
@@ -143,26 +136,40 @@ export const Unlock = () => {
           </div>
           <WebWalletLoginButton
             className={buttonStyles}
-            loginButtonText={"Google [BETA]"}
+            loginButtonText={"Google Login [BETA]"}
             customWalletAddress={xAliasEnv}
             {...commonProps}></WebWalletLoginButton>
 
-          <div className="text-xs flex justify-center mt-5">
-            ... or use{" "}
-            <a href="https://docs.itheum.io/product-docs/integrators/supported-wallets" target="_blank" className="text-accent hover:underline ml-1">
-              any wallet that's compatible with the MultiversX Blockchain
-            </a>
-          </div>
-
-          <ExtensionLoginButton className={buttonStyles} loginButtonText={"DeFi Browser Wallet"} {...commonProps} />
+          <div className="text-xs flex justify-center mt-5">... or use any of these free wallets</div>
           <WalletConnectLoginButton
             className={buttonStyles}
             loginButtonText="xPortal Mobile Wallet"
             {...commonProps}
             {...(walletConnectV2ProjectId ? { isWalletConnectV2: true } : {})}
           />
-          {/* <LedgerLoginButton className={buttonStyles} {...commonProps} loginButtonText="Ledger Hardware Wallet" /> */}
-          {/* <WebWalletLoginButton className={buttonStyles} {...commonProps} loginButtonText={"Web Wallet"} /> */}
+          <span className="text-xs flex justify-center mb-5">
+            Get it here:{" "}
+            <a href="https://xportal.com/app" target="_blank" className="text-accent hover:underline ml-1">
+              xPortal.com/app
+            </a>
+          </span>
+          <ExtensionLoginButton className={buttonStyles} loginButtonText={"Chrome Browser Wallet"} {...commonProps} />
+          <span className="text-xs flex justify-center mb-5">
+            Get it here:{" "}
+            <a
+              href="https://chromewebstore.google.com/detail/multiversx-wallet/dngmlblcodfobpdpecaadgfbcggfjfnm?hl=en&pli=1"
+              target="_blank"
+              className="text-accent hover:underline ml-1">
+              Chrome Web Store
+            </a>
+          </span>
+        </div>
+
+        <div className="text-sm flex items-center justify-center mb-5 mt-3">
+          <p className="flex justify-center">By logging in, you are agreeing to the</p>
+          <a href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank" className="text-accent hover:underline ml-1">
+            Terms of use
+          </a>
         </div>
       </div>
     </div>
