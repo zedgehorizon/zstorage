@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Heart } from "lucide-react";
 import logoBlack from "@assets/logo/logo-black.png";
 import { ELROND_NETWORK } from "@utils/constants";
 import { toast } from "sonner";
@@ -60,15 +59,26 @@ export const Footer: React.FC = () => {
           <span> Cookies Settings</span>
         </div>
       </div>
-      <div className="text-sm flex items-center justify-center pb-4 text-background">
-        Made with <Heart className="mx-1" color="black" /> by Zedge Horizon |&nbsp;(
-        <span className="text-sm">
-          {ELROND_NETWORK} {appVersion})
-        </span>
+      <div className="text-xs flex items-center justify-center pb-4 text-background">
+        App Version: {ELROND_NETWORK} {appVersion}
+      </div>
+      <div className="text-sm justify-center pb-4 text-background">
+        Zedge Storage is a product built and operated by{" "}
+        <a className="underline hover:font-bold" href="https://www.zedgehorizon.com" target="_blank">
+          Zedge Horizon Pty Ltd
+        </a>{" "}
       </div>
       <div className="text-sm flex items-center justify-center pb-4 text-background">
-        <a href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank" className="hover:underline">
+        <a className="underline hover:font-bold" href="https://www.zedgehorizon.com/post/terms-conditions-zedge-storage" target="_blank">
           Terms of use
+        </a>
+        <span className="mx-2">|</span>
+        <a className="underline hover:font-bold" href="https://www.zedgehorizon.com/post/refund-and-dispute-policy-zedge-storage" target="_blank">
+          Refund and Dispute Policy
+        </a>
+        <span className="mx-2">|</span>
+        <a className="underline hover:font-bold" href="https://www.zedgehorizon.com/post/customer-support-contact-us-zedge-storage" target="_blank">
+          Support and Contact
         </a>
       </div>
     </footer>

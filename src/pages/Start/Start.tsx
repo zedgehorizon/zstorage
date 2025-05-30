@@ -46,6 +46,12 @@ export const Start = () => {
               </div>
               <span className="text-center text-foreground/75 text-base ">Store new data asset</span>
             </Link>
+            <Link
+              to={"/data-bunker"}
+              className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/1 bg-opacity-5 rounded-lg border border-accent/25 items-center gap-4 inline-flex">
+              <div className="w-12 h-12 p-3 bg-foreground rounded-2xl justify-center items-center inline-flex">🔙</div>
+              <span className="text-center text-foreground/75 text-base ">Go to my Dashboard</span>
+            </Link>
           </div>
         </div>
       </div>

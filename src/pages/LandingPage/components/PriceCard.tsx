@@ -22,7 +22,7 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
   return (
     <div
       className={cn(
-        `flex flex-col border border-muted-foreground/30 gap-2 p-4 rounded-xl  text-muted-foreground/50 bg-muted w-full h-full max-w-[16rem] max-h-[30rem] 
+        `flex flex-col border border-muted-foreground/30 gap-2 p-4 rounded-xl text-muted-foreground/50 bg-muted w-full max-w-[16rem] max-h-[30rem] 
         ${plan === "BASIC" ? "border-accent" : ""}`
       )}>
       <div className="flex flex-row justify-between">
@@ -30,13 +30,13 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
         {plan === "BASIC" && <div className="mt-0 mr-0 bg-accent text-muted font-bold text-[10px] p-1 items-center justify-center">Try It Today</div>}
       </div>
       <span className={cn(colorClass, "text-lg")}>{title}</span>
-      <span className="text-sm  ">{description}</span>
+      <span className="text-sm">{description}</span>
       <div className="flex justify-start items-end gap-1">
         {price === "Custom" ? (
           <div className={cn(colorClass, "text-5xl")}>{price}</div>
         ) : (
           <>
-            <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm">per month</span>
+            <div className={cn(colorClass, "text-5xl")}>${price} </div> <span className="text-sm"> USD / per year</span>
           </>
         )}
       </div>
@@ -50,17 +50,16 @@ const PriceCard: React.FC<PriceCardProps> = (props) => {
           </li>
         ))}
       </ul>
-      {(plan === "BASIC" && (
-        <Button className={cn(`ml-0 border px-16 border-foreground w-[50%] rounded-full ${plan === "BASIC" ? "bg-accent border-0 text-muted" : ""}`)}>
-          <>
-            {(isLoggedIn && <Link to={"/data-bunker"}>Data Assets</Link>) || (
-              <Link to={"/unlock"}>
-                <p className="">Get Started</p>
-              </Link>
-            )}
-          </>
-        </Button>
-      )) || <div className="h-10">&nbsp;</div>}
+      <div className="flex-1"></div>
+      <Button className={cn(`text-xs sm:text-sm ml-0 border px-16 border-foreground rounded-sm ${plan === "BASIC" ? "bg-accent border-0 text-muted" : ""}`)}>
+        <>
+          {(isLoggedIn && <Link to={"/data-bunker"}>Data Assets</Link>) || (
+            <Link to={"/unlock"}>
+              <p className="">{`${plan === "BASIC" ? "Get Started" : "Get Started for Free, Pay Later"}`}</p>
+            </Link>
+          )}
+        </>
+      </Button>
     </div>
   );
 };

@@ -15,6 +15,7 @@ import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
 import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
+import ItheumGateway from "./pages/ItheumGateway/ItheumGateway";
 import { ELROND_NETWORK } from "./utils/constants";
 import { PageNotFound } from "pages/PageNotFound/PageNotFound";
 import { Toaster } from "@libComponents/Sooner";
@@ -80,6 +81,12 @@ const routes = [
     path: "/itheum-music-data-nft",
     title: "Itheum Music Data NFT",
     component: CampaignPage,
+    authenticatedRoute: false,
+  },
+  {
+    path: "/itheum-gateway",
+    title: "Itheum Gateway by Zedge Storage",
+    component: ItheumGateway,
     authenticatedRoute: false,
   },
   {

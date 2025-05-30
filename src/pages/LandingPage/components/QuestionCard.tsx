@@ -31,7 +31,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, answer }) => {
           )}
         </div>
       </div>
-      {showAnswer && <div className="w-[90%] text-foreground/50"> {answer} </div>}
+      {showAnswer && <div className="w-[90%] text-foreground/50" dangerouslySetInnerHTML={{ __html: answer }} />}
     </div>
   );
 };

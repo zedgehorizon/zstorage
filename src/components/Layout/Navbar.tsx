@@ -9,7 +9,6 @@ import { Button } from "@libComponents/Button";
 import { DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { getUserAvailableSpaceAndBandwidth, shortenAddress, isRunningLowOnSpace, isRunningLowOnBandwidth } from "@utils/functions";
 import { useHeaderStore } from "store/header";
-import { add } from "date-fns";
 
 export const Navbar: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -24,6 +23,8 @@ export const Navbar: React.FC = () => {
     maxSpace,
     updateMaxBandwidth,
     maxBandwidth,
+    updateAccountTier,
+    accountTier,
   } = useHeaderStore((state: any) => ({
     updateAvailableSpaceToUpload: state.updateAvailableSpaceToUpload,
     availableSpaceToUpload: state.availableSpaceToUpload,
@@ -33,34 +34,56 @@ export const Navbar: React.FC = () => {
     maxSpace: state.maxSpace,
     updateMaxBandwidth: state.updateMaxBandwidth,
     maxBandwidth: state.maxBandwidth,
+    updateAccountTier: state.updateAccountTier,
+    accountTier: state.accountTier,
   }));
   const [isNewUserAccountWithNoUploads, setIsNewUserAccountWithNoUploads] = useState(false);
+  const [isGatewayCampaignPage, setIsGatewayCampaignPage] = useState(false);
+  // replace this logic so that only if the user scrolls up to the top of the page, and there are any hash params, let's remove them
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY === 0 && window.location.hash) {
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // if the url path is /itheum-gateway, let's lets set a start variable to indicate this so we can do some custom UI
+    if (window.location.pathname === "/itheum-gateway") {
+      setIsGatewayCampaignPage(true);
+    }
+  }, [window.location.pathname]);
+
+  const scrollToSection = (sectionId: string) => {
+    if (window.location.pathname === "/") {
+      const section = document.getElementById(sectionId);
+
+      if (section) {
+        window.scrollTo({
+          top: section.offsetTop,
+          behavior: "smooth",
+        });
+      }
+    }
+  };
 
   const handleLogout = () => {
     updateAvailableSpaceToUpload(-1);
     updateAvailableBandwidth(-1);
     updateMaxSpace(-1);
     updateMaxBandwidth(-1);
+    updateAccountTier("");
     logout(`${window.location.origin}`, undefined, false);
-  };
-
-  const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-
-    if (section) {
-      window.scrollTo({
-        top: section.offsetTop,
-        behavior: "smooth",
-      });
-    }
   };
 
   useEffect(() => {
     const fetchAvailableSpace = async () => {
       if (address) {
-        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth, isNewUserAccountWithNoUploads } = await getUserAvailableSpaceAndBandwidth(
-          tokenLogin?.nativeAuthToken ?? ""
-        );
+        const { availableSpace, availableBandwidth, maxSpace, maxBandwidth, isNewUserAccountWithNoUploads, accountTier } =
+          await getUserAvailableSpaceAndBandwidth(tokenLogin?.nativeAuthToken ?? "");
         if (availableSpace >= 0) updateAvailableSpaceToUpload(availableSpace);
         if (availableBandwidth >= 0) updateAvailableBandwidth(availableBandwidth);
         if (maxSpace >= 0) updateMaxSpace(maxSpace);
@@ -68,13 +91,18 @@ export const Navbar: React.FC = () => {
         if (isNewUserAccountWithNoUploads) {
           setIsNewUserAccountWithNoUploads(true);
         }
+        if (accountTier !== "") {
+          updateAccountTier(accountTier);
+        }
 
         console.log("availableSpace", availableSpace);
         console.log("availableBandwidth", availableBandwidth);
         console.log("maxSpace", maxSpace);
         console.log("maxBandwidth", maxBandwidth);
         console.log("isNewUserAccountWithNoUploads", isNewUserAccountWithNoUploads);
+        console.log("accountTier", accountTier);
       } else {
+        updateAccountTier("");
         if (availableSpaceToUpload >= 0) updateAvailableSpaceToUpload(-1);
         if (availableBandwidthToUpload >= 0) updateAvailableBandwidth(-1);
         if (maxSpace >= 0) updateMaxSpace(-1);
@@ -89,44 +117,53 @@ export const Navbar: React.FC = () => {
   const showGetFreeSpaceAndBandwidthAlert = isNewUserAccountWithNoUploads;
 
   return (
-    <nav>
+    <nav className="header-nav">
       <div className="bg-gradient-to-r from-black via-accent/50 to-black pb-[1px] z-11">
         <div className="bg-background flex flex-row justify-left p-4 xl:px-24 items-center h-20 justify-between">
-          <Link to={"/"} className="flex flex-row justify-center items-center text-2xl gap-1 ">
-            <img className="h-4" src={logo}></img>
-            <p className=" ">EdgeStorage</p>
-          </Link>
-          <div className="lg:!flex !hidden  divide-x divide-accent">
+          <div>
+            {isGatewayCampaignPage && <span className="text-accent text-sm">Itheum Gateway by</span>}
+            {!isGatewayCampaignPage ? (
+              <Link to={"/"} className="flex flex-row justify-center items-center text-2xl gap-1">
+                <img className="h-4" src={logo}></img>
+                <p className=" ">EdgeStorage</p>
+              </Link>
+            ) : (
+              <div className="flex flex-row justify-center items-center text-2xl gap-1">
+                <img className="h-4" src={logo}></img>
+                <p className=" ">EdgeStorage</p>
+              </div>
+            )}
+          </div>
+          <div className="lg:!flex !hidden divide-x divide-accent">
             <div className="flex flex-row gap-8 mt-4 pr-4">
-              <Link className="cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
-                <p className=" ">Features</p>
-                <div className="opacity-0 group-hover:opacity-100">
-                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
-                </div>
-              </Link>
-              <Link className=" cursor-pointer group" to={"/#solution"} onClick={() => scrollToSection("solution")}>
-                <p className=" ">Solution</p>
-                <div className="opacity-0 group-hover:opacity-100">
-                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
-                </div>
-              </Link>
-              <Link className=" cursor-pointer group" to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
-                <p className=" ">Pricing</p>
-                <div className="opacity-0 group-hover:opacity-100">
-                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
-                </div>
-              </Link>
-              {/* <Link className="cursor-pointer group " to={"/itheum-music-data-nft"}>
-                <p className=" ">Music Data NFT Storage</p>
-                <div className="opacity-0 group-hover:opacity-100">
-                  <Dot className="text-accent scale-[2] mx-auto "></Dot>
-                </div>
-              </Link> */}
+              {!isGatewayCampaignPage && (
+                <>
+                  <Link className="cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
+                    <p className=" ">Features</p>
+                    <div className="opacity-0 group-hover:opacity-100">
+                      <Dot className="text-accent scale-[2] mx-auto "></Dot>
+                    </div>
+                  </Link>
+                  <Link className=" cursor-pointer group" to={"/#solution"} onClick={() => scrollToSection("solution")}>
+                    <p className=" ">Solution</p>
+                    <div className="opacity-0 group-hover:opacity-100">
+                      <Dot className="text-accent scale-[2] mx-auto "></Dot>
+                    </div>
+                  </Link>
+
+                  <Link className=" cursor-pointer group" to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
+                    <p className=" ">Pricing</p>
+                    <div className="opacity-0 group-hover:opacity-100">
+                      <Dot className="text-accent scale-[2] mx-auto "></Dot>
+                    </div>
+                  </Link>
+                </>
+              )}
             </div>
             {isLoggedIn && (
               <div className="flex flex-row gap-8 mt-4 pl-4">
                 <Link className=" cursor-pointer group" to={"/data-bunker"}>
-                  <p className=" ">My Data Bunker</p>
+                  <p className=" ">My Dashboard</p>
                   <div className="opacity-0 group-hover:opacity-100">
                     <Dot className="text-accent scale-[2] mx-auto "></Dot>
                   </div>
@@ -221,42 +258,38 @@ export const Navbar: React.FC = () => {
                     </DropdownMenuItem>
                   </Link>
                 </DropdownMenuGroup>
-                <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/#features"} onClick={() => scrollToSection("features")}>
-                    <DropdownMenuItem>
-                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Features</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuGroup>
-                <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
-                    <DropdownMenuItem>
-                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Solution</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuGroup>
-                <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
-                    <DropdownMenuItem>
-                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Pricing</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuGroup>
-                {/* <DropdownMenuGroup>
-                  <Link className=" cursor-pointer group " to={"/itheum-music-data-nft"}>
-                    <DropdownMenuItem>
-                      <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
-                        <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Music Data NFT Storage</div>
-                      </div>
-                    </DropdownMenuItem>
-                  </Link>
-                </DropdownMenuGroup> */}
+                {!isGatewayCampaignPage && (
+                  <>
+                    <DropdownMenuGroup>
+                      <Link className=" cursor-pointer group" to="/#features" onClick={() => scrollToSection("features")}>
+                        <DropdownMenuItem>
+                          <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                            <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Features</div>
+                          </div>
+                        </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuGroup>
+                    <DropdownMenuGroup>
+                      <Link className=" cursor-pointer group " to={"/#solution"} onClick={() => scrollToSection("solution")}>
+                        <DropdownMenuItem>
+                          <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                            <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Solution</div>
+                          </div>
+                        </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuGroup>
+
+                    <DropdownMenuGroup>
+                      <Link className=" cursor-pointer group " to={"/#pricing"} onClick={() => scrollToSection("pricing")}>
+                        <DropdownMenuItem>
+                          <div className="w-[100%] bg-gradient-to-r from-muted via-accent/50  to-muted pb-[1px] -z-1">
+                            <div className="w-full bg-muted flex justify-center text-accent font-medium py-1">Pricing</div>
+                          </div>
+                        </DropdownMenuItem>
+                      </Link>
+                    </DropdownMenuGroup>
+                  </>
+                )}
                 {isLoggedIn && (
                   <>
                     <DropdownMenuGroup>
