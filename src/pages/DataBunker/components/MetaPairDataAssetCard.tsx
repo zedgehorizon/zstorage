@@ -6,8 +6,8 @@ import { shortenAddress } from "@utils/functions";
 
 const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
   console.log(props, "props");
-  const { fileName: imgFileName, mimeType: imgMimeType, hash: imgHash, size: imgSize, timestamp: imgTimestamp } = props.img;
-  const { fileName: jsonFileName, mimeType: jsonMimeType, hash: jsonHash, size: jsonSize, timestamp: jsonTimestamp } = props.json;
+  const { fileName: imgFileName, mimeType: imgMimeType, hash: imgHash, size: imgSize, timestamp: imgTimestamp, folderHash: imgFolderHash } = props.img;
+  const { fileName: jsonFileName, mimeType: jsonMimeType, hash: jsonHash, size: jsonSize, timestamp: jsonTimestamp, folderHash: jsonFolderHash } = props.json;
 
   /*
 
@@ -70,7 +70,10 @@ const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
                 onClick={() => navigator.clipboard.writeText("ipfs://" + imgHash)}
                 className=" ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
-            <a href={IPFS_GATEWAY + "ipfs/" + imgHash} target="_blank" className="flex flex-row items-center hover:underline hover:text-accent ">
+            <a
+              href={IPFS_GATEWAY + "ipfs/" + imgFolderHash + "/" + imgFileName}
+              target="_blank"
+              className="flex flex-row items-center hover:underline hover:text-accent ">
               Check on IPFS
               <ExternalLink className="text-accent ml-4 " />
             </a>
@@ -82,7 +85,10 @@ const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
                 onClick={() => navigator.clipboard.writeText("ipfs://" + jsonHash)}
                 className=" ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
-            <a href={IPFS_GATEWAY + "ipfs/" + jsonHash} target="_blank" className="flex flex-row items-center hover:underline hover:text-accent ">
+            <a
+              href={IPFS_GATEWAY + "ipfs/" + jsonFolderHash + "/" + jsonFileName}
+              target="_blank"
+              className="flex flex-row items-center hover:underline hover:text-accent ">
               Check on IPFS
               <ExternalLink className="text-accent ml-4 " />
             </a>

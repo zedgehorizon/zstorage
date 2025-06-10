@@ -96,8 +96,8 @@ const UploadSelfServeTokenizedDataMetadata = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { tokenLogin } = useGetLoginInfo();
   const [progressValue, setProgressValue] = useState(0);
-  const [imgFileCid, setImgFileCid] = useState<string>();
-  const [jsonFileCid, setJsonFileCid] = useState<string>();
+  const [imgFileCidPayload, setImgFileCidPayload] = useState<any>(null);
+  const [jsonFileCidPayload, setJsonFileCidPayload] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -274,8 +274,14 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     setProgressValue(100);
     console.log(response);
 
-    setImgFileCid(response[0].hash);
-    setJsonFileCid(response[1].hash);
+    // setImgFileCid(response[0].hash);
+    // setJsonFileCid(response[1].hash);
+
+    setImgFileCidPayload(response[0]);
+    setJsonFileCidPayload(response[1]);
+
+    console.log("img file cid payload", response[0]);
+    console.log("json file cid payload", response[1]);
   }
 
   function loadDummyData() {
@@ -312,9 +318,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
         <h2 className="text-2xl text-accent mb-2">Upload Your Data Token Image</h2>
         <p>This is the image that appears on the data token and is visible in NFT wallets etc</p>
 
-        {!file && (
-          <DragAndDropZone setFile={setFile} setImagePreview={setImagePreview} dropZoneStyles="w-full" onlyLimitToImages={true} onlyAllowOneUpload={true} />
-        )}
+        {!file && <DragAndDropZone setFile={setFile} setImagePreview={setImagePreview} dropZoneStyles="w-full" />}
 
         {file && (
           <div className="w-full flex flex-col items-center justify-center my-10">
@@ -518,17 +522,25 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 {Object.values(validationErrors).join(", ")} - Please close the modal and fix the errors and try again
               </span>
             )}
-            {imgFileCid && jsonFileCid && progressValue === 100 && (
+            {imgFileCidPayload && jsonFileCidPayload && progressValue === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressValue === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
                     <div>
                       <p>Image File CID</p>
-                      <CidsView fileCID={imgFileCid} />
+                      <CidsView
+                        folderCid={imgFileCidPayload.folderHash}
+                        currentManifestFileCID={imgFileCidPayload.hash}
+                        manifestFileName={imgFileCidPayload.fileName}
+                      />
                     </div>
                     <div>
                       <p>JSON File CID</p>
-                      <CidsView fileCID={jsonFileCid} />
+                      <CidsView
+                        folderCid={jsonFileCidPayload.folderHash}
+                        currentManifestFileCID={jsonFileCidPayload.hash}
+                        manifestFileName={jsonFileCidPayload.fileName}
+                      />
                     </div>
                     <div className="flex flex-row justify-center items-center gap-4">
                       <Link

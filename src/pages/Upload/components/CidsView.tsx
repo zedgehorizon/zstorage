@@ -40,7 +40,6 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
               <CopyIcon onClick={() => navigator.clipboard.writeText(currentManifestFileCID)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
           )}
-
           {manifestFileName && (
             <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <h3>Manifest File Name - {manifestFileName} </h3>{" "}
