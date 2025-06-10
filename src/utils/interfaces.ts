@@ -45,6 +45,23 @@ type StaticDataAsset = {
   uuid: number;
 };
 
+type MetaPairDataAsset = {
+  address: string;
+  category: string;
+  fileName: string;
+  folderHash: string;
+  hash: string;
+  mimeType: string;
+  size: number;
+  timestamp: number;
+  uuid: number;
+};
+
+type MetaPairDataAssetSet = {
+  img: MetaPairDataAsset;
+  json: MetaPairDataAsset;
+};
+
 interface Whitelist {
   [extension: string]: string;
 }

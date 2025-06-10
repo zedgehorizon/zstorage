@@ -1,6 +1,6 @@
 export const API_VERSION = "_v2"; // "_v2" for lighthouse ; "" for apillion
 export const IPFS_GATEWAY = "https://gateway.lighthouse.storage/";
-export const CATEGORIES = ["anyfile", "musicplaylist", "trailblazer", "staticdata"];
+export const CATEGORIES = ["anyfile", "musicplaylist", "trailblazer", "staticdata", "datatoken_metapair"];
 export const FILES_CATEGORY = "files";
 
 export const ELROND_NETWORK = import.meta.env.VITE_ENV_NETWORK || "devnet";
@@ -64,6 +64,7 @@ export enum AssetCategories {
   MUSICPLAYLIST,
   TRALBLAZER,
   STATICDATA,
+  DATATOKEN_METAPAIR,
 }
 
 export const SUI_WALRUS_PUBLISHER = "https://publisher-devnet.walrus.space";

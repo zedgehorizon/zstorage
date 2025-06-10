@@ -12,6 +12,7 @@ import { UploadMusicData } from "./pages/Upload/UploadMusicDataNft";
 import { UploadTrailblazerData } from "./pages/Upload/UploadTrailblazerData";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import StoreDataAsset from "./pages/StoreDataAsset.tsx/StoreDataAssetPage";
+import TokenizeDataAsset from "./pages/TokenizeDataAsset.tsx/TokenizeDataAsset";
 import DataBunker from "./pages/DataBunker/DataBunker";
 import UploadAnyFiles from "./pages/Upload/UploadAnyFiles";
 import CampaignPage from "./pages/CampaignPage/CampaignPage";
@@ -20,6 +21,7 @@ import { ELROND_NETWORK } from "./utils/constants";
 import { PageNotFound } from "pages/PageNotFound/PageNotFound";
 import { Toaster } from "@libComponents/Sooner";
 import UploadStaticData from "pages/Upload/UploadStaticData";
+import UploadSelfServeTokenizedDataMetadata from "pages/Upload/UploadSelfServeTokenizedDataMetadata";
 
 const routes = [
   {
@@ -38,6 +40,12 @@ const routes = [
     path: "/upload-static",
     title: "Upload Static Data to IPFS",
     component: UploadStaticData,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/tokenize-self-serve",
+    title: "Upload Self Serve Tokenized Data Metadata",
+    component: UploadSelfServeTokenizedDataMetadata,
     authenticatedRoute: true,
   },
   {
@@ -75,6 +83,12 @@ const routes = [
     path: "/storage",
     title: "Store Data Asset",
     component: StoreDataAsset,
+    authenticatedRoute: true,
+  },
+  {
+    path: "/tokenize",
+    title: "Store Data Asset",
+    component: TokenizeDataAsset,
     authenticatedRoute: true,
   },
   {

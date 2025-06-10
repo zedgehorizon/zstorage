@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 export const Start = () => {
   let urlHashVal = "";
   let storeNewRoute = "/storage";
+  let tokenizeNewRoute = "/tokenize";
 
   if (document?.location?.search.includes("?r=itheum-music-data-nft")) {
     urlHashVal = `?r=itheum-music-data-nft`;
@@ -44,7 +45,15 @@ export const Start = () => {
               <div className="w-12 h-12 p-3 bg-foreground  rounded-2xl justify-center items-center inline-flex">
                 <img src={storageIcon}></img>
               </div>
-              <span className="text-center text-foreground/75 text-base ">Store new data asset</span>
+              <span className="text-center text-foreground/75 text-base ">Create a new data bunker</span>
+            </Link>
+            <Link
+              to={tokenizeNewRoute}
+              className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 items-center gap-4 inline-flex">
+              <div className="w-12 h-12 p-3 bg-foreground  rounded-2xl justify-center items-center inline-flex">
+                <img src={storageIcon}></img>
+              </div>
+              <span className="text-center text-foreground/75 text-base ">Create a new data token</span>
             </Link>
             <Link
               to={"/data-bunker"}

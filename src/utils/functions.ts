@@ -23,9 +23,9 @@ export function shortenAddress(value: string, length: number = 6): string {
   return "";
 }
 
-export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToken: string) {
+export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToken: string, customApiVersion: string = API_VERSION) {
   try {
-    const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${API_VERSION}`, filesToUpload, {
+    const response = await axios.post(`${import.meta.env.VITE_ENV_BACKEND_API}/upload${customApiVersion}`, filesToUpload, {
       headers: {
         "authorization": `Bearer ${nativeAuthToken}`,
       },

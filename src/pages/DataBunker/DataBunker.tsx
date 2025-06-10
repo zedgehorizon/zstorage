@@ -42,6 +42,7 @@ const DataBunker = () => {
           </div>
         )}
 
+        {/* Account */}
         <div className="flex flex-col gap-4 border border-accent/25 p-4 rounded-lg mt-8">
           <div className="text-3xl text-accent ">Your Account</div>
 
@@ -106,15 +107,36 @@ const DataBunker = () => {
           </div>
         </div>
 
+        {/* Data Bunkers */}
         <div className="flex flex-col gap-4 border border-accent/25 p-4 rounded-lg mt-8">
-          <div className="text-4xl text-accent mt-2">Your Data Bunker</div>
-          <Link
-            to="/storage"
-            className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 w-[fit-content]">
-            <div className="text-2xl flex">
-              <FolderPlus size="40" className="mr-3" /> Create New Data Asset
-            </div>
-          </Link>
+          <>
+            <div className="text-3xl text-accent mt-2">Your Data Bunkers</div>
+            <p className="!text-[13px] text-foreground/80">
+              Store static, dynamic or universally templated data streams (e.g. Music playlists, news feeds, etc) as decentralized data bunkers that can be
+              tokenized or consumed.
+            </p>
+            <Link
+              to="/storage"
+              className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 w-[fit-content]">
+              <div className="text-2xl flex">
+                <FolderPlus size="40" className="mr-3" /> Create New Data Bunker
+              </div>
+            </Link>
+          </>
+
+          <>
+            <div className="text-3xl text-accent mt-2">Your Data Tokens</div>
+            <p className="!text-[13px] text-foreground/80">
+              Launch Tokenized Real-World data assets as Data Tokens on a choice of powerful blockchain networks and with built in IP Licensing.
+            </p>
+            <Link
+              to="/tokenize"
+              className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 w-[fit-content]">
+              <div className="text-2xl flex">
+                <FolderPlus size="40" className="mr-3" /> Create New Data Token
+              </div>
+            </Link>
+          </>
           <DataAssetList />
         </div>
       </div>

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@utils/constants";
 import StaticDataAssetCard from "./StaticDataAssetCard";
+import MetaPairDataAssetCard from "./MetaPairDataAssetCard";
 
 export const DataAssetList: React.FC = () => {
   const { tokenLogin } = useGetLoginInfo();
@@ -19,6 +20,7 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[AssetCategories.TRALBLAZER]]: [],
   });
   const [staticDataAssets, setStaticDataAssets] = useState<StaticDataAsset[]>([]);
+  const [dataTokenMetaPairAssets, setDataTokenMetaPairAssets] = useState<MetaPairDataAssetSet[]>([]);
 
   useEffect(() => {
     toast.promise(fetchAllDataAssetsOfAnAddress(), {
@@ -74,7 +76,32 @@ export const DataAssetList: React.FC = () => {
 
   async function fetchAllDataAssetsOfAnAddress() {
     const dataAssets: DataAsset[] = await fetchAllManifestsOfAnAddress();
-    fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
+
+    // fetch all static data assets
+    const statisDataAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
+
+    const staticDataAssetsList: StaticDataAsset[] = Object.keys(statisDataAssetsFromBackend).map((key) => {
+      const array = statisDataAssetsFromBackend[key];
+      return array[0];
+    });
+
+    setStaticDataAssets(staticDataAssetsList);
+
+    // fetch all data token meta pair assets
+    const dataTokenMetaPairAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
+
+    const dataTokenMetaPairAssetsList: MetaPairDataAssetSet[] = Object.keys(dataTokenMetaPairAssetsFromBackend).map((key) => {
+      const array = dataTokenMetaPairAssetsFromBackend[key];
+      return {
+        img: array[0],
+        json: array[1],
+      };
+    });
+
+    setDataTokenMetaPairAssets(dataTokenMetaPairAssetsList);
+
+    // fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
+    // fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
     await downloadAllTheManifestFiles(dataAssets);
   }
 
@@ -141,14 +168,16 @@ export const DataAssetList: React.FC = () => {
           "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
         },
       });
-      const staticDataAssetsMap = response.data;
 
-      const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
-        const array = staticDataAssetsMap[key];
-        return array[0];
-      });
+      return response.data;
+      // const staticDataAssetsMap = response.data;
 
-      setStaticDataAssets(staticDataAssetsList);
+      // const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
+      //   const array = staticDataAssetsMap[key];
+      //   return array[0];
+      // });
+
+      // setStaticDataAssets(staticDataAssetsList);
     } catch (error: any) {
       console.error("Error fetching data assets", error);
     }
@@ -162,6 +191,20 @@ export const DataAssetList: React.FC = () => {
         </div>
       )) || (
         <>
+          <span className="text-accent text-2xl py-12">Data Token Meta Pair Files</span>
+          {(dataTokenMetaPairAssets.length === 0 && (
+            <div className="flex justify-center items-center">
+              <p className="text-gray-400 text-2xl">No assets found</p>
+            </div>
+          )) || (
+            <div className="gap-4 grid lg:grid-cols-3">
+              {showCategories &&
+                dataTokenMetaPairAssets.map((dataTokenMetaPairAsset: MetaPairDataAssetSet, index) => (
+                  <MetaPairDataAssetCard key={index} img={dataTokenMetaPairAsset.img} json={dataTokenMetaPairAsset.json} />
+                ))}
+            </div>
+          )}
+
           <span className="text-accent text-2xl py-12">Static Files</span>
           {(staticDataAssets.length === 0 && (
             <div className="flex justify-center items-center">

@@ -39,7 +39,7 @@ const CampaignPage = () => {
               <Link
                 to={"/data-bunker?r=itheum-music-data-nft"}
                 className="font-bold text-accent-foreground bg-accent rounded-full px-20 py-5 flex justify-center">
-                Access Your Data Bunker
+                Access Your Dashboard
               </Link>
             )) || (
               <Link

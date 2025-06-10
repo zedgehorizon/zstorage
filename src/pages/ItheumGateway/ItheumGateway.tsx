@@ -48,7 +48,7 @@ const ItheumGateway = () => {
               <Link
                 to={"/data-bunker"}
                 className="scale-75 xl:scale-100 font-bold text-accent-foreground bg-accent rounded-full px-4 lg:px-20 py-5 text-xl flex justify-center">
-                Access Your Data Bunker
+                Access Your Dashboard
               </Link>
             )) || (
               <button
