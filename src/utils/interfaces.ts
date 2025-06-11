@@ -57,9 +57,8 @@ type MetaPairDataAsset = {
   uuid: number;
 };
 
-type MetaPairDataAssetSet = {
-  img: MetaPairDataAsset;
-  json: MetaPairDataAsset;
+type MetaPairJsonFile = {
+  json: MetaPairDataAsset | null;
 };
 
 interface Whitelist {

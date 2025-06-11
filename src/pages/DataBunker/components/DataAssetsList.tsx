@@ -20,7 +20,7 @@ export const DataAssetList: React.FC = () => {
     [CATEGORIES[AssetCategories.TRALBLAZER]]: [],
   });
   const [staticDataAssets, setStaticDataAssets] = useState<StaticDataAsset[]>([]);
-  const [dataTokenMetaPairAssets, setDataTokenMetaPairAssets] = useState<MetaPairDataAssetSet[]>([]);
+  const [dataTokenMetaPairAssets, setDataTokenMetaPairAssets] = useState<MetaPairJsonFile[]>([]);
 
   useEffect(() => {
     toast.promise(fetchAllDataAssetsOfAnAddress(), {
@@ -66,7 +66,7 @@ export const DataAssetList: React.FC = () => {
         });
       } else {
         toast.error(
-          "Sorry, there’s a problem with the service, please try again later! " + ` ${error ? error.message + ". " + error?.response?.data.message : ""}`
+          "Sorry, there's a problem with the service, please try again later! " + ` ${error ? error.message + ". " + error?.response?.data.message : ""}`
         );
       }
 
@@ -90,18 +90,35 @@ export const DataAssetList: React.FC = () => {
     // fetch all data token meta pair assets
     const dataTokenMetaPairAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
 
-    const dataTokenMetaPairAssetsList: MetaPairDataAssetSet[] = Object.keys(dataTokenMetaPairAssetsFromBackend).map((key) => {
-      const array = dataTokenMetaPairAssetsFromBackend[key];
-      return {
-        img: array[0],
-        json: array[1],
-      };
+    // we are only interested in the JSON file as that holds the absolute path for the image file (which is in a seperate folder)
+    // ... as it needs to be up seperate to the JSON file to be able to be referenced in the JSON file
+    // ... so if we dont filer the JSON files, we will also get the image files (in a seperate folder) which is not what we want
+    // ... in future, if we really want we can always write the code to join the image and json files together
+    const filteredDataTokenMetaPairAssetsFromBackend: MetaPairJsonFile[] = Object.keys(dataTokenMetaPairAssetsFromBackend).map((key) => {
+      try {
+        const array = dataTokenMetaPairAssetsFromBackend[key];
+
+        if (!array || !Array.isArray(array)) {
+          console.warn(`Invalid array structure for key ${key}:`, array);
+          return { json: null };
+        }
+
+        if (array[0]?.mimeType === "application/json") {
+          return { json: array[0] };
+        } else if (array[1]?.mimeType === "application/json") {
+          return { json: array[1] };
+        } else {
+          console.warn(`No JSON file found in array for key ${key}:`, array);
+          return { json: null };
+        }
+      } catch (error) {
+        console.error(`Error processing key ${key}:`, error);
+        return { json: null };
+      }
     });
 
-    setDataTokenMetaPairAssets(dataTokenMetaPairAssetsList);
+    setDataTokenMetaPairAssets(filteredDataTokenMetaPairAssetsFromBackend);
 
-    // fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
-    // fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
     await downloadAllTheManifestFiles(dataAssets);
   }
 
@@ -191,7 +208,7 @@ export const DataAssetList: React.FC = () => {
         </div>
       )) || (
         <>
-          <span className="text-accent text-2xl py-12">Data Token Meta Pair Files</span>
+          <span className="text-accent text-2xl py-12">Data Token JSON Metadata Files</span>
           {(dataTokenMetaPairAssets.length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -199,8 +216,8 @@ export const DataAssetList: React.FC = () => {
           )) || (
             <div className="gap-4 grid lg:grid-cols-3">
               {showCategories &&
-                dataTokenMetaPairAssets.map((dataTokenMetaPairAsset: MetaPairDataAssetSet, index) => (
-                  <MetaPairDataAssetCard key={index} img={dataTokenMetaPairAsset.img} json={dataTokenMetaPairAsset.json} />
+                dataTokenMetaPairAssets.map((dataTokenMetaPairAsset: MetaPairJsonFile, index) => (
+                  <MetaPairDataAssetCard key={index} json={dataTokenMetaPairAsset.json} />
                 ))}
             </div>
           )}

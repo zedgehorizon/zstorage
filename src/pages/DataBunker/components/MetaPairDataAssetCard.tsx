@@ -1,13 +1,16 @@
 import { CopyIcon, ExternalLink } from "lucide-react";
-
-import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
 import { IPFS_GATEWAY } from "@utils/constants";
 import { shortenAddress } from "@utils/functions";
 
-const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
-  console.log(props, "props");
-  const { fileName: imgFileName, mimeType: imgMimeType, hash: imgHash, size: imgSize, timestamp: imgTimestamp, folderHash: imgFolderHash } = props.img;
-  const { fileName: jsonFileName, mimeType: jsonMimeType, hash: jsonHash, size: jsonSize, timestamp: jsonTimestamp, folderHash: jsonFolderHash } = props.json;
+const MetaPairDataAssetCard: React.FC<MetaPairJsonFile> = (props) => {
+  const json = props.json;
+
+  // should never happen, but just in case
+  if (!json) {
+    return null;
+  }
+
+  const { fileName: jsonFileName, mimeType: jsonMimeType, hash: jsonHash, size: jsonSize, timestamp: jsonTimestamp, folderHash: jsonFolderHash } = json;
 
   /*
 
@@ -37,53 +40,32 @@ const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
 */
 
   let sizeToShow;
-  if (imgSize < 1024) {
-    sizeToShow = `${imgSize} bytes`;
-  } else if (imgSize < 1024 * 1024) {
-    const sizeInKB = (imgSize / 1024).toFixed(2);
+  if (jsonSize < 1024) {
+    sizeToShow = `${jsonSize} bytes`;
+  } else if (jsonSize < 1024 * 1024) {
+    const sizeInKB = (jsonSize / 1024).toFixed(2);
     sizeToShow = `${sizeInKB} KB`;
   } else {
-    const sizeInMB = (imgSize / (1024 * 1024)).toFixed(2);
+    const sizeInMB = (jsonSize / (1024 * 1024)).toFixed(2);
     sizeToShow = `${sizeInMB} MB`;
   }
 
   return (
     <div className="truncate hover:shadow-inner hover:shadow-accent/50 bg-muted border border-accent/50 px-6 pb-2 pt-2 rounded-md  ">
       <div className="z-10 flex flex-row justify-between items-center border-b border-accent/30 p-2">
-        <h2 className="text-2xl font-bold text-ellipsis whitespace-nowrap overflow-hidden">
-          {imgFileName} / {jsonFileName}
-        </h2>
+        <h2 className="text-2xl font-bold text-ellipsis whitespace-nowrap overflow-hidden">{jsonFileName}</h2>
       </div>
       <div className="text-foreground/75 gap-2 p-2">
         <div className="w-full text-foreground/75 gap-2  ">
-          <p className="truncate">
-            Mime Type : {imgMimeType} / {jsonMimeType}
-          </p>
-          <p>
-            Size: {imgSize} / {jsonSize}
-          </p>
-          <p>Created On: {new Date(imgTimestamp * 1000).toDateString()}</p>
-          <>
-            <div className="flex flex-row">
-              <p>Img Cid: {shortenAddress(imgHash, 6)} </p>
-              <CopyIcon
-                onClick={() => navigator.clipboard.writeText("ipfs://" + imgHash)}
-                className=" ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
-            </div>
-            <a
-              href={IPFS_GATEWAY + "ipfs/" + imgFolderHash + "/" + imgFileName}
-              target="_blank"
-              className="flex flex-row items-center hover:underline hover:text-accent ">
-              Check on IPFS
-              <ExternalLink className="text-accent ml-4 " />
-            </a>
-          </>
+          <p className="truncate">Mime Type : {jsonMimeType}</p>
+          <p>Size: {jsonSize}</p>
+          <p>Created On: {new Date(jsonTimestamp * 1000).toDateString()}</p>
           <>
             <div className="flex flex-row">
               <p>JSON Cid: {shortenAddress(jsonHash, 6)} </p>
               <CopyIcon
                 onClick={() => navigator.clipboard.writeText("ipfs://" + jsonHash)}
-                className=" ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+                className="ml-1 2xl:ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
             </div>
             <a
               href={IPFS_GATEWAY + "ipfs/" + jsonFolderHash + "/" + jsonFileName}
@@ -99,4 +81,4 @@ const StaticDataAssetCard: React.FC<MetaPairDataAssetSet> = (props) => {
   );
 };
 
-export default StaticDataAssetCard;
+export default MetaPairDataAssetCard;
