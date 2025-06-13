@@ -1,4 +1,4 @@
-import { Edit2, PlaySquare } from "lucide-react";
+import { Edit2, FolderPlus, PlaySquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { Modal } from "@components/Modal";
@@ -20,7 +20,16 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
     last_modified_on,
     marshalManifest: { totalItems, nestedStream },
   } = dataAsset;
+
   const paths = ["/upload", "/upload-music", "/upload-trailblazer"];
+
+  // ipns has with nested stream params (so we can initiate a data token process)
+  let ipnsHashUrlWithNestedStream = null;
+
+  if (manifest && manifest?.ipnsHash) {
+    ipnsHashUrlWithNestedStream = "ipns://" + manifest?.ipnsHash + "?dmf-nestedstream=1";
+  }
+
   return (
     <div className="truncate hover:shadow-inner hover:shadow-accent/50 bg-muted border border-accent/50 px-6 pb-2 pt-2 rounded-md  ">
       <div className="z-10 flex flex-row justify-between items-center border-b border-accent/30 p-2">
@@ -67,8 +76,8 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
           <div className="w-full flex justify-between">
             <p>Creator: {creator}</p>
             {manifest.ipnsHash && (
-              <div className=" flex   items-center  ">
-                <p className="  text-sm text-center  bg-accent-foreground border border-accent text-accent rounded-xl px-2 ">Ipns</p>
+              <div className="flex items-center">
+                <p className="text-sm text-center bg-accent-foreground border border-accent text-accent rounded-xl px-2">Ipns</p>
               </div>
             )}
           </div>
@@ -79,12 +88,19 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
         </div>
       </div>
       <div className="flex flex-row justify-between px-2">
-        {category === 1 && (
+        {/* {category === 1 && (
           <MintDataNftModal
             triggerElement={
-              <button className={"hover:scale-110 duration-300 transition text-xs  px-4  text-accent border border-accent rounded-full"}>Mint Data NFT</button>
+              <button className={"hover:scale-105 duration-300 transition text-xs px-4 text-accent border border-accent rounded-full"}>Mint Data NFT</button>
             }
           />
+        )} */}
+        {category === 1 && ipnsHashUrlWithNestedStream && (
+          <Link
+            to={`/tokenize?dataStreamForWorkflow=${ipnsHashUrlWithNestedStream}`}
+            className="hover:scale-105 flex items-center duration-300 transition text-xs px-4 text-accent border border-accent rounded-full">
+            Create Data Token
+          </Link>
         )}
         <div></div>
         <Link

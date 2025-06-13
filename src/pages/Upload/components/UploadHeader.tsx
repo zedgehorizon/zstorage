@@ -159,7 +159,13 @@ const UploadHeader: React.FC<UploadHeaderProps> = (props) => {
           </Modal>
         )
       )}
-      <CidsView folderCid={folderCid} currentManifestFileCID={currentManifestFileCID} manifestFileName={manifestFileName} ipnsHash={ipnsHash} />
+      <CidsView
+        folderCid={folderCid}
+        currentManifestFileCID={currentManifestFileCID}
+        manifestFileName={manifestFileName}
+        ipnsHash={ipnsHash}
+        isNestedStream={stream}
+      />
     </div>
   );
 };

@@ -1,11 +1,12 @@
 {
   "name": "zstorage-dapp",
   "description": "Decentralized Storage Application",
-  "version": "1.26.2",
+  "version": "1.27.0",
   "author": "Zedge Horizon",
   "private": true,
   "dependencies": {
     "@hookform/resolvers": "3.6.0",
+    "@itheum/sdk-data-marshal-network": "^1.2.0",
     "@itheum/sdk-mx-data-nft": "3.5.1",
     "@multiversx/sdk-core": "13.2.1",
     "@multiversx/sdk-dapp": "2.33.5",

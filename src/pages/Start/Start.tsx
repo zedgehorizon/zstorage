@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import zImageHalf from "@assets/img/z-image-half.png";
 import storageIcon from "@assets/logo/ic_baseline-updatestore.png";
 import updateIcon from "@assets/logo/ic_baseline-updateupdate.png";
+import datatokenIcon from "@assets/logo/ic_baseline-datatoken.png";
 import { XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -51,7 +52,7 @@ export const Start = () => {
               to={tokenizeNewRoute}
               className="cursor-pointer hover:bg-accent/25 focus:bg-accent/75 w-[80%] p-4 bg-foreground/5 bg-opacity-5 rounded-lg border border-accent/25 items-center gap-4 inline-flex">
               <div className="w-12 h-12 p-3 bg-foreground  rounded-2xl justify-center items-center inline-flex">
-                <img src={storageIcon}></img>
+                <img src={datatokenIcon}></img>
               </div>
               <span className="text-center text-foreground/75 text-base ">Create a new data token</span>
             </Link>

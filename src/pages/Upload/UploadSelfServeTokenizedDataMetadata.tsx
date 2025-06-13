@@ -8,6 +8,7 @@ import { AssetCategories, CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
 import { Progress } from "@libComponents/Progress";
 import CidsView from "./components/CidsView";
+import ItheumDataMarshalStreamEncrypter from "./components/ItheumDataMarshalStreamEncrypter";
 
 type FormData = {
   // Main Details
@@ -24,8 +25,21 @@ type FormData = {
   _fileNamePrefix: string;
 };
 
+type IPLicenseFormData = {
+  ipLicenseCreatorName: string;
+  ipLicenseCreatorContributionPercent: string;
+  ipLicenseSigmaTemplateArtistId: string;
+  ipLicenseSigmaTemplateAlbumId: string;
+  ipLicenseSigmaTemplateMusicAssetType: string;
+  ipLicenseCreatorStoryProtocolAddress: string;
+};
+
 type ValidationErrors = {
   [key in keyof FormData]?: string;
+};
+
+type IPLicenseValidationErrors = {
+  [key in keyof IPLicenseFormData]?: string;
 };
 
 const JSON_TEMPLATE_FILLED = {
@@ -112,7 +126,23 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     rarity: "",
     _fileNamePrefix: "",
   });
+  const [ipLicenseFormData, setIpLicenseFormData] = useState<IPLicenseFormData>({
+    ipLicenseCreatorName: "",
+    ipLicenseCreatorStoryProtocolAddress: "",
+    ipLicenseCreatorContributionPercent: "100",
+    ipLicenseSigmaTemplateArtistId: "",
+    ipLicenseSigmaTemplateAlbumId: "",
+    ipLicenseSigmaTemplateMusicAssetType: "Album",
+  });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [ipLicenseValidationErrors, setIpLicenseValidationErrors] = useState<IPLicenseValidationErrors>({});
+  const [clearTextDataStream, setClearTextDataStream] = useState<string | null>(null);
+  const [isIpLicensingEnabled, setIsIpLicensingEnabled] = useState(false);
+
+  useEffect(() => {
+    const dataStreamForWorkflow = new URLSearchParams(window.location.search).get("dataStreamForWorkflow");
+    setClearTextDataStream(dataStreamForWorkflow || null);
+  }, []);
 
   useEffect(() => {
     if (progressValue > 0 && progressValue < 99 && !errorMessage) {
@@ -226,14 +256,52 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     return isValid;
   };
 
+  const validateIpLicenseForm = (): boolean => {
+    const errors: IPLicenseValidationErrors = {};
+    let isValid = true;
+
+    if (!ipLicenseFormData.ipLicenseCreatorName) {
+      errors.ipLicenseCreatorName = "Musician Name is required";
+      isValid = false;
+    }
+
+    if (!ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress) {
+      errors.ipLicenseCreatorStoryProtocolAddress = "Musician Story Protocol Address is required";
+      isValid = false;
+    }
+
+    if (!ipLicenseFormData.ipLicenseSigmaTemplateArtistId) {
+      errors.ipLicenseSigmaTemplateArtistId = "Sigma Music Artist ID is required";
+      isValid = false;
+    }
+
+    if (!ipLicenseFormData.ipLicenseSigmaTemplateAlbumId) {
+      errors.ipLicenseSigmaTemplateAlbumId = "Sigma Music Album ID is required";
+      isValid = false;
+    }
+
+    setIpLicenseValidationErrors(errors);
+    return isValid;
+  };
+
   async function uploadFile() {
-    if (!validateForm()) {
-      return;
+    if (!file) return;
+
+    if (isIpLicensingEnabled) {
+      const mainFormValidationResult = validateForm();
+      const ipLicenseFormValidationResult = validateIpLicenseForm();
+
+      if (!mainFormValidationResult || !ipLicenseFormValidationResult) {
+        return;
+      }
+    } else {
+      if (!validateForm()) {
+        return;
+      }
     }
 
     setProgressValue(43);
 
-    if (!file) return;
     const filesToUpload = new FormData();
     // first file should be image
     filesToUpload.append("files", file, generateRandomString() + "_img_" + onlyAlphaNumericChars(formData._fileNamePrefix) + "." + file.name.split(".")[1]);
@@ -251,11 +319,30 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       { "trait_type": "TokenCode", "value": formData.tokenCode },
       { "trait_type": "Rarity", "value": formData.rarity },
     ];
+
     filesToUpload.append(
       "files",
       new Blob([JSON.stringify(jsonFileWithData)], { type: "application/json" }),
       generateRandomString() + "_json_" + onlyAlphaNumericChars(formData._fileNamePrefix) + ".json"
     );
+
+    // 3rd file is an optional ip license instruction file for the backend to process
+    if (isIpLicensingEnabled) {
+      const ipLicenseInstructionFile = {
+        assetTitle: formData.name,
+        assetDesc: formData.description,
+        creatorName: ipLicenseFormData.ipLicenseCreatorName,
+        creatorAddress: ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress,
+        creatorContributionPercent: ipLicenseFormData.ipLicenseCreatorContributionPercent,
+        sigmaMusicArtistId: ipLicenseFormData.ipLicenseSigmaTemplateArtistId,
+        sigmaMusicAssetId: ipLicenseFormData.ipLicenseSigmaTemplateAlbumId,
+        sigmaMusicAssetType: ipLicenseFormData.ipLicenseSigmaTemplateMusicAssetType,
+        assetImageUrl: "",
+      };
+
+      filesToUpload.append("files", new Blob([JSON.stringify(ipLicenseInstructionFile)], { type: "application/json" }), "ip_license_instruction.json");
+    }
+
     filesToUpload.append("category", CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
 
     // v3 version handles the order we want data tokens to be uploaded in
@@ -272,16 +359,9 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     }
 
     setProgressValue(100);
-    console.log(response);
-
-    // setImgFileCid(response[0].hash);
-    // setJsonFileCid(response[1].hash);
 
     setImgFileCidPayload(response[0]);
     setJsonFileCidPayload(response[1]);
-
-    console.log("img file cid payload", response[0]);
-    console.log("json file cid payload", response[1]);
   }
 
   function loadDummyData() {
@@ -307,9 +387,17 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     }));
   };
 
+  const handleIpLicenseInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setIpLicenseFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <div className="w-full xl:w-[60%] mt-10">
-      <h1 className="text-4xl text-accent mb-2">Upload Self Serve Tokenized Data Metadata</h1>
+      <h1 className="text-4xl text-accent mb-2">Generate Data Token Metadata</h1>
       <p className="text-foreground/80 mb-8">
         Enter the details below to generate the data token metadata files which you can then use in your own scripts to mint data tokens
       </p>
@@ -412,7 +500,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-foreground/80">Creator Wallet</label>
+              <label className="text-foreground/80">Itheum Protocol: Data Creator Wallet</label>
               <input
                 type="text"
                 name="creator_wallet"
@@ -425,7 +513,8 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-foreground/80">Data Stream</label>
+              <label className="text-foreground/80">Itheum Protocol: Encrypted Data Stream</label>
+
               <textarea
                 name="data_stream"
                 value={formData.data_stream}
@@ -435,6 +524,26 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 rows={4}
               />
               {validationErrors.data_stream && <span className="text-red-500 text-sm">{validationErrors.data_stream}</span>}
+
+              {clearTextDataStream && (
+                <div className="flex flex-col gap-1 bg-green-800 p-2 rounded-lg text-sm overflow-x-auto">
+                  <p>Public Data Stream URL</p>
+                  <p>{clearTextDataStream}</p>
+                </div>
+              )}
+
+              <ItheumDataMarshalStreamEncrypter
+                creatorWallet={formData.creator_wallet}
+                dataStreamForWorkflow={clearTextDataStream}
+                onDataStreamUpdate={(clearTextDataStream, encryptedDataStream, itheumCreatorWallet) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    data_stream: encryptedDataStream,
+                    creator_wallet: itheumCreatorWallet,
+                  }));
+                  setClearTextDataStream(clearTextDataStream);
+                }}
+              />
             </div>
 
             <div className="flex flex-col gap-1">
@@ -485,6 +594,181 @@ const UploadSelfServeTokenizedDataMetadata = () => {
         </div>
       </div>
 
+      <div className="mb-10">
+        <h2 className="text-2xl text-accent mb-2">IP Licensing</h2>
+
+        <p>
+          Integrate with Story Protocol to mint an on-chain IP license for your data token. All instances minted via our script will link to this primary IP
+          token, enabling on-chain licensing and royalty payments through Story Protocol's infrastructure. This integration also unlocks IPFi (IP Finance)
+          opportunities.
+        </p>
+
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => setIsIpLicensingEnabled(false)}
+            className={`px-6 py-2 rounded-lg font-medium ${!isIpLicensingEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+            OFF
+          </button>
+          <button
+            onClick={() => setIsIpLicensingEnabled(true)}
+            className={`px-6 py-2 rounded-lg font-medium ${isIpLicensingEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+            ON
+          </button>
+        </div>
+
+        {isIpLicensingEnabled && (
+          <div className="ip-licensing-content bg-background/50 border border-accent/20 rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-semibold text-accent mb-6">IP Licensing Configuration</h3>
+
+            <div className="mb-8">
+              <h4 className="text-lg font-medium text-foreground/90 mb-4">Pick a Consumer End User Application Template</h4>
+              <div className="flex gap-4 mb-4">
+                <button className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium hover:bg-accent/90 transition-colors" disabled={false}>
+                  Sigma Music
+                </button>
+                <button
+                  className="bg-background border border-accent/50 text-foreground/50 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
+                  disabled={true}>
+                  Generic (Coming Soon)
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-background/80 rounded-lg p-6 border border-accent/10">
+              <h4 className="text-lg font-medium text-foreground/90 mb-6">Template for Sigma Music</h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Musician Name</label>
+                  <input
+                    type="text"
+                    name="ipLicenseCreatorName"
+                    value={ipLicenseFormData.ipLicenseCreatorName}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                    maxLength={30}
+                  />
+                  {ipLicenseValidationErrors.ipLicenseCreatorName && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorName}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Musician Story Protocol Address</label>
+                  <input
+                    type="text"
+                    name="ipLicenseCreatorStoryProtocolAddress"
+                    value={ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                    maxLength={30}
+                  />
+                  {ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Creator Contribution Percent</label>
+                  <select
+                    name="ipLicenseCreatorContributionPercent"
+                    value={ipLicenseFormData.ipLicenseCreatorContributionPercent}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
+                    <option value="25">25%</option>
+                    <option value="50">50%</option>
+                    <option value="75">75%</option>
+                    <option value="100">100%</option>
+                  </select>
+                  {ipLicenseValidationErrors.ipLicenseCreatorContributionPercent && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorContributionPercent}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Sigma Music Artist ID</label>
+                  <input
+                    type="text"
+                    name="ipLicenseSigmaTemplateArtistId"
+                    value={ipLicenseFormData.ipLicenseSigmaTemplateArtistId}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                    maxLength={30}
+                  />
+                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Sigma Music Music Asset ID</label>
+                  <input
+                    type="text"
+                    name="ipLicenseSigmaTemplateAlbumId"
+                    value={ipLicenseFormData.ipLicenseSigmaTemplateAlbumId}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                    maxLength={30}
+                  />
+                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-foreground/80 font-medium">Music Asset Type</label>
+                  <select
+                    name="ipLicenseSigmaTemplateMusicAssetType"
+                    value={ipLicenseFormData.ipLicenseSigmaTemplateMusicAssetType}
+                    onChange={handleIpLicenseInputChange}
+                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
+                    <option value="Album">Album</option>
+                    <option value="EP">EP</option>
+                    <option value="Single">Single</option>
+                  </select>
+                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType && (
+                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType}</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-background/50 rounded-lg p-6 border border-accent/10">
+                <h5 className="text-lg font-medium text-foreground/90 mb-4">Supported IP Licenses</h5>
+                <div className="space-y-4">
+                  <div className="bg-background/80 rounded-lg p-4 border border-accent/10">
+                    <h6 className="text-accent font-medium mb-2">Commercial Remix</h6>
+                    <div className="space-y-2 text-sm text-foreground/80">
+                      <a
+                        href="https://github.com/piplabs/pil-document/blob/v1.3.0/Story%20Foundation%20-%20Programmable%20IP%20License%20(1.31.25).pdf"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                        <span>View PIL (Programmatic IP License) Legal Document</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                          <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                        </svg>
+                      </a>
+                      <a
+                        href="https://github.com/piplabs/pil-document/blob/ad67bb632a310d2557f8abcccd428e4c9c798db1/off-chain-terms/CommercialRemix.json"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                        <span>View Off-Chain Terms</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                          <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <Modal
         openTrigger={
           <button
@@ -492,12 +776,12 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             onClick={uploadFile}
             disabled={!file || progressValue > 0 || errorMessage != undefined}
             className={"bg-accent text-accent-foreground w-full font-medium p-6 rounded-b-3xl disabled:cursor-not-allowed disabled:bg-accent/50"}>
-            Upload Data
+            Generate Data Token Metadata
           </button>
         }
         footerContent={
           errorMessage ||
-          (Object.keys(validationErrors).length > 0 ? (
+          (Object.keys(validationErrors).length > 0 || (isIpLicensingEnabled && Object.keys(ipLicenseValidationErrors).length > 0) ? (
             <p className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>
           ) : null)
         }
@@ -518,8 +802,12 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             </span>
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
             {Object.keys(validationErrors).length > 0 && (
+              <span className="text-red-500 text-xs">{Object.values(validationErrors).join(", ")} - Please close the modal and fix the errors.</span>
+            )}
+            {isIpLicensingEnabled && Object.keys(ipLicenseValidationErrors).length > 0 && (
               <span className="text-red-500 text-xs">
-                {Object.values(validationErrors).join(", ")} - Please close the modal and fix the errors and try again
+                <p>IP Licensing Errors:</p>
+                {Object.values(ipLicenseValidationErrors).join(", ")} - Please close the modal and fix the errors.
               </span>
             )}
             {imgFileCidPayload && jsonFileCidPayload && progressValue === 100 && (

@@ -10,10 +10,22 @@ interface CidsViewProps {
   manifestFileName?: string;
   ipnsHash?: string;
   fileCID?: string;
+  isNestedStream?: boolean;
 }
 
 const CidsView: React.FC<CidsViewProps> = (props) => {
-  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash, fileCID } = props;
+  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash, fileCID, isNestedStream = false } = props;
+
+  // ipns has with nested stream params
+  let ipnsHashUrlWithNestedStream = null;
+
+  if (ipnsHash) {
+    if (isNestedStream) {
+      ipnsHashUrlWithNestedStream = "ipns://" + ipnsHash + "?dmf-nestedstream=1";
+    } else {
+      ipnsHashUrlWithNestedStream = "ipns://" + ipnsHash;
+    }
+  }
 
   return (
     <div>
@@ -59,7 +71,9 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
                   <h3 className=" cursor-help ">Your Asset’s IPNS Location: </h3>
                 </TooltipTrigger>{" "}
                 <p className="ml-2 text-accent ">{"ipns://" + shortenAddress(ipnsHash, 20)}</p>
-                <CopyIcon onClick={() => navigator.clipboard.writeText("ipns://" + ipnsHash)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+                <CopyIcon
+                  onClick={() => navigator.clipboard.writeText(ipnsHashUrlWithNestedStream!)}
+                  className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
                 <TooltipContent>
                   <p>Utilize this when minting data NFTs. Insert this into the "Data Stream URL" input field</p>
                 </TooltipContent>

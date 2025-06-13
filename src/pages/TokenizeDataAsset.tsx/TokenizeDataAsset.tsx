@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import zImageHalf from "@assets/img/z-image-half.png";
 import { Link } from "react-router-dom";
 import StoreDataAssetProgress from "./components/StoreDataAssetProgress";
@@ -14,6 +14,12 @@ const TokenizeDataAsset = () => {
   const [storagePreference, setStoragePreference] = useState();
   const [storageOption, setStorageOption] = useState();
   const navigate = useNavigate();
+  const [dataStreamForWorkflow, setDataStreamForWorkflow] = useState<string | null>(null);
+
+  useEffect(() => {
+    const dataStreamForWorkflow = new URLSearchParams(window.location.search).get("dataStreamForWorkflow");
+    setDataStreamForWorkflow(dataStreamForWorkflow || null);
+  }, []);
 
   const isNextButtonDisabled = () => {
     if (currentStep === 1 && tokenizationStrategy) return false;
@@ -46,8 +52,8 @@ const TokenizeDataAsset = () => {
             options={["Self Serve", "Full Service"]}
             currentOption={tokenizationStrategy}
             descriptions={[
-              "Only generate the data token metadata files which you can then use in your own scripts to mint data tokens",
-              "Follow the full service wizard to mint your data tokens on selected blockchains and with built in IP Licensing",
+              "Only generate the data token metadata file (with optional built-in IP Licensing) which you can then use in your own scripts to mint data tokens",
+              "Follow the full service wizard to mint your data tokens on selected blockchains and with optional built-in IP Licensing",
             ]}
             setterFunction={setTokenizationStrategy}
             disabled={[false, true]}
@@ -107,7 +113,9 @@ const TokenizeDataAsset = () => {
             <Link
               to={
                 currentStep === 1
-                  ? "/tokenize-self-serve"
+                  ? dataStreamForWorkflow
+                    ? "/tokenize-self-serve?dataStreamForWorkflow=" + dataStreamForWorkflow
+                    : "/tokenize-self-serve"
                   : template.includes("Upload My Files")
                     ? "/upload"
                     : template.includes("Trailblazer Data NFT")

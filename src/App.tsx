@@ -44,7 +44,7 @@ const routes = [
   },
   {
     path: "/tokenize-self-serve",
-    title: "Upload Self Serve Tokenized Data Metadata",
+    title: "Generate Data Token Metadata",
     component: UploadSelfServeTokenizedDataMetadata,
     authenticatedRoute: true,
   },
