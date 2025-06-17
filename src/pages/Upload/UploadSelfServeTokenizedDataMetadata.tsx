@@ -788,7 +788,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                     value={ipLicenseFormData.ipLicenseCreatorName}
                     onChange={handleIpLicenseInputChange}
                     className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={30}
+                    maxLength={300}
                   />
                   {ipLicenseValidationErrors.ipLicenseCreatorName && (
                     <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorName}</span>
@@ -803,7 +803,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                     value={ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress}
                     onChange={handleIpLicenseInputChange}
                     className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={30}
+                    maxLength={300}
                   />
                   {ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress && (
                     <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress}</span>
@@ -835,7 +835,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                     value={ipLicenseFormData.ipLicenseSigmaTemplateArtistId}
                     onChange={handleIpLicenseInputChange}
                     className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={30}
+                    maxLength={100}
                   />
                   {ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId && (
                     <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId}</span>
@@ -850,7 +850,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                     value={ipLicenseFormData.ipLicenseSigmaTemplateAlbumId}
                     onChange={handleIpLicenseInputChange}
                     className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={30}
+                    maxLength={100}
                   />
                   {ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId && (
                     <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId}</span>
