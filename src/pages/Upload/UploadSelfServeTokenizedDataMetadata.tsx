@@ -310,7 +310,6 @@ const UploadSelfServeTokenizedDataMetadata = () => {
   };
 
   async function uploadFile() {
-    debugger;
     if (!file && !isManualUrlEnabled) return;
 
     if (isManualUrlEnabled && formData.manualImgFileUrl === "") return;
