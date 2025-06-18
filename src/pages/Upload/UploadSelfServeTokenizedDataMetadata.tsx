@@ -45,7 +45,7 @@ type IPLicenseValidationErrors = {
   [key in keyof IPLicenseFormData]?: string;
 };
 
-const JSON_TEMPLATE_FILLED = {
+const JSON_TEMPLATE_FILLED_WSB = {
   "attributes": [
     { "trait_type": "App", "value": "sigmamusic.fm" },
     { "trait_type": "Type", "value": "FanMembership" },
@@ -63,14 +63,45 @@ const JSON_TEMPLATE_FILLED = {
   ],
   "description": "Offical WSB GBOYZ JUNIORS Zhea Fan Club Membership Token - Tier 1",
   "external_url": "https://sigmamusic.fm",
-  "image": "https://gateway.lighthouse.storage/ipfs/bafybeiexnsie236syirw5xtnrhfb5pjib3ybjvimd66dxuaz6rbohlco7i/549_WsbPhlGbhZheaT1.gif",
+  "image": "",
   "name": "FANG82 - WSB GBOYZ JUNIORS Zhea Fan Club - Tier 1",
   "properties": {
     "category": "image",
     "files": [
       {
         "type": "image/gif",
-        "uri": "https://gateway.lighthouse.storage/ipfs/bafybeiexnsie236syirw5xtnrhfb5pjib3ybjvimd66dxuaz6rbohlco7i/549_WsbPhlGbhZheaT1.gif",
+        "uri": "",
+      },
+    ],
+  },
+  "symbol": "",
+};
+
+const JSON_TEMPLATE_FILLED_SIGMA = {
+  "attributes": [
+    { "trait_type": "App", "value": "sigmamusic.fm" },
+    { "trait_type": "Type", "value": "Music" },
+    {
+      "trait_type": "itheum_creator",
+      "value": "XXX",
+    },
+    {
+      "trait_type": "itheum_data_stream_url",
+      "value": "XXX",
+    },
+    { "trait_type": "TokenCode", "value": "XXX" },
+    { "trait_type": "Rarity", "value": "Tier 1" },
+  ],
+  "description": "XX",
+  "external_url": "https://sigmamusic.fm",
+  "image": "",
+  "name": "MUSSMXXX - XXX - XXX",
+  "properties": {
+    "category": "image",
+    "files": [
+      {
+        "type": "image/gif",
+        "uri": "",
       },
     ],
   },
@@ -431,22 +462,40 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     }
   }
 
-  function loadDummyData() {
-    setFormData({
-      name: JSON_TEMPLATE_FILLED.name,
-      description: JSON_TEMPLATE_FILLED.description,
-      external_url: JSON_TEMPLATE_FILLED.external_url,
-      app: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "App")?.value || "",
-      type: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "Type")?.value || "",
-      creator_wallet: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "itheum_creator")?.value || "",
-      data_stream: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "itheum_data_stream_url")?.value || "",
-      tokenCode: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "TokenCode")?.value || "",
-      rarity: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "Rarity")?.value || "",
-      rarityGrade: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "RarityGrade")?.value || "",
-      _fileNamePrefix: "",
-      manualImgFileUrl: "",
-      manualImgFileType: "image/gif",
-    });
+  function loadDummyData(template: "wsb" | "sigma") {
+    if (template === "wsb") {
+      setFormData({
+        name: JSON_TEMPLATE_FILLED_WSB.name,
+        description: JSON_TEMPLATE_FILLED_WSB.description,
+        external_url: JSON_TEMPLATE_FILLED_WSB.external_url,
+        app: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "App")?.value || "",
+        type: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "Type")?.value || "",
+        creator_wallet: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "itheum_creator")?.value || "",
+        data_stream: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "itheum_data_stream_url")?.value || "",
+        tokenCode: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "TokenCode")?.value || "",
+        rarity: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "Rarity")?.value || "",
+        rarityGrade: JSON_TEMPLATE_FILLED_WSB.attributes.find((attr) => attr.trait_type === "RarityGrade")?.value || "",
+        _fileNamePrefix: "",
+        manualImgFileUrl: "",
+        manualImgFileType: "image/gif",
+      });
+    } else if (template === "sigma") {
+      setFormData({
+        name: JSON_TEMPLATE_FILLED_SIGMA.name,
+        description: JSON_TEMPLATE_FILLED_SIGMA.description,
+        external_url: JSON_TEMPLATE_FILLED_SIGMA.external_url,
+        app: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "App")?.value || "",
+        type: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "Type")?.value || "",
+        creator_wallet: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "itheum_creator")?.value || "",
+        data_stream: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "itheum_data_stream_url")?.value || "",
+        tokenCode: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "TokenCode")?.value || "",
+        rarity: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "Rarity")?.value || "",
+        rarityGrade: JSON_TEMPLATE_FILLED_SIGMA.attributes.find((attr) => attr.trait_type === "RarityGrade")?.value || "",
+        _fileNamePrefix: "",
+        manualImgFileUrl: "",
+        manualImgFileType: "image/gif",
+      });
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -575,7 +624,11 @@ const UploadSelfServeTokenizedDataMetadata = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         <div>
-          <button onClick={() => loadDummyData()}> Load Template</button>
+          <div className="flex gap-2 mb-4">
+            <button onClick={() => loadDummyData("wsb")}> Load Template - WSB</button>
+            <button onClick={() => loadDummyData("sigma")}> Load Template - Sigma</button>
+          </div>
+
           <h2 className="text-2xl text-accent mb-2">Main Details</h2>
           <div className="form flex flex-col gap-4">
             <div className="flex flex-col gap-1">
