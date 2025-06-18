@@ -22,6 +22,7 @@ type FormData = {
   data_stream: string;
   tokenCode: string;
   rarity: string;
+  rarityGrade: string;
   _fileNamePrefix: string;
   manualImgFileUrl?: string;
   manualImgFileType?: string;
@@ -127,6 +128,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     data_stream: "",
     tokenCode: "",
     rarity: "",
+    rarityGrade: "",
     _fileNamePrefix: "",
     manualImgFileUrl: "",
     manualImgFileType: "image/gif",
@@ -364,6 +366,10 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       { "trait_type": "Rarity", "value": formData.rarity },
     ];
 
+    if (formData.rarityGrade && formData.rarityGrade !== "") {
+      jsonFileWithData.attributes.push({ "trait_type": "RarityGrade", "value": formData.rarityGrade });
+    }
+
     filesToUpload.append(
       "files",
       new Blob([JSON.stringify(jsonFileWithData)], { type: "application/json" }),
@@ -402,27 +408,27 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       filesToUpload.append("useStoryIpTestnet", "true");
     }
 
-    // v3 version handles the order we want data tokens to be uploaded in
-    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "", "_v3");
+    // // v3 version handles the order we want data tokens to be uploaded in
+    // const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "", "_v3");
 
-    if (response.response) {
-      if (response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
-        return undefined;
-      } else {
-        setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
-        return undefined;
-      }
-    }
+    // if (response.response) {
+    //   if (response.response.data.statusCode === 402) {
+    //     setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+    //     return undefined;
+    //   } else {
+    //     setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
+    //     return undefined;
+    //   }
+    // }
 
-    setProgressValue(100);
+    // setProgressValue(100);
 
-    if (isManualUrlEnabled && formData.manualImgFileUrl && formData.manualImgFileUrl !== "") {
-      setJsonFileCidPayload(response[0]);
-    } else {
-      setImgFileCidPayload(response[0]);
-      setJsonFileCidPayload(response[1]);
-    }
+    // if (isManualUrlEnabled && formData.manualImgFileUrl && formData.manualImgFileUrl !== "") {
+    //   setJsonFileCidPayload(response[0]);
+    // } else {
+    //   setImgFileCidPayload(response[0]);
+    //   setJsonFileCidPayload(response[1]);
+    // }
   }
 
   function loadDummyData() {
@@ -436,6 +442,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       data_stream: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "itheum_data_stream_url")?.value || "",
       tokenCode: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "TokenCode")?.value || "",
       rarity: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "Rarity")?.value || "",
+      rarityGrade: JSON_TEMPLATE_FILLED.attributes.find((attr) => attr.trait_type === "RarityGrade")?.value || "",
       _fileNamePrefix: "",
       manualImgFileUrl: "",
       manualImgFileType: "image/gif",
@@ -712,6 +719,23 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 maxLength={30}
               />
               {validationErrors.rarity && <span className="text-red-500 text-sm">{validationErrors.rarity}</span>}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-foreground/80">Rarity Grade (optional)</label>
+              <select
+                name="rarityGrade"
+                value={formData.rarityGrade}
+                onChange={handleInputChange}
+                className="bg-background border border-accent/50 rounded-lg p-2 text-foreground">
+                <option value="">Don't set Rarity Grade</option>
+                <option value="Common">Common</option>
+                <option value="Uncommon">Uncommon</option>
+                <option value="Rare">Rare</option>
+                <option value="Epic">Epic</option>
+                <option value="Legendary">Legendary</option>
+                <option value="Mythic">Mythic (optional ultra top-tier, e.g., 1-of-1s)</option>
+              </select>
             </div>
           </div>
         </div>
