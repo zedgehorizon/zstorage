@@ -408,27 +408,27 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       filesToUpload.append("useStoryIpTestnet", "true");
     }
 
-    // // v3 version handles the order we want data tokens to be uploaded in
-    // const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "", "_v3");
+    // v3 version handles the order we want data tokens to be uploaded in
+    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "", "_v3");
 
-    // if (response.response) {
-    //   if (response.response.data.statusCode === 402) {
-    //     setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
-    //     return undefined;
-    //   } else {
-    //     setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
-    //     return undefined;
-    //   }
-    // }
+    if (response.response) {
+      if (response.response.data.statusCode === 402) {
+        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+        return undefined;
+      } else {
+        setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
+        return undefined;
+      }
+    }
 
-    // setProgressValue(100);
+    setProgressValue(100);
 
-    // if (isManualUrlEnabled && formData.manualImgFileUrl && formData.manualImgFileUrl !== "") {
-    //   setJsonFileCidPayload(response[0]);
-    // } else {
-    //   setImgFileCidPayload(response[0]);
-    //   setJsonFileCidPayload(response[1]);
-    // }
+    if (isManualUrlEnabled && formData.manualImgFileUrl && formData.manualImgFileUrl !== "") {
+      setJsonFileCidPayload(response[0]);
+    } else {
+      setImgFileCidPayload(response[0]);
+      setJsonFileCidPayload(response[1]);
+    }
   }
 
   function loadDummyData() {
