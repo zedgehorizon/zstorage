@@ -1085,19 +1085,6 @@ const UploadSelfServeTokenizedDataMetadata = () => {
 
                     {manualIpTokenInputError && <span className="text-red-500 text-sm">{manualIpTokenInputError}</span>}
                   </div>
-
-                  {formData.manualImgFileUrl && formData.manualImgFileUrl.length >= 50 && !formData.manualImgFileUrl.includes(" ") && (
-                    <div className="mt-2">
-                      <img
-                        src={formData.manualImgFileUrl}
-                        alt="Preview"
-                        className="max-w-[300px] max-h-[300px] object-contain rounded-lg border border-accent/20"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
               </>
             )}
