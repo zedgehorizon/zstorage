@@ -26,6 +26,7 @@ type FormData = {
   _fileNamePrefix: string;
   manualImgFileUrl?: string;
   manualImgFileType?: string;
+  assetMP3MediaUrl?: string;
 };
 
 type IPLicenseFormData = {
@@ -75,6 +76,7 @@ const JSON_TEMPLATE_FILLED_WSB = {
     ],
   },
   "symbol": "",
+  "animation_url": "",
 };
 
 const JSON_TEMPLATE_FILLED_SIGMA = {
@@ -106,6 +108,7 @@ const JSON_TEMPLATE_FILLED_SIGMA = {
     ],
   },
   "symbol": "",
+  "animation_url": "",
 };
 
 const JSON_TEMPLATE_EMPTY = {
@@ -163,6 +166,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     _fileNamePrefix: "",
     manualImgFileUrl: "",
     manualImgFileType: "image/gif",
+    assetMP3MediaUrl: "",
   });
   const [ipLicenseFormData, setIpLicenseFormData] = useState<IPLicenseFormData>({
     ipLicenseCreatorName: "",
@@ -232,6 +236,13 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     } else if (formData.external_url.length > 50) {
       errors.external_url = "URL must be less than 50 characters";
       isValid = false;
+    }
+
+    if (formData.assetMP3MediaUrl && formData.assetMP3MediaUrl !== "") {
+      if (formData.assetMP3MediaUrl.length < 10 || formData.assetMP3MediaUrl.length > 50) {
+        errors.assetMP3MediaUrl = "URL must be between 10 and 50 characters";
+        isValid = false;
+      }
     }
 
     // Custom Attributes Validation
@@ -388,6 +399,12 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       jsonFileWithData.properties.files[0].type = formData.manualImgFileType || "image/gif";
     }
 
+    if (formData.assetMP3MediaUrl && formData.assetMP3MediaUrl !== "") {
+      (jsonFileWithData as any).animation_url = formData.assetMP3MediaUrl;
+    } else {
+      delete (jsonFileWithData as any).animation_url;
+    }
+
     jsonFileWithData.attributes = [
       { "trait_type": "App", "value": formData.app },
       { "trait_type": "Type", "value": formData.type },
@@ -419,11 +436,16 @@ const UploadSelfServeTokenizedDataMetadata = () => {
         sigmaMusicAssetId: ipLicenseFormData.ipLicenseSigmaTemplateAlbumId,
         sigmaMusicAssetType: ipLicenseFormData.ipLicenseSigmaTemplateMusicAssetType,
         assetImageUrl: "",
+        assetMP3MediaUrl: "",
       };
 
       // user has manually entered an image url, so use that here as the API wont inject a dynamic file URL
       if (isManualUrlEnabled && formData.manualImgFileUrl && formData.manualImgFileUrl !== "") {
         ipLicenseInstructionFile.assetImageUrl = formData.manualImgFileUrl;
+      }
+
+      if (formData.assetMP3MediaUrl && formData.assetMP3MediaUrl !== "") {
+        ipLicenseInstructionFile.assetMP3MediaUrl = formData.assetMP3MediaUrl;
       }
 
       filesToUpload.append("files", new Blob([JSON.stringify(ipLicenseInstructionFile)], { type: "application/json" }), "ip_license_instruction.json");
@@ -444,7 +466,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
 
     if (response.response) {
       if (response.response.data.statusCode === 402) {
-        setErrorMessage("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+        setErrorMessage("You have exceeded your usage limit. A paid plan or plan upgrade is required to continue.");
         return undefined;
       } else {
         setErrorMessage("There was an error uploading the file. " + response.response.data?.message);
@@ -668,6 +690,22 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 maxLength={50}
               />
               {validationErrors.external_url && <span className="text-red-500 text-sm">{validationErrors.external_url}</span>}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-foreground/80 text-xs">
+                Optional Media URL for Animation. IF the IP Token needs to be minted as well, only audio/mpeg is supported for now. (e.g. preview audio if this
+                a music track)
+              </label>
+              <input
+                type="text"
+                name="assetMP3MediaUrl"
+                value={formData.assetMP3MediaUrl}
+                onChange={handleInputChange}
+                className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
+                maxLength={50}
+              />
+              {validationErrors.assetMP3MediaUrl && <span className="text-red-500 text-sm">{validationErrors.assetMP3MediaUrl}</span>}
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ export async function uploadFilesRequest(filesToUpload: FormData, nativeAuthToke
     if (error?.response.data.statusCode === 403) {
       toast("Native auth token expired. Re-login and try again!");
     } else if (error?.response.data.statusCode === 402) {
-      toast("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+      toast("You have exceeded your usage limit. A paid plan or plan upgrade is required to continue.");
     } else toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     return error;
   }
@@ -137,7 +137,7 @@ export async function uploadFilesRequestSUIWalrus(filesToUpload: FormData, nativ
     if (error?.response.data.statusCode === 403) {
       toast("Native auth token expired. Re-login and try again!");
     } else if (error?.response.data.statusCode === 402) {
-      toast("You have exceeded your 10MB free tier usage limit. A paid plan is required to continue.");
+      toast("You have exceeded your usage limit. A paid plan or plan upgrade is required to continue.");
     } else toast.error("Error uploading files to your data bunker: " + `${error ? error.message + ". " + error?.response?.data.message : ""}`);
     return error;
   }
