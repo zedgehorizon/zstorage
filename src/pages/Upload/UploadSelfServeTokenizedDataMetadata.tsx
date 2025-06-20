@@ -214,16 +214,16 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     if (!formData.name) {
       errors.name = "Name is required";
       isValid = false;
-    } else if (formData.name.length > 50) {
-      errors.name = "Name must be less than 50 characters";
+    } else if (formData.name.length > 100) {
+      errors.name = "Name must be less than 100 characters";
       isValid = false;
     }
 
     if (!formData.description) {
       errors.description = "Description is required";
       isValid = false;
-    } else if (formData.description.length > 100) {
-      errors.description = "Description must be less than 100 characters";
+    } else if (formData.description.length > 200) {
+      errors.description = "Description must be less than 200 characters";
       isValid = false;
     }
 
@@ -233,14 +233,14 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     } else if (!formData.external_url.startsWith("https")) {
       errors.external_url = "URL must start with https";
       isValid = false;
-    } else if (formData.external_url.length > 50) {
-      errors.external_url = "URL must be less than 50 characters";
+    } else if (formData.external_url.length > 300) {
+      errors.external_url = "URL must be less than 300 characters";
       isValid = false;
     }
 
     if (formData.assetMP3MediaUrl && formData.assetMP3MediaUrl !== "") {
-      if (formData.assetMP3MediaUrl.length < 10 || formData.assetMP3MediaUrl.length > 50) {
-        errors.assetMP3MediaUrl = "URL must be between 10 and 50 characters";
+      if (formData.assetMP3MediaUrl.length < 10 || formData.assetMP3MediaUrl.length > 300) {
+        errors.assetMP3MediaUrl = "URL must be between 10 and 300 characters";
         isValid = false;
       }
     }
@@ -265,16 +265,16 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     if (!formData.creator_wallet) {
       errors.creator_wallet = "Creator wallet is required";
       isValid = false;
-    } else if (formData.creator_wallet.length > 100) {
-      errors.creator_wallet = "Creator wallet must be less than 100 characters";
+    } else if (formData.creator_wallet.length > 300) {
+      errors.creator_wallet = "Creator wallet must be less than 300 characters";
       isValid = false;
     }
 
     if (!formData.data_stream) {
       errors.data_stream = "Data stream is required";
       isValid = false;
-    } else if (formData.data_stream.length > 1500) {
-      errors.data_stream = "Data stream must be less than 1500 characters";
+    } else if (formData.data_stream.length > 2000) {
+      errors.data_stream = "Data stream must be less than 2000 characters";
       isValid = false;
     }
 
@@ -661,7 +661,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={50}
+                maxLength={100}
               />
               {validationErrors.name && <span className="text-red-500 text-sm">{validationErrors.name}</span>}
             </div>
@@ -673,7 +673,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={100}
+                maxLength={200}
                 rows={3}
               />
               {validationErrors.description && <span className="text-red-500 text-sm">{validationErrors.description}</span>}
@@ -687,7 +687,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.external_url}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={50}
+                maxLength={300}
               />
               {validationErrors.external_url && <span className="text-red-500 text-sm">{validationErrors.external_url}</span>}
             </div>
@@ -703,7 +703,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.assetMP3MediaUrl}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={50}
+                maxLength={300}
               />
               {validationErrors.assetMP3MediaUrl && <span className="text-red-500 text-sm">{validationErrors.assetMP3MediaUrl}</span>}
             </div>
@@ -747,7 +747,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.creator_wallet}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={100}
+                maxLength={300}
               />
               {validationErrors.creator_wallet && <span className="text-red-500 text-sm">{validationErrors.creator_wallet}</span>}
             </div>
@@ -760,7 +760,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                 value={formData.data_stream}
                 onChange={handleInputChange}
                 className="bg-background border border-accent/50 rounded-lg p-2 text-foreground"
-                maxLength={1500}
+                maxLength={2000}
                 rows={4}
               />
               {validationErrors.data_stream && <span className="text-red-500 text-sm">{validationErrors.data_stream}</span>}
