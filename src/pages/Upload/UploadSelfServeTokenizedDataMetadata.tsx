@@ -181,6 +181,10 @@ const UploadSelfServeTokenizedDataMetadata = () => {
   const [clearTextDataStream, setClearTextDataStream] = useState<string | null>(null);
   const [isIpLicensingEnabled, setIsIpLicensingEnabled] = useState(false);
   const [isStoryProtocolTestnetEnabled, setIsStoryProtocolTestnetEnabled] = useState(false);
+  const [isManualIpLicenseInputEnabled, setIsManualIpLicenseInputEnabled] = useState(false);
+  const [ipLicenseTokenId, setIpLicenseTokenId] = useState<string>("");
+  const [ipLicenseMintTxHash, setIpLicenseMintTxHash] = useState<string>("");
+  const [manualIpTokenInputError, setManualIpTokenInputError] = useState<string | null>(null);
 
   useEffect(() => {
     const dataStreamForWorkflow = new URLSearchParams(window.location.search).get("dataStreamForWorkflow");
@@ -326,31 +330,41 @@ const UploadSelfServeTokenizedDataMetadata = () => {
   };
 
   const validateIpLicenseForm = (): boolean => {
-    const errors: IPLicenseValidationErrors = {};
-    let isValid = true;
+    if (isManualIpLicenseInputEnabled) {
+      if (!ipLicenseTokenId || ipLicenseTokenId === "" || !ipLicenseMintTxHash || ipLicenseMintTxHash === "") {
+        setManualIpTokenInputError("Both IP Token Id and Mint Tx Hash are required");
+        return false;
+      } else {
+        setManualIpTokenInputError(null);
+        return true;
+      }
+    } else {
+      const errors: IPLicenseValidationErrors = {};
+      let isValid = true;
 
-    if (!ipLicenseFormData.ipLicenseCreatorName) {
-      errors.ipLicenseCreatorName = "Musician Name is required";
-      isValid = false;
+      if (!ipLicenseFormData.ipLicenseCreatorName) {
+        errors.ipLicenseCreatorName = "Musician Name is required";
+        isValid = false;
+      }
+
+      if (!ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress) {
+        errors.ipLicenseCreatorStoryProtocolAddress = "Musician Story Protocol Address is required";
+        isValid = false;
+      }
+
+      if (!ipLicenseFormData.ipLicenseSigmaTemplateArtistId) {
+        errors.ipLicenseSigmaTemplateArtistId = "Sigma Music Artist ID is required";
+        isValid = false;
+      }
+
+      if (!ipLicenseFormData.ipLicenseSigmaTemplateAlbumId) {
+        errors.ipLicenseSigmaTemplateAlbumId = "Sigma Music Album ID is required";
+        isValid = false;
+      }
+
+      setIpLicenseValidationErrors(errors);
+      return isValid;
     }
-
-    if (!ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress) {
-      errors.ipLicenseCreatorStoryProtocolAddress = "Musician Story Protocol Address is required";
-      isValid = false;
-    }
-
-    if (!ipLicenseFormData.ipLicenseSigmaTemplateArtistId) {
-      errors.ipLicenseSigmaTemplateArtistId = "Sigma Music Artist ID is required";
-      isValid = false;
-    }
-
-    if (!ipLicenseFormData.ipLicenseSigmaTemplateAlbumId) {
-      errors.ipLicenseSigmaTemplateAlbumId = "Sigma Music Album ID is required";
-      isValid = false;
-    }
-
-    setIpLicenseValidationErrors(errors);
-    return isValid;
   };
 
   async function uploadFile() {
@@ -418,14 +432,26 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       jsonFileWithData.attributes.push({ "trait_type": "RarityGrade", "value": formData.rarityGrade });
     }
 
+    // user has manually entered the ip license details, so we need to add them to the main json file
+    if (isIpLicensingEnabled && isManualIpLicenseInputEnabled) {
+      if (ipLicenseTokenId && ipLicenseTokenId !== "") {
+        jsonFileWithData.attributes.push({ "trait_type": "ipTokenId", "value": ipLicenseTokenId });
+      }
+
+      if (ipLicenseMintTxHash && ipLicenseMintTxHash !== "") {
+        (jsonFileWithData as any).properties.ipTokenMintTxHash = ipLicenseMintTxHash;
+      }
+    }
+
+    // NOTE -- YOU CANNOT MOVE THE ORDER OF THESE FILES -- AS THE API WILL BREAK!
     filesToUpload.append(
       "files",
       new Blob([JSON.stringify(jsonFileWithData)], { type: "application/json" }),
       generateRandomString() + "_json_" + onlyAlphaNumericChars(formData._fileNamePrefix) + ".json"
     );
 
-    // 3rd file is an optional ip license instruction file for the backend to process
-    if (isIpLicensingEnabled) {
+    // 3rd file is an optional ip license instruction file for the backend to process (and if user has NOT manually entered the ip license details)
+    if (isIpLicensingEnabled && !isManualIpLicenseInputEnabled) {
       const ipLicenseInstructionFile = {
         assetTitle: formData.name,
         assetDesc: formData.description,
@@ -457,7 +483,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       filesToUpload.append("manualImgUrlUsed", "true");
     }
 
-    if (isIpLicensingEnabled && isStoryProtocolTestnetEnabled) {
+    if (isIpLicensingEnabled && isStoryProtocolTestnetEnabled && !isManualIpLicenseInputEnabled) {
       filesToUpload.append("useStoryIpTestnet", "true");
     }
 
@@ -862,7 +888,10 @@ const UploadSelfServeTokenizedDataMetadata = () => {
 
         <div className="flex gap-4 mb-4">
           <button
-            onClick={() => setIsIpLicensingEnabled(false)}
+            onClick={() => {
+              setIsIpLicensingEnabled(false);
+              setIsManualIpLicenseInputEnabled(false);
+            }}
             className={`px-6 py-2 rounded-lg font-medium ${!isIpLicensingEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
             OFF
           </button>
@@ -876,168 +905,248 @@ const UploadSelfServeTokenizedDataMetadata = () => {
         {isIpLicensingEnabled && (
           <div className="ip-licensing-content bg-background/50 border border-accent/20 rounded-xl p-6 shadow-lg">
             <h3 className="text-xl font-semibold text-accent mb-6">IP Licensing Configuration</h3>
-
-            <div className="mb-8">
-              <h4 className="text-lg font-medium text-foreground/90 mb-4">Pick a Consumer End User Application Template</h4>
-              <div className="flex gap-4 mb-4">
-                <button className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium hover:bg-accent/90 transition-colors" disabled={false}>
-                  Sigma Music
-                </button>
-                <button
-                  className="bg-background border border-accent/50 text-foreground/50 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
-                  disabled={true}>
-                  Generic (Coming Soon)
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-background/80 rounded-lg p-6 border border-accent/10">
-              <h4 className="text-lg font-medium text-foreground/90 mb-6">Template for Sigma Music</h4>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Musician Name</label>
-                  <input
-                    type="text"
-                    name="ipLicenseCreatorName"
-                    value={ipLicenseFormData.ipLicenseCreatorName}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={300}
-                  />
-                  {ipLicenseValidationErrors.ipLicenseCreatorName && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorName}</span>
-                  )}
+            {!isManualIpLicenseInputEnabled ? (
+              <>
+                <div className="mb-8">
+                  <h4 className="text-lg font-medium text-foreground/90 mb-4">Pick a Consumer End User Application Template</h4>
+                  <div className="flex gap-4 mb-4">
+                    <button className="bg-accent text-accent-foreground px-6 py-2 rounded-lg font-medium hover:bg-accent/90 transition-colors" disabled={false}>
+                      Sigma Music
+                    </button>
+                    <button
+                      className="bg-background border border-accent/50 text-foreground/50 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
+                      disabled={true}>
+                      Generic (Coming Soon)
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Musician Story Protocol Address</label>
-                  <input
-                    type="text"
-                    name="ipLicenseCreatorStoryProtocolAddress"
-                    value={ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={300}
-                  />
-                  {ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress}</span>
-                  )}
-                </div>
+                <div className="bg-background/80 rounded-lg p-6 border border-accent/10">
+                  <h4 className="text-lg font-medium text-foreground/90 mb-6">Template for Sigma Music</h4>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Creator Contribution Percent</label>
-                  <select
-                    name="ipLicenseCreatorContributionPercent"
-                    value={ipLicenseFormData.ipLicenseCreatorContributionPercent}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
-                    <option value="25">25%</option>
-                    <option value="50">50%</option>
-                    <option value="75">75%</option>
-                    <option value="100">100%</option>
-                  </select>
-                  {ipLicenseValidationErrors.ipLicenseCreatorContributionPercent && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorContributionPercent}</span>
-                  )}
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Musician Name</label>
+                      <input
+                        type="text"
+                        name="ipLicenseCreatorName"
+                        value={ipLicenseFormData.ipLicenseCreatorName}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                        maxLength={300}
+                      />
+                      {ipLicenseValidationErrors.ipLicenseCreatorName && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorName}</span>
+                      )}
+                    </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Sigma Music Artist ID</label>
-                  <input
-                    type="text"
-                    name="ipLicenseSigmaTemplateArtistId"
-                    value={ipLicenseFormData.ipLicenseSigmaTemplateArtistId}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={100}
-                  />
-                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId}</span>
-                  )}
-                </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Musician Story Protocol Address</label>
+                      <input
+                        type="text"
+                        name="ipLicenseCreatorStoryProtocolAddress"
+                        value={ipLicenseFormData.ipLicenseCreatorStoryProtocolAddress}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                        maxLength={300}
+                      />
+                      {ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorStoryProtocolAddress}</span>
+                      )}
+                    </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Sigma Music Music Asset ID</label>
-                  <input
-                    type="text"
-                    name="ipLicenseSigmaTemplateAlbumId"
-                    value={ipLicenseFormData.ipLicenseSigmaTemplateAlbumId}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
-                    maxLength={100}
-                  />
-                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId}</span>
-                  )}
-                </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Creator Contribution Percent</label>
+                      <select
+                        name="ipLicenseCreatorContributionPercent"
+                        value={ipLicenseFormData.ipLicenseCreatorContributionPercent}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
+                        <option value="25">25%</option>
+                        <option value="50">50%</option>
+                        <option value="75">75%</option>
+                        <option value="100">100%</option>
+                      </select>
+                      {ipLicenseValidationErrors.ipLicenseCreatorContributionPercent && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseCreatorContributionPercent}</span>
+                      )}
+                    </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-foreground/80 font-medium">Music Asset Type</label>
-                  <select
-                    name="ipLicenseSigmaTemplateMusicAssetType"
-                    value={ipLicenseFormData.ipLicenseSigmaTemplateMusicAssetType}
-                    onChange={handleIpLicenseInputChange}
-                    className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
-                    <option value="Album">Album</option>
-                    <option value="EP">EP</option>
-                    <option value="Single">Single</option>
-                  </select>
-                  {ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType && (
-                    <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType}</span>
-                  )}
-                </div>
-              </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Sigma Music Artist ID</label>
+                      <input
+                        type="text"
+                        name="ipLicenseSigmaTemplateArtistId"
+                        value={ipLicenseFormData.ipLicenseSigmaTemplateArtistId}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                        maxLength={100}
+                      />
+                      {ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateArtistId}</span>
+                      )}
+                    </div>
 
-              <div className="bg-background/50 rounded-lg p-6 border border-accent/10">
-                <h5 className="text-lg font-medium text-foreground/90 mb-4">Supported IP Licenses</h5>
-                <div className="space-y-4">
-                  <div className="bg-background/80 rounded-lg p-4 border border-accent/10">
-                    <h6 className="text-accent font-medium mb-2">Commercial Remix</h6>
-                    <div className="space-y-2 text-sm text-foreground/80">
-                      <a
-                        href="https://github.com/piplabs/pil-document/blob/v1.3.0/Story%20Foundation%20-%20Programmable%20IP%20License%20(1.31.25).pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
-                        <span>View PIL (Programmatic IP License) Legal Document</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                          <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                        </svg>
-                      </a>
-                      <a
-                        href="https://github.com/piplabs/pil-document/blob/ad67bb632a310d2557f8abcccd428e4c9c798db1/off-chain-terms/CommercialRemix.json"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
-                        <span>View Off-Chain Terms</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
-                          <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
-                        </svg>
-                      </a>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Sigma Music Music Asset ID</label>
+                      <input
+                        type="text"
+                        name="ipLicenseSigmaTemplateAlbumId"
+                        value={ipLicenseFormData.ipLicenseSigmaTemplateAlbumId}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                        maxLength={100}
+                      />
+                      {ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateAlbumId}</span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">Music Asset Type</label>
+                      <select
+                        name="ipLicenseSigmaTemplateMusicAssetType"
+                        value={ipLicenseFormData.ipLicenseSigmaTemplateMusicAssetType}
+                        onChange={handleIpLicenseInputChange}
+                        className="bg-background border border-accent/50 rounded-lg p-2 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all">
+                        <option value="Album">Album</option>
+                        <option value="EP">EP</option>
+                        <option value="Single">Single</option>
+                      </select>
+                      {ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType && (
+                        <span className="text-red-500 text-sm">{ipLicenseValidationErrors.ipLicenseSigmaTemplateMusicAssetType}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-background/50 rounded-lg p-6 border border-accent/10">
+                    <h5 className="text-lg font-medium text-foreground/90 mb-4">Supported IP Licenses</h5>
+                    <div className="space-y-4">
+                      <div className="bg-background/80 rounded-lg p-4 border border-accent/10">
+                        <h6 className="text-accent font-medium mb-2">Commercial Remix</h6>
+                        <div className="space-y-2 text-sm text-foreground/80">
+                          <a
+                            href="https://github.com/piplabs/pil-document/blob/v1.3.0/Story%20Foundation%20-%20Programmable%20IP%20License%20(1.31.25).pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                            <span>View PIL (Programmatic IP License) Legal Document</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                          </a>
+                          <a
+                            href="https://github.com/piplabs/pil-document/blob/ad67bb632a310d2557f8abcccd428e4c9c798db1/off-chain-terms/CommercialRemix.json"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                            <span>View Off-Chain Terms</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">IP Token Id</label>
+                      <input
+                        type="text"
+                        maxLength={400}
+                        name="ipLicenseTokenId"
+                        value={ipLicenseTokenId}
+                        onChange={(e) => setIpLicenseTokenId(e.target.value)}
+                        placeholder="Enter the Story Protocol IP Token Id"
+                        className="bg-background border border-accent/50 rounded-lg p-3 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                      />
+                    </div>
 
-            <div className="flex flex-col mt-4">
-              <p className="text-foreground/80 text-sm mb-2">Use Story Protocol Testnet</p>
-              <div className="flex gap-2 mb-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-foreground/80 font-medium">IP Token Mint Tx Hash</label>
+                      <input
+                        type="text"
+                        maxLength={400}
+                        name="ipLicenseMintTxHash"
+                        value={ipLicenseMintTxHash}
+                        onChange={(e) => setIpLicenseMintTxHash(e.target.value)}
+                        placeholder="Enter the Story Protocol IP Token Mint Tx Hash"
+                        className="bg-background border border-accent/50 rounded-lg p-3 text-foreground focus:border-accent focus:ring-1 focus:ring-accent/50 transition-all"
+                      />
+                    </div>
+
+                    {manualIpTokenInputError && <span className="text-red-500 text-sm">{manualIpTokenInputError}</span>}
+                  </div>
+
+                  {formData.manualImgFileUrl && formData.manualImgFileUrl.length >= 50 && !formData.manualImgFileUrl.includes(" ") && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.manualImgFileUrl}
+                        alt="Preview"
+                        className="max-w-[300px] max-h-[300px] object-contain rounded-lg border border-accent/20"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            <div className="flex items-center gap-4 mb-4 mt-4">
+              <span className="text-foreground/80">OR Manually enter Story Protocol IP Details:</span>
+              <div className="flex gap-2">
                 <button
-                  onClick={() => setIsStoryProtocolTestnetEnabled(false)}
-                  className={`px-6 py-2 rounded-lg text-sm ${!isStoryProtocolTestnetEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+                  onClick={() => {
+                    setIsManualIpLicenseInputEnabled(false);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    !isManualIpLicenseInputEnabled
+                      ? "bg-accent text-accent-foreground"
+                      : "bg-background border border-accent/50 text-foreground/50 hover:text-foreground"
+                  }`}>
                   OFF
                 </button>
                 <button
-                  onClick={() => setIsStoryProtocolTestnetEnabled(true)}
-                  className={`px-6 py-2 rounded-lg text-sm ${isStoryProtocolTestnetEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+                  onClick={() => {
+                    setIsManualIpLicenseInputEnabled(true);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    isManualIpLicenseInputEnabled
+                      ? "bg-accent text-accent-foreground"
+                      : "bg-background border border-accent/50 text-foreground/50 hover:text-foreground"
+                  }`}>
                   ON
                 </button>
               </div>
             </div>
+
+            {!isManualIpLicenseInputEnabled && (
+              <div className="flex flex-col mt-4">
+                <p className="text-foreground/80 text-sm mb-2">Use Story Protocol Testnet</p>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => setIsStoryProtocolTestnetEnabled(false)}
+                    className={`px-6 py-2 rounded-lg text-sm ${!isStoryProtocolTestnetEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+                    OFF
+                  </button>
+                  <button
+                    onClick={() => setIsStoryProtocolTestnetEnabled(true)}
+                    className={`px-6 py-2 rounded-lg text-sm ${isStoryProtocolTestnetEnabled ? "bg-accent text-accent-foreground" : "bg-background border border-accent/50 text-foreground/50"}`}>
+                    ON
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1056,9 +1165,11 @@ const UploadSelfServeTokenizedDataMetadata = () => {
         }
         footerContent={
           errorMessage ||
-          (Object.keys(validationErrors).length > 0 || (isIpLicensingEnabled && Object.keys(ipLicenseValidationErrors).length > 0) ? (
+          Object.keys(validationErrors).length > 0 ||
+          (isIpLicensingEnabled && Object.keys(ipLicenseValidationErrors).length > 0) ||
+          (isIpLicensingEnabled && manualIpTokenInputError) ? (
             <p className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>
-          ) : null)
+          ) : null
         }
         modalClassName={"bg-background bg-muted !max-w-[60%]  items-center justify-center border-accent/50"}
         closeOnOverlayClick={false}>
@@ -1083,8 +1194,14 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             )}
             {isIpLicensingEnabled && Object.keys(ipLicenseValidationErrors).length > 0 && (
               <span className="text-red-500 text-xs text-center">
-                <p>IP Licensing Errors:</p>
+                <p>IP Licensing Form Errors:</p>
                 {Object.values(ipLicenseValidationErrors).join(", ")} - Please close the modal and fix the errors.
+              </span>
+            )}
+            {isIpLicensingEnabled && manualIpTokenInputError && (
+              <span className="text-red-500 text-xs text-center">
+                <p>Manual IP Licensing Errors:</p>
+                {manualIpTokenInputError} - Please close the modal and fix the errors.
               </span>
             )}
             {jsonFileCidPayload && progressValue === 100 && (

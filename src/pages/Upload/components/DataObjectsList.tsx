@@ -225,7 +225,7 @@ const DataObjectsList: React.FC<DataObjectsListProps> = (props) => {
         openTrigger={<button id="uploadButton"></button>}
         modalClassName={"bg-background bg-muted !max-w-[60%] items-center justify-center border-accent/50"}
         footerContent={
-          (errorMessage || errors) && <p className={"px-8 border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Close</p>
+          (errorMessage || errors) && <p className={"px-8 border border-accent bg-background rounded-full hover:shadow hover:shadow-accent"}>Close</p>
         }
         closeOnOverlayClick={false}>
         {
