@@ -5,7 +5,7 @@ import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
 import DataObjectsList from "./components/DataObjectsList";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, getFileExtension } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES, IPFS_GATEWAY } from "@utils/constants";
 
@@ -120,7 +120,7 @@ const UploadAnyFiles = () => {
     const filesToUpload = new FormData();
     try {
       Object.values(files).forEach((file) => {
-        filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name.split(".")[0]) + "." + file.name.split(".")[1]);
+        filesToUpload.append("files", file, generateRandomString() + "_" + onlyAlphaNumericChars(file.name.split(".")[0]) + getFileExtension(file.name));
       });
     } catch (error: any) {
       console.error("ERROR iterating through files : ", error);

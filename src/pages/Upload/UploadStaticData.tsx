@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
-import { onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
+import { getFileExtension, onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
@@ -39,7 +39,7 @@ const UploadStaticData = () => {
     setProgressValue(43);
     if (!file) return;
     const filesToUpload = new FormData();
-    filesToUpload.append("files", file, onlyAlphaNumericChars(file.name.split(".")[0]) + "." + file.name.split(".")[1]);
+    filesToUpload.append("files", file, onlyAlphaNumericChars(file.name.split(".")[0]) + getFileExtension(file.name));
     filesToUpload.append("category", CATEGORIES[AssetCategories.STATICDATA]);
 
     const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");

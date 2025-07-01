@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
-import { generateRandomString, onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
+import { generateRandomString, getFileExtension, onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
@@ -395,7 +395,7 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     } else {
       // first file should be image
       if (file) {
-        filesToUpload.append("files", file, generateRandomString() + "_img_" + onlyAlphaNumericChars(formData._fileNamePrefix) + "." + file.name.split(".")[1]);
+        filesToUpload.append("files", file, generateRandomString() + "_img_" + onlyAlphaNumericChars(formData._fileNamePrefix) + getFileExtension(file.name));
       }
     }
 

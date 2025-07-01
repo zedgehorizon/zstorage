@@ -18,6 +18,10 @@ export function onlyAlphaNumericChars(str: string) {
   return str.replace(/[^a-zA-Z0-9]/g, "");
 }
 
+export function getFileExtension(str: string) {
+  return str.slice(str.lastIndexOf("."));
+}
+
 export function shortenAddress(value: string, length: number = 6): string {
   if (value) return value.slice(0, length) + " ... " + value.slice(-length);
   return "";
