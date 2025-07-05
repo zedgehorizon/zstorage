@@ -318,8 +318,8 @@ export const UploadMusicData = () => {
   }
 
   const handleAddMoreSongs = () => {
-    if (numberOfSongs > 3 && storageOption === "walrus") {
-      toast.warning("You can only create a music playlist with 3 songs with SUI Walrus");
+    if (numberOfSongs > 4 && storageOption === "walrus") {
+      toast.warning("You can only create a music playlist with 4 songs with SUI Walrus");
       return;
     }
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
@@ -494,7 +494,7 @@ export const UploadMusicData = () => {
               {/* {storageStrategy === SUI_WALRUS_STRATEGY_STRING && ( */}
               {storageOption === "walrus" && (
                 <p className="text-accent text-center mt-2">
-                  🚨 As SUI Walrus is in Beta, you can only create a new music playlist with 3 songs and edits are not supported yet!
+                  🚨 As SUI Walrus is in Beta, you can only create a new music playlist with 4 songs and edits are not supported yet!
                 </p>
               )}
             </>
