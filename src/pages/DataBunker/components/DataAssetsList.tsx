@@ -77,15 +77,26 @@ export const DataAssetList: React.FC = () => {
   async function fetchAllDataAssetsOfAnAddress() {
     const dataAssets: DataAsset[] = await fetchAllManifestsOfAnAddress();
 
-    // fetch all static data assets
-    const statisDataAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
+    // S: fetch all static data assets
+    // ipfs assets will return as objects, where the folderHash is the key
+    const staticDataAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA]);
 
-    const staticDataAssetsList: StaticDataAsset[] = Object.keys(statisDataAssetsFromBackend).map((key) => {
-      const array = statisDataAssetsFromBackend[key];
-      return array[0];
-    });
+    // walrus assets will return as an array of direct files as there are no folders used in walrus
+    const staticDataAssetsFromBackendWalrus = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.STATICDATA], true);
+
+    const staticDataAssetsList: StaticDataAsset[] = [
+      ...Object.keys(staticDataAssetsFromBackend).map((key) => {
+        const array = staticDataAssetsFromBackend[key];
+        return array[0];
+      }),
+      ...staticDataAssetsFromBackendWalrus,
+    ];
+
+    console.log("staticDataAssetsList", staticDataAssetsList);
 
     setStaticDataAssets(staticDataAssetsList);
+
+    // E: fetch all static data assets
 
     // fetch all data token meta pair assets
     const dataTokenMetaPairAssetsFromBackend = await fetchAllDataAssetsOfAnAddressByCategory(CATEGORIES[AssetCategories.DATATOKEN_METAPAIR]);
@@ -176,25 +187,27 @@ export const DataAssetList: React.FC = () => {
     }
   };
 
-  async function fetchAllDataAssetsOfAnAddressByCategory(category: string) {
+  async function fetchAllDataAssetsOfAnAddressByCategory(category: string, isWalrus: boolean = false) {
     try {
-      const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
-      setIsLoading(true);
-      const response = await axios.get(apiUrlGet, {
-        headers: {
-          "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
-        },
-      });
-
-      return response.data;
-      // const staticDataAssetsMap = response.data;
-
-      // const staticDataAssetsList: StaticDataAsset[] = Object.keys(staticDataAssetsMap).map((key) => {
-      //   const array = staticDataAssetsMap[key];
-      //   return array[0];
-      // });
-
-      // setStaticDataAssets(staticDataAssetsList);
+      if (!isWalrus) {
+        // get all non-walrus data assets
+        const apiUrlGet = `${import.meta.env.VITE_ENV_BACKEND_API}/files${API_VERSION}/${category}`;
+        const response = await axios.get(apiUrlGet, {
+          headers: {
+            "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
+          },
+        });
+        return response.data;
+      } else {
+        // get all walrus data assets
+        const apiUrlGetWalrus = `${import.meta.env.VITE_ENV_BACKEND_API}/walrus/files/${category}`;
+        const responseWalrus = await axios.get(apiUrlGetWalrus, {
+          headers: {
+            "authorization": `Bearer ${tokenLogin?.nativeAuthToken}`,
+          },
+        });
+        return responseWalrus.data;
+      }
     } catch (error: any) {
       console.error("Error fetching data assets", error);
     }
@@ -208,7 +221,7 @@ export const DataAssetList: React.FC = () => {
         </div>
       )) || (
         <>
-          <span className="text-accent text-2xl py-12">Data Token JSON Metadata Files</span>
+          <span className="text-accent text-2xl py-6">Data Token JSON Metadata Files</span>
           {(dataTokenMetaPairAssets.length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -222,7 +235,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Static Files</span>
+          <span className="text-accent text-2xl pt-12 pb-6">Static Files</span>
           {(staticDataAssets.length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -233,7 +246,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Dynamic Folders</span>
+          <span className="text-accent text-2xl pt-12 pb-6">Dynamic Folders</span>
           {(categoryManifestFiles[CATEGORIES[AssetCategories.ANYFILE]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -247,7 +260,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Your Music Data Streams </span>
+          <span className="text-accent text-2xl pt-12 pb-6">Your Music Data Streams </span>
           {(categoryManifestFiles[CATEGORIES[AssetCategories.MUSICPLAYLIST]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>
@@ -261,7 +274,7 @@ export const DataAssetList: React.FC = () => {
             </div>
           )}
 
-          <span className="text-accent text-2xl py-12">Your Trailblazer Data Streams </span>
+          <span className="text-accent text-2xl pt-12 pb-6">Your Time Capsule Data Streams </span>
           {(categoryManifestFiles[CATEGORIES[AssetCategories.TRALBLAZER]].length === 0 && (
             <div className="flex justify-center items-center">
               <p className="text-gray-400 text-2xl">No assets found</p>

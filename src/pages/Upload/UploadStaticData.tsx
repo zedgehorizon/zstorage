@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DragAndDropZone from "./components/DragAndDropZone";
 import FileCard from "./components/FileCard";
-import { getFileExtension, onlyAlphaNumericChars, uploadFilesRequest } from "@utils/functions";
+import { getFileExtension, onlyAlphaNumericChars, uploadFilesRequest, uploadFilesRequestWalrus } from "@utils/functions";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
 import { AssetCategories, CATEGORIES } from "@utils/constants";
 import { Modal } from "@components/Modal";
@@ -13,8 +13,18 @@ const UploadStaticData = () => {
   const [file, setFile] = useState<File | null>(null);
   const { tokenLogin } = useGetLoginInfo();
   const [progressValue, setProgressValue] = useState(0);
-  const [fileCid, setFileCid] = useState<string>();
+  const [fileIpfsCid, setFileIpfsCid] = useState<string>();
+  const [fileWalrusBlobId, setFileWalrusBlobId] = useState<string>();
+  const [fileWalrusFileId, setFileWalrusFileId] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [storageOption, setStorageOption] = useState<string>("ipfs"); // ipfs or walrus
+
+  useEffect(() => {
+    const storageOption = new URLSearchParams(window.location.search).get("storageOption");
+    if (storageOption) {
+      setStorageOption(storageOption);
+    }
+  }, []);
 
   useEffect(() => {
     if (progressValue > 0 && progressValue < 99 && !errorMessage) {
@@ -37,14 +47,20 @@ const UploadStaticData = () => {
 
   async function uploadFile() {
     setProgressValue(43);
+
     if (!file) return;
     const filesToUpload = new FormData();
     filesToUpload.append("files", file, onlyAlphaNumericChars(file.name.split(".")[0]) + getFileExtension(file.name));
     filesToUpload.append("category", CATEGORIES[AssetCategories.STATICDATA]);
 
-    const response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    let response = null;
+    if (storageOption === "ipfs") {
+      response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    } else {
+      response = await uploadFilesRequestWalrus(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    }
 
-    if (response.response) {
+    if (response && response.response) {
       if (response.response.data.statusCode === 402) {
         setErrorMessage("You have exceeded your usage limit. A paid plan or plan upgrade is required to continue.");
         return undefined;
@@ -53,21 +69,41 @@ const UploadStaticData = () => {
         return undefined;
       }
     }
+
+    if (storageOption === "ipfs") {
+      setFileIpfsCid(response[0].hash);
+    } else {
+      setFileWalrusBlobId(response[0].blobId);
+      setFileWalrusFileId(response[0].id);
+    }
+
     setProgressValue(100);
-    setFileCid(response[0].hash);
   }
 
   return (
-    <div className="w-full xl:w-[60%]">
-      <h1 className="text-4xl text-accent mb-8">Upload Static Data to IPFS</h1>
+    <div className="w-full xl:w-[60%] items-center justify-center flex flex-col mt-10">
+      <h1 className="text-4xl text-accent mb-8">Upload Static Data to {storageOption.toUpperCase()}</h1>
+      <div className="my-5 flex flex-col items-center justify-center">
+        <div className="text-accent">Current Storage Strategy</div>
+        <div>You are hosting a static file on "{storageOption.toUpperCase()}"</div>
+      </div>
+
       <DragAndDropZone setFile={setFile} dropZoneStyles="w-full" />
 
       {file && (
         <div className="w-full flex items-center justify-center">
           {" "}
-          <FileCard fileName={file?.name} fileSize={file?.size} index={1} onDelete={() => setFile(null)} />{" "}
+          <FileCard
+            fileName={file?.name}
+            fileSize={file?.size}
+            index={1}
+            onDelete={() => {
+              setFile(null);
+            }}
+          />{" "}
         </div>
       )}
+
       <Modal
         openTrigger={
           <button
@@ -94,12 +130,30 @@ const UploadStaticData = () => {
                     : "Almost there..."
                   : "Uploading files..."}
             </span>
+
             {errorMessage && <span className="text-red-500">{errorMessage}</span>}
-            {fileCid && progressValue === 100 && (
+
+            {fileIpfsCid && progressValue === 100 && (
               <div className="flex flex-col items-center justify-center mb-8 ">
                 {progressValue === 100 && (
                   <div className="flex flex-col justify-center items-center gap-4">
-                    <CidsView fileCID={fileCid} />
+                    <CidsView fileCID={fileIpfsCid} />
+                    <div className="flex flex-row justify-center items-center gap-4">
+                      <Link
+                        to={"/data-bunker"}
+                        className="transition duration-500 hover:scale-110 cursor-pointer bg-accent px-8  rounded-full text-accent-foreground font-semibold p-2">
+                        View stored files
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {fileWalrusBlobId && progressValue === 100 && (
+              <div className="flex flex-col items-center justify-center mb-8 ">
+                {progressValue === 100 && (
+                  <div className="flex flex-col justify-center items-center gap-4">
+                    <CidsView fileWalrusBlobId={fileWalrusBlobId} fileWalrusFileId={fileWalrusFileId} />
                     <div className="flex flex-row justify-center items-center gap-4">
                       <Link
                         to={"/data-bunker"}

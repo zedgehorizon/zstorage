@@ -38,7 +38,7 @@ const routes = [
   },
   {
     path: "/upload-static",
-    title: "Upload Static Data to IPFS",
+    title: "Upload Static Data to Decentralized Storage",
     component: UploadStaticData,
     authenticatedRoute: true,
   },

@@ -70,3 +70,4 @@ export enum AssetCategories {
 export const SUI_WALRUS_PUBLISHER = "https://publisher-devnet.walrus.space";
 export const SUI_WALRUS_AGGREGATOR = "https://aggregator-devnet.walrus.space/v1/";
 export const SUI_WALRUS_STRATEGY_STRING = "SUI Walrus (Beta) + IPNS";
+export const WALRUS_GATEWAY = "https://walrus.tusky.io/";

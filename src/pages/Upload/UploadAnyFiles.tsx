@@ -185,49 +185,63 @@ const UploadAnyFiles = () => {
     setRecentlyUploadedManifestFileName(response?.fileName);
     if (response.ipnsResponseHash) setIpnsHash(response.ipnsResponseHash);
   }
-  return (
-    <div className="flex  flex-col  h-full pb-16">
-      <UploadHeader
-        title={manifestFile ? "Update" : "Upload" + " Data"}
-        folderCid={folderCid}
-        manifestFileName={manifestFileName}
-        currentManifestFileCID={currentManifestFileCID}
-        ipnsHash={ipnsHash}
-        dataStream={manifestFile?.data_stream}
-      />
-      <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
-      <div className="flex flex-row justify-between text-accent">
-        <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
-        <div>Uploaded size: {(totalSize / (1024 * 1024)).toFixed(2)} MB </div>
-      </div>
 
-      <div className="flex justify-center items-center">
-        <DataObjectsList
-          DataObjectsComponents={Object.keys(fileObjects)
-            .reverse()
-            .map((key: any, index: number) => {
-              return (
-                <FileCard
-                  key={index}
-                  index={totalItems - index}
-                  fileName={fileObjects[key - 1 + 1].name}
-                  fileSize={fileObjects[key - 1 + 1].size}
-                  onDelete={() => deleteFile(key - 1 + 1)}
-                />
-              );
-            })}
-          transformFilesToDataArray={transformFilesToDataArray}
-          setResponsesOnSuccess={setResponsesOnSuccess}
-          manifestCid={manifestCid}
-          folderHash={folderHash}
-          recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+  const storageStrategy = manifestFile?.data_stream?.storageStrategy || decentralized;
+
+  return (
+    <div className="p-4 flex flex-col">
+      <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl">
+        {storageStrategy && (
+          <>
+            <div className="text-accent">Current Storage Strategy</div>
+            <div>You are hosting a collection of files on "{storageStrategy}"</div>
+          </>
+        )}
+
+        <UploadHeader
+          title={manifestFile ? "Update" : "Upload" + " Data"}
+          folderCid={folderCid}
+          manifestFileName={manifestFileName}
+          currentManifestFileCID={currentManifestFileCID}
           ipnsHash={ipnsHash}
-          ipnsKey={manifestFile?.ipnsKey}
-          errorMessage={errorMessage}
-          storageType={decentralized}
-          category={AssetCategories.ANYFILE}
-          validateDataObjects={() => true}
+          dataStream={manifestFile?.data_stream}
         />
+
+        <DragAndDropZone addMultipleFiles={addNewFiles} dropZoneStyles="w-full" />
+
+        <div className="flex flex-row justify-between text-accent">
+          <div>Files to upload: {(sizeToUpload / (1024 * 1024)).toFixed(2)} MB </div>
+          <div>Uploaded size: {(totalSize / (1024 * 1024)).toFixed(2)} MB </div>
+        </div>
+
+        <div className="flex justify-center items-center w-full">
+          <DataObjectsList
+            DataObjectsComponents={Object.keys(fileObjects)
+              .reverse()
+              .map((key: any, index: number) => {
+                return (
+                  <FileCard
+                    key={index}
+                    index={totalItems - index}
+                    fileName={fileObjects[key - 1 + 1].name}
+                    fileSize={fileObjects[key - 1 + 1].size}
+                    onDelete={() => deleteFile(key - 1 + 1)}
+                  />
+                );
+              })}
+            transformFilesToDataArray={transformFilesToDataArray}
+            setResponsesOnSuccess={setResponsesOnSuccess}
+            manifestCid={manifestCid}
+            folderHash={folderHash}
+            recentlyUploadedManifestFileName={recentlyUploadedManifestFileName}
+            ipnsHash={ipnsHash}
+            ipnsKey={manifestFile?.ipnsKey}
+            errorMessage={errorMessage}
+            storageType={decentralized}
+            category={AssetCategories.ANYFILE}
+            validateDataObjects={() => true}
+          />
+        </div>
       </div>
     </div>
   );

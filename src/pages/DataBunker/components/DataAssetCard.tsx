@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
-import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
+// import MintDataNftModal from "../../../components/Modals/MintDataNftModal";
 
 interface DataAssetCardProps {
   category: number;
@@ -77,7 +77,7 @@ const DataAssetCard: React.FC<DataAssetCardProps> = (props) => {
             <p>Creator: {creator}</p>
             {manifest.ipnsHash && (
               <div className="flex items-center">
-                <p className="text-sm text-center bg-accent-foreground border border-accent text-accent rounded-xl px-2">Ipns</p>
+                <p className="text-sm text-center bg-accent-foreground border border-accent text-accent rounded-xl px-2">IPNS (Dynamic)</p>
               </div>
             )}
           </div>

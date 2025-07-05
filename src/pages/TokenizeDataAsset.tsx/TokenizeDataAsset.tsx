@@ -39,7 +39,7 @@ const TokenizeDataAsset = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full min-h-[100svh] gap-4 bg-background z-[-2]">
+    <div className="flex flex-col items-center justify-start w-full h-full min-h-[100svh] gap-4 bg-background z-[-2] mt-10">
       <img src={zImageHalf} className="z-[-1] absolute right-0 max-w-[30rem] w-[60%] h-[100svh]"></img>
 
       <span className="text-5xl p-8 text-accent text-center text-bold">Tokenize Data Asset</span>

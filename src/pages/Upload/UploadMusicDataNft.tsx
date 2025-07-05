@@ -3,9 +3,9 @@ import { MusicDataNftForm } from "./components/MusicDataNftForm";
 import { useLocation } from "react-router-dom";
 import { Button } from "@libComponents/Button";
 import { useGetLoginInfo } from "@multiversx/sdk-dapp/hooks";
-import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY, SUI_WALRUS_STRATEGY_STRING } from "@utils/constants";
+import { AssetCategories, FILES_CATEGORY, IPFS_GATEWAY } from "@utils/constants";
 import { toast } from "sonner";
-import { generateRandomString, uploadFilesRequest, uploadFilesRequestSUIWalrus, onlyAlphaNumericChars } from "@utils/functions";
+import { generateRandomString, uploadFilesRequest, onlyAlphaNumericChars, uploadFilesRequestWalrus } from "@utils/functions";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallbackMusicDataNfts from "@components/ErrorComponents/ErrorFallbackMusicDataNfts";
 import UploadHeader from "./components/UploadHeader";
@@ -13,7 +13,7 @@ import DataObjectsList from "./components/DataObjectsList";
 import { Modal } from "@components/Modal";
 import { AudioPlayerPreview } from "@components/Modals/AudioPlayerPreview";
 import MintDataNftModal from "../../components/Modals/MintDataNftModal";
-import { useHeaderStore } from "store/header";
+import { WALRUS_GATEWAY } from "@utils/constants";
 
 type SongData = {
   date: string;
@@ -49,6 +49,17 @@ export const UploadMusicData = () => {
   const [ipnsHash, setIpnsHash] = useState<string>();
   const [sizeToUpload, setSizeToUpload] = useState(0);
   const [modificationMadeInHeader, setModificationMadeInHeader] = useState<boolean>(false);
+  const [storageOption, setStorageOption] = useState<string>("ipfs"); // ipfs or walrus
+
+  useEffect(() => {
+    const storageOption = new URLSearchParams(window.location.search).get("storageOption");
+    const storageStrategyFromManifest = manifestFile?.data_stream?.storageStrategy || null;
+    if (storageOption) {
+      setStorageOption(storageOption);
+    } else if (storageStrategyFromManifest) {
+      setStorageOption(storageStrategyFromManifest.toLowerCase().includes("walrus") ? "walrus" : "ipfs");
+    }
+  }, [manifestFile]);
 
   useEffect(() => {
     if (manifestFile && manifestFile.data_stream) {
@@ -126,7 +137,7 @@ export const UploadMusicData = () => {
   async function uploadSongsAndImagesFiles() {
     const filesToUpload = new FormData();
     try {
-      //iterating over the songsData and for each object add its image and song to the formData
+      // iterating over the songsData and for each object add its image and song to the formData
       Object.values(songsData).forEach((songData, idx) => {
         if (songData && songData?.title && filePairs[idx + 1]) {
           if (filePairs[idx + 1]?.image) {
@@ -175,8 +186,8 @@ export const UploadMusicData = () => {
     // SUI walrus code path for now is on the front end
     let response = null;
 
-    if (manifestFile?.data_stream?.storageStrategy === SUI_WALRUS_STRATEGY_STRING || decentralized === SUI_WALRUS_STRATEGY_STRING) {
-      response = await uploadFilesRequestSUIWalrus(filesToUpload, tokenLogin?.nativeAuthToken || "");
+    if (storageOption === "walrus") {
+      response = await uploadFilesRequestWalrus(filesToUpload, tokenLogin?.nativeAuthToken || "");
     } else {
       response = await uploadFilesRequest(filesToUpload, tokenLogin?.nativeAuthToken || "");
     }
@@ -202,6 +213,10 @@ export const UploadMusicData = () => {
    */
   async function transformSongsData() {
     try {
+      if (storageOption === "walrus") {
+        toast.warning("Please note that when using SUI Walrus, it can take upto 30 seconds to upload a single song. So please be patient.");
+      }
+
       const responseDataCIDs = await uploadSongsAndImagesFiles();
       if (!responseDataCIDs) return;
 
@@ -232,16 +247,38 @@ export const UploadMusicData = () => {
           let coverArtUrlToUse = "";
 
           if (matchingObjSong) {
-            if (matchingObjSong?.isSuiWalrus) {
-              fileToUse = `suiwalrus://${matchingObjSong.hash}`;
+            if (matchingObjSong?.blobId) {
+              // it's a walrus file
+              // walrus blobid can be 'unknown' or 'unknown_api_failed', in case the walrus network did not return the blobId due to some latency
+              // ... in that case we need to use the fileId (id), so the marshal can decode it in real-time
+              // ... we will do this in a the format walrus://${matchingObjSong.id}
+
+              if (
+                matchingObjSong.blobId !== "" &&
+                matchingObjSong.blobId.toLowerCase() !== "unknown" &&
+                matchingObjSong.blobId.toLowerCase() !== "unknown_api_failed"
+              ) {
+                fileToUse = `${WALRUS_GATEWAY}${matchingObjSong.blobId}`;
+              } else {
+                fileToUse = `suiwalrus://${matchingObjSong.id}`;
+              }
             } else {
               fileToUse = `${IPFS_GATEWAY}ipfs/${matchingObjSong.folderHash}/${matchingObjSong.fileName}`;
             }
           }
 
           if (matchingObjImage) {
-            if (matchingObjImage?.isSuiWalrus) {
-              coverArtUrlToUse = `suiwalrus://${matchingObjImage.hash}`;
+            if (matchingObjImage?.blobId) {
+              // it's a walrus file
+              if (
+                matchingObjSong.blobId !== "" &&
+                matchingObjSong.blobId.toLowerCase() !== "unknown" &&
+                matchingObjSong.blobId.toLowerCase() !== "unknown_api_failed"
+              ) {
+                coverArtUrlToUse = `${WALRUS_GATEWAY}${matchingObjImage.blobId}`;
+              } else {
+                coverArtUrlToUse = `suiwalrus://${matchingObjImage.id}`;
+              }
             } else {
               coverArtUrlToUse = `${IPFS_GATEWAY}ipfs/${matchingObjImage.folderHash}/${matchingObjImage.fileName}`;
             }
@@ -281,6 +318,10 @@ export const UploadMusicData = () => {
   }
 
   const handleAddMoreSongs = () => {
+    if (numberOfSongs > 3 && storageOption === "walrus") {
+      toast.warning("You can only create a music playlist with 3 songs with SUI Walrus");
+      return;
+    }
     setSongsData((prev) => Object.assign(prev, { [numberOfSongs]: {} }));
     setNumberOfSongs((prev) => prev + 1);
   };
@@ -448,9 +489,13 @@ export const UploadMusicData = () => {
         <div className="min-h-[100svh] flex flex-col items-center justify-start rounded-3xl">
           {storageStrategy && (
             <>
-              <div className="text-accent">Current Storage Strategy: {storageStrategy}</div>
-              {storageStrategy === SUI_WALRUS_STRATEGY_STRING && (
-                <p className="text-accent text-center mt-2">🚨 As SUI Walrus is in Beta, you can only create a new asset. Edits are not supported yet!</p>
+              <div className="text-accent">Current Storage Strategy</div>
+              <div>You are hosting a music playlist on "{storageStrategy}"</div>
+              {/* {storageStrategy === SUI_WALRUS_STRATEGY_STRING && ( */}
+              {storageOption === "walrus" && (
+                <p className="text-accent text-center mt-2">
+                  🚨 As SUI Walrus is in Beta, you can only create a new music playlist with 3 songs and edits are not supported yet!
+                </p>
               )}
             </>
           )}
@@ -493,7 +538,7 @@ export const UploadMusicData = () => {
                   title="Preview Music Data NFTs"
                   titleClassName="px-8 mt-3"
                   footerContent={
-                    <div className="flex flex-row   p-2 gap-8 justify-center items-center w-full -mt-16 ">
+                    <div className="flex flex-row p-2 gap-8 justify-center items-center w-full -mt-16">
                       <p className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}>Back to edit</p>
                       <p
                         className={"px-8 mt-8  border border-accent bg-background rounded-full  hover:shadow  hover:shadow-accent"}

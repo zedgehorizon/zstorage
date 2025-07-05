@@ -37,9 +37,9 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               className={cn(`
           flex  cursor-pointer  
           bg-muted
-          w-[100%] h-[10rem] rounded-lg border border-accent/25  p-8
+          w-[100%] h-[10rem] rounded-lg border border-accent/25 p-8
           transition-all duration-300 transform
-           ${disabled && disabled[index] ? "hover:cursor-not-allowed" : ""}  
+           ${disabled && disabled[index] ? "hover:cursor-not-allowed opacity-50" : ""}  
           ${selectedOption === title ? "text-accent-foreground bg-accent" : ""}
         `)}>
               <div
@@ -80,9 +80,9 @@ export const XStorageCheckBox: React.FC<XStorageCheckBoxProps> = (props) => {
               className={cn(`
           flex  cursor-pointer  
           bg-muted
-          w-[100%] h-[6rem] rounded-lg border border-accent/25  p-8
+          w-[100%] h-[6rem] rounded-lg border border-accent/25 p-8
           transition-all duration-300 transform
-           ${disabled && disabled[index] ? "hover:cursor-not-allowed" : ""}  
+           ${disabled && disabled[index] ? "hover:cursor-not-allowed opacity-50" : ""}  
           ${selectedOption === title ? "text-accent-foreground bg-accent" : ""}
         `)}>
               <div

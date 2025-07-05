@@ -24,7 +24,7 @@ const KeyFeatures: React.FC = () => {
           className="w-full max-w-[20rem] lg:max-w-none lg:w-[60%]"
           title="Storage Abstraction"
           description="Seamlessly store and update data on centralized and decentralized platforms for robust distribution of your data assets."
-          subDesc="Currently supports IPFS, IPNS and Sui Walrus (Beta)"
+          subDesc="Currently supports IPFS, IPNS and SUI Walrus (Beta)"
           image={storeFile}
           logo={abstractionLogo}
         />

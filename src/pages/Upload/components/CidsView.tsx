@@ -3,6 +3,7 @@ import React from "react";
 import { IPFS_GATEWAY } from "@utils/constants";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@libComponents/Tooltip";
 import { shortenAddress } from "@utils/functions";
+import { WALRUS_GATEWAY } from "@utils/constants";
 
 interface CidsViewProps {
   folderCid?: string;
@@ -11,10 +12,12 @@ interface CidsViewProps {
   ipnsHash?: string;
   fileCID?: string;
   isNestedStream?: boolean;
+  fileWalrusBlobId?: string;
+  fileWalrusFileId?: string;
 }
 
 const CidsView: React.FC<CidsViewProps> = (props) => {
-  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash, fileCID, isNestedStream = false } = props;
+  const { folderCid, currentManifestFileCID, manifestFileName, ipnsHash, fileCID, isNestedStream = false, fileWalrusBlobId, fileWalrusFileId } = props;
 
   // ipns has with nested stream params
   let ipnsHashUrlWithNestedStream = null;
@@ -61,9 +64,26 @@ const CidsView: React.FC<CidsViewProps> = (props) => {
               </a>
             </div>
           )}
+          {fileWalrusFileId && (
+            <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
+              <h3 className="">Walrus File ID - {fileWalrusFileId}</h3>
+              <CopyIcon onClick={() => navigator.clipboard.writeText(fileWalrusFileId)} className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+            </div>
+          )}
+          {fileWalrusBlobId && (
+            <div className="flex flex-row justify-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
+              <h3>Walrus Blob ID - {fileWalrusBlobId} </h3>
+              <CopyIcon
+                onClick={() => navigator.clipboard.writeText("ipfs://" + fileWalrusBlobId)}
+                className="ml-4 h-5 w-5 cursor-pointer text-accent"></CopyIcon>
+              <a href={WALRUS_GATEWAY + fileWalrusBlobId} target="_blank" className="ml-4 -mt-1 ">
+                <ExternalLink className="text-accent" />
+              </a>
+            </div>
+          )}
         </>
       ) : (
-        <div className="text-accent">
+        <div className="ipns text-accent">
           <TooltipProvider>
             <div className="flex flex-row justify-center items-center w-full p-4 mt-4 bg-muted px-16 text-foreground/75 rounded-xl text-center border border-accent/40 font-light">
               <Tooltip>

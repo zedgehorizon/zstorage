@@ -43,7 +43,33 @@ type StaticDataAsset = {
   size: number;
   timestamp: number;
   uuid: number;
+  id?: string;
+  blobId?: string;
 };
+/*
+  {
+    "uuid": "string",
+    "hash": "string",
+    "fileName": "string",
+    "mimeType": "string",
+    "address": "string",
+    "size": 0,
+    "folderHash": "string",
+    "timestamp": 0,
+    "category": "string"
+  }
+{
+    "id": "file-id-123",
+    "blobId": "blob-456",
+    "address": "erd1...",
+    "fileName": "myfile.png",
+    "mimeType": "image/png",
+    "size": 12345,
+    "timestamp": 1680000000,
+    "category": "music-data-nft"
+  }
+
+*/
 
 type MetaPairDataAsset = {
   address: string;
