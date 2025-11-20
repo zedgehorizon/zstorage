@@ -12,7 +12,9 @@ const UseCase: React.FC = () => {
             <img className=" " src={storageIllustration} alt="Storage Illustration" />
           </div>
           <div className="bg-foreground flex items-center justify-center rounded-b-3xl">
-            <span className="font-semibold text-center p-8 text-xl text-accent-foreground">Robust Dynamic Image, Metadata and Data Storage for NFTs</span>
+            <span className="font-semibold text-center p-8 text-xl text-accent-foreground">
+              Robust Dynamic Data Storage for Tokenization of Real-World Data
+            </span>
           </div>
         </div>
         <div className=" w-[28rem] h-[32rem] flex flex-col">
