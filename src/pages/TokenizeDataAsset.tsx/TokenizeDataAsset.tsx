@@ -64,12 +64,12 @@ const TokenizeDataAsset = () => {
           <XStorageCheckBox
             title="What type of data asset would you like to store?"
             // description="OR choose any specific Itheum Data Stream template that you would like to use"
-            options={["Upload My Files", "Music Data NFT", "Trailblazer Data NFT"]}
+            options={["Upload My Files", "Music Data NFT", "Time Capsule Data NFT"]}
             currentOption={template}
             descriptions={[
               "Upload and store a single file or multiple files.",
               "Set up dynamic storage for your Itheum Music Data NFT.",
-              "Set up dynamic storage for your Trailblazer Data NFT.",
+              "Set up dynamic storage for your Time Capsule Data NFT.",
             ]}
             setterFunction={setTemplate}
             disabled={[false, false, false]}
@@ -118,7 +118,7 @@ const TokenizeDataAsset = () => {
                     : "/tokenize-self-serve"
                   : template.includes("Upload My Files")
                     ? "/upload"
-                    : template.includes("Trailblazer Data NFT")
+                    : template.includes("Time Capsule Data NFT")
                       ? "/upload-trailblazer"
                       : "/upload-music"
               }
