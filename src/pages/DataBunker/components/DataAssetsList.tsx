@@ -92,8 +92,6 @@ export const DataAssetList: React.FC = () => {
       ...staticDataAssetsFromBackendWalrus,
     ];
 
-    console.log("staticDataAssetsList", staticDataAssetsList);
-
     setStaticDataAssets(staticDataAssetsList);
 
     // E: fetch all static data assets

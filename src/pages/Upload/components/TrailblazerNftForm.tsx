@@ -191,7 +191,8 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
               <select
                 className="w-full bg-background placeholder:text-accent p-3 border border-accent/50 rounded focus:outline-none focus:border-accent"
                 {...form.register("category")}>
-                <option value="Meme">Media Meme</option>
+                <option value="Media">Media</option>
+                <option value="File">File</option>
               </select>
               {form.formState.errors.category && <p className="text-red-500 absolute">{form.formState.errors.category.message}</p>}
             </div>
@@ -227,7 +228,7 @@ export function TrailblazerNftForm(props: TrailblazerNftFormProps) {
 
             <div>
               <div className="flex gap-2 flex-row">
-                <label className="text-foreground text-xs">Media File (.mp3, .mp4, .pdf, image - .jpg, .png, .gif, .svg)</label>
+                <label className="text-foreground text-xs">Formats (.mp3, .mp4, .pdf, .jpg, .png, .gif, .svg, .pdf)</label>
                 {mediaFileIsLoading && <Loader2 className="flex text-accent justify-center items-center animate-spin" />}
               </div>
 

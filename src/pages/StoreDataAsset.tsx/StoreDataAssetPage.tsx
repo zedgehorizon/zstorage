@@ -16,7 +16,7 @@ const StoreDataAsset = () => {
   const navigate = useNavigate();
 
   const isNextButtonDisabled = () => {
-    if (currentStep === 1 && template) return false; // is it upload my files or music data nft or trailblazer data nft
+    if (currentStep === 1 && template) return false; // is it upload my files or music data nft or Time Capsule Data NFT
     if (currentStep === 2 && storagePreference) return false; // is it centralized or decentralized
     if (currentStep === 3 && storageType) return false; // is it static data storage or dynamic data storage
     if (currentStep === 4 && storageOption) return false; // is it dns + ipfs or ipns + ipfs or sui walrus or arweave
@@ -160,8 +160,8 @@ const StoreDataAsset = () => {
                   ? `/upload-static?storageOption=${storageOption === SUI_WALRUS_STRATEGY_STRING ? "walrus" : "ipfs"}`
                   : template.includes("Upload My Files")
                     ? "/upload"
-                    : template.includes("Trailblazer Data NFT")
-                      ? "/upload-trailblazer"
+                    : template.includes("Time Capsule Data NFT")
+                      ? `/upload-trailblazer?storageOption=${storageOption === SUI_WALRUS_STRATEGY_STRING ? "walrus" : "ipfs"}`
                       : `/upload-music?storageOption=${storageOption === SUI_WALRUS_STRATEGY_STRING ? "walrus" : "ipfs"}`
               }
               state={{

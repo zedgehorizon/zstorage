@@ -56,7 +56,7 @@ const routes = [
   },
   {
     path: "/upload-trailblazer",
-    title: "Upload Trailblazer Data NFT Stream",
+    title: "Upload Time Capsule Data NFT Stream",
     component: UploadTrailblazerData,
     authenticatedRoute: true,
   },
