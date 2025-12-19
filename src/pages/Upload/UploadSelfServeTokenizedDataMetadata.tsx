@@ -266,19 +266,15 @@ const UploadSelfServeTokenizedDataMetadata = () => {
       isValid = false;
     }
 
-    if (!formData.creator_wallet) {
-      errors.creator_wallet = "Creator wallet is required";
-      isValid = false;
-    } else if (formData.creator_wallet.length > 300) {
-      errors.creator_wallet = "Creator wallet must be less than 300 characters";
+    // creator_wallet is optional but if it's provided then it needs to be less than 300 chars
+    if (formData.creator_wallet.trim() !== "" && formData.creator_wallet.length > 300) {
+      errors.creator_wallet = "Creator wallet must be less than 300 characters if provided";
       isValid = false;
     }
 
-    if (!formData.data_stream) {
-      errors.data_stream = "Data stream is required";
-      isValid = false;
-    } else if (formData.data_stream.length > 2000) {
-      errors.data_stream = "Data stream must be less than 2000 characters";
+    // data_stream is optional but if it's provided then it needs to be less than 2000 chars
+    if (formData.data_stream.trim() !== "" && formData.data_stream.length > 2000) {
+      errors.data_stream = "Data stream must be less than 2000 characters if provided";
       isValid = false;
     }
 
@@ -422,11 +418,17 @@ const UploadSelfServeTokenizedDataMetadata = () => {
     jsonFileWithData.attributes = [
       { "trait_type": "App", "value": formData.app },
       { "trait_type": "Type", "value": formData.type },
-      { "trait_type": "itheum_creator", "value": formData.creator_wallet },
-      { "trait_type": "itheum_data_stream_url", "value": formData.data_stream },
       { "trait_type": "TokenCode", "value": formData.tokenCode },
       { "trait_type": "Rarity", "value": formData.rarity },
     ];
+
+    if (formData.creator_wallet.trim() !== "") {
+      jsonFileWithData.attributes.push({ "trait_type": "itheum_creator", "value": formData.creator_wallet.trim() });
+    }
+
+    if (formData.data_stream.trim() !== "") {
+      jsonFileWithData.attributes.push({ "trait_type": "itheum_data_stream_url", "value": formData.data_stream.trim() });
+    }
 
     if (formData.rarityGrade && formData.rarityGrade !== "") {
       jsonFileWithData.attributes.push({ "trait_type": "RarityGrade", "value": formData.rarityGrade });
@@ -779,7 +781,9 @@ const UploadSelfServeTokenizedDataMetadata = () => {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-foreground/80">Itheum Protocol: Encrypted Data Stream</label>
+              <label className="text-foreground/80">
+                Itheum Protocol: Encrypted Data Stream (optional - if not provided, it creates a non-itheum data nft token metadata file)
+              </label>
 
               <textarea
                 name="data_stream"
@@ -810,6 +814,13 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                   setClearTextDataStream(clearTextDataStream);
                 }}
               />
+            </div>
+
+            <div>
+              <span className="text-yellow-500 text-xs">
+                Above Data Creator Wallet and Encrypted Data Stream are both optional. If not provided, it creates a non-itheum nft token metadata file. if both
+                are provided, then the data token will be compatible with the Itheum Protocol.
+              </span>
             </div>
 
             <div className="flex flex-col gap-1">
