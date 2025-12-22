@@ -1034,7 +1034,36 @@ const UploadSelfServeTokenizedDataMetadata = () => {
                     <h5 className="text-lg font-medium text-foreground/90 mb-4">Supported IP Licenses</h5>
                     <div className="space-y-4">
                       <div className="bg-background/80 rounded-lg p-4 border border-accent/10">
-                        <h6 className="text-accent font-medium mb-2">Commercial Remix</h6>
+                        <h6 className="text-accent font-medium mb-2">Creative Commons Attribution</h6>
+                        <div className="space-y-2 text-sm text-foreground/80">
+                          <a
+                            href="https://github.com/piplabs/pil-document/blob/v1.3.0/Story%20Foundation%20-%20Programmable%20IP%20License%20(1.31.25).pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                            <span>View PIL (Programmatic IP License) Legal Document</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                          </a>
+                          <a
+                            href="https://github.com/piplabs/pil-document/blob/998c13e6ee1d04eb817aefd1fe16dfe8be3cd7a2/off-chain-terms/CC-BY.json"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-accent hover:text-accent/80 transition-colors">
+                            <span>View Off-Chain Terms</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                              <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="bg-background/80 rounded-lg p-4 border border-accent/10">
+                        <h6 className="text-accent font-medium mb-2">Commercial Remix (5% Royalties)</h6>
                         <div className="space-y-2 text-sm text-foreground/80">
                           <a
                             href="https://github.com/piplabs/pil-document/blob/v1.3.0/Story%20Foundation%20-%20Programmable%20IP%20License%20(1.31.25).pdf"
